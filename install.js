@@ -30,13 +30,15 @@ function atomicWrite(file, content, mode = 0o600) {
 }
 function atomicJson(file, value) { atomicWrite(file, `${JSON.stringify(value, null, 2)}\n`); }
 function parseJson(file, fallback) { return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : fallback; }
-function pathsFor(codexHome) {
+function pathsFor(codexHome, requirementsPath = "/etc/codex/requirements.toml") {
   const home = path.resolve(codexHome);
   if (!path.isAbsolute(codexHome) || home === path.parse(home).root) throw new Error("--codex-home must be an absolute non-root path");
+  if (!path.isAbsolute(requirementsPath)) throw new Error("--managed-requirements must be an absolute path");
   return {
     home,
     config: path.join(home, "config.toml"),
     hooks: path.join(home, "hooks.json"),
+    requirements: path.resolve(requirementsPath),
     runtime: path.join(home, "hooks", "planning-with-files"),
     adapter: path.join(home, "hooks", "planning-with-files", "hook_adapter.py"),
     manifest: path.join(home, "hooks", "planning-with-files", "installed-manifest.json"),
@@ -64,6 +66,68 @@ function requiredHooks(adapter) {
     SessionStart: [{ matcher: "startup|resume|clear|compact", hooks: [{ type: "command", command: command("SessionStart"), timeout: 30, statusMessage: "Loading planning context" }] }],
     UserPromptSubmit: [{ hooks: [{ type: "command", command: command("UserPromptSubmit"), timeout: 30, statusMessage: "Refreshing planning context" }] }],
   };
+}
+
+function removeOwnedRequirements(text) {
+  const lines = String(text || "").split("\n"), output = [];
+  for (let i = 0; i < lines.length;) {
+    if (!/^\s*\[\[hooks\.[^.\]]+\]\]\s*(?:#.*)?$/.test(lines[i])) {
+      output.push(lines[i++]);
+      continue;
+    }
+    let end = i + 1;
+    while (end < lines.length && !/^\s*\[\[hooks\.[^.\]]+\]\]\s*(?:#.*)?$/.test(lines[end]) && !/^\s*\[(?!\[)/.test(lines[end])) end++;
+    const block = lines.slice(i, end);
+    if (!block.join("\n").includes(OWNED_SEGMENT)) output.push(...block);
+    i = end;
+  }
+  return output.join("\n").replace(/\n{3,}/g, "\n\n").trimEnd();
+}
+
+function setTableKey(text, table, key, value) {
+  const lines = String(text || "").split("\n"), header = `[${table}]`;
+  let start = lines.findIndex(line => line.trim() === header);
+  if (start < 0) {
+    const prefix = lines.join("\n").trimEnd();
+    return `${prefix}${prefix ? "\n\n" : ""}${header}\n${key} = ${value}\n`;
+  }
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i++) if (/^\s*\[/.test(lines[i])) { end = i; break; }
+  const keyPattern = new RegExp(`^\\s*${key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*=`);
+  const index = lines.slice(start + 1, end).findIndex(line => keyPattern.test(line));
+  if (index >= 0) lines[start + 1 + index] = `${key} = ${value}`;
+  else lines.splice(start + 1, 0, `${key} = ${value}`);
+  return `${lines.join("\n").trimEnd()}\n`;
+}
+
+function tableStringValue(text, table, key) {
+  const lines = String(text || "").split("\n");
+  const start = lines.findIndex(line => line.trim() === `[${table}]`);
+  if (start < 0) return null;
+  for (let i = start + 1; i < lines.length && !/^\s*\[/.test(lines[i]); i++) {
+    const match = lines[i].match(new RegExp(`^\\s*${key}\\s*=\\s*(["'])(.*?)\\1\\s*(?:#.*)?$`));
+    if (match) return match[2];
+  }
+  return null;
+}
+
+function pathContains(directory, file) {
+  const relative = path.relative(path.resolve(directory), path.resolve(file));
+  return relative === "" || (!relative.startsWith("..") && !path.isAbsolute(relative));
+}
+
+function managedRequirements(text, paths) {
+  let result = removeOwnedRequirements(text);
+  const existingManagedDir = tableStringValue(result, "hooks", "managed_dir");
+  if (existingManagedDir && !pathContains(existingManagedDir, paths.adapter)) throw new Error(`existing hooks.managed_dir does not contain adapter: ${existingManagedDir}`);
+  result = setTableKey(result, "features", "hooks", "true");
+  if (!existingManagedDir) result = setTableKey(result, "hooks", "managed_dir", JSON.stringify(paths.runtime));
+  const command = event => `/usr/bin/python3 ${quoteCommand(paths.adapter)} ${event}`;
+  const blocks = [
+    `[[hooks.SessionStart]]\nmatcher = "startup|resume|clear|compact"\n\n[[hooks.SessionStart.hooks]]\ntype = "command"\ncommand = ${JSON.stringify(command("SessionStart"))}\ntimeout = 30\nstatusMessage = "Loading planning context"`,
+    `[[hooks.UserPromptSubmit]]\n\n[[hooks.UserPromptSubmit.hooks]]\ntype = "command"\ncommand = ${JSON.stringify(command("UserPromptSubmit"))}\ntimeout = 30\nstatusMessage = "Refreshing planning context"`,
+  ];
+  return `${result.trimEnd()}\n\n${blocks.join("\n\n")}\n`;
 }
 function owned(handler) { return handler && handler.type === "command" && String(handler.command || "").includes(OWNED_SEGMENT); }
 function removeOwned(hooksConfig) {
@@ -122,66 +186,79 @@ function acquire(paths) { fs.mkdirSync(paths.home, { recursive: true, mode: 0o70
 function timestamp() { return new Date().toISOString().replace(/[:.]/g, "-"); }
 function backup(paths) {
   const dir = path.join(paths.backups, timestamp()); fs.mkdirSync(dir, { recursive: true, mode: 0o700 });
-  for (const file of [paths.config, paths.hooks, paths.runtime]) if (fs.existsSync(file)) fs.cpSync(file, path.join(dir, path.relative(paths.home, file)), { recursive: true, force: true });
+  for (const file of [paths.config, paths.hooks, paths.requirements, paths.runtime]) if (fs.existsSync(file)) {
+    const destination = file === paths.requirements ? path.join(dir, "system-requirements.toml") : path.join(dir, path.relative(paths.home, file));
+    fs.mkdirSync(path.dirname(destination), { recursive: true });
+    fs.cpSync(file, destination, { recursive: true, force: true });
+  }
   return dir;
 }
-function buildManifest(paths, skill, entries) {
-  return { schema_version: 1, owner: OWNER, installer_version: VERSION, upstream: UPSTREAM, skill_root: skill, adapter_sha256: fileHash(paths.adapter), hooks_file: paths.hooks, entries };
+function buildManifest(paths, skill) {
+  return { schema_version: 2, owner: OWNER, installer_version: VERSION, upstream: UPSTREAM, skill_root: skill, adapter_sha256: fileHash(paths.adapter), requirements_file: paths.requirements, events: ["SessionStart", "UserPromptSubmit"] };
 }
 function install(options) {
-  const paths = pathsFor(options.codexHome), skill = resolveSkill(options.skillRoot, paths.home);
-  const current = parseJson(paths.hooks, { hooks: {} }), proposed = mergeHooks(current, requiredHooks(paths.adapter));
-  const previousEntries = fs.existsSync(paths.manifest) ? parseJson(paths.manifest, {}).entries || [] : [];
-  const previewEntries = ownedEntries(paths.hooks, proposed);
-  if (previewEntries.length !== 2) throw new Error(`expected 2 owned handlers, found ${previewEntries.length}`);
-  if (options.dryRun) return { action: "dry-run", codex_home: paths.home, skill_root: skill, entries: previewEntries, changed: true };
+  const paths = pathsFor(options.codexHome, options.managedRequirements), skill = resolveSkill(options.skillRoot, paths.home);
+  if (!fs.existsSync("/usr/bin/python3")) throw new Error("managed Hook interpreter not found: /usr/bin/python3");
+  const currentRequirements = fs.existsSync(paths.requirements) ? fs.readFileSync(paths.requirements, "utf8") : "";
+  const proposedRequirements = managedRequirements(currentRequirements, paths);
+  if (options.dryRun) return { action: "dry-run", codex_home: paths.home, skill_root: skill, requirements_file: paths.requirements, events: ["SessionStart", "UserPromptSubmit"], changed: proposedRequirements !== currentRequirements };
   const release = acquire(paths); try {
     const backupDir = backup(paths);
     fs.mkdirSync(paths.runtime, { recursive: true, mode: 0o700 });
     fs.copyFileSync(path.join(ROOT, "hooks", "hook_adapter.py"), paths.adapter); fs.chmodSync(paths.adapter, 0o755);
-    const hooks = mergeHooks(current, requiredHooks(paths.adapter)), entries = ownedEntries(paths.hooks, hooks);
-    atomicJson(paths.hooks, hooks);
-    atomicWrite(paths.config, trustToml(fs.existsSync(paths.config) ? fs.readFileSync(paths.config, "utf8") : "", entries, previousEntries));
-    atomicJson(paths.manifest, buildManifest(paths, skill, entries));
-    const checked = doctor({ codexHome: paths.home, skillRoot: skill });
+    atomicWrite(paths.requirements, proposedRequirements, 0o644);
+    // Remove handlers and trust entries left by the v0.1 non-managed installation.
+    const previousManifest = fs.existsSync(paths.manifest) ? parseJson(paths.manifest, {}) : {};
+    const previousEntries = previousManifest.entries || [];
+    if (fs.existsSync(paths.hooks)) atomicJson(paths.hooks, removeOwned(parseJson(paths.hooks, { hooks: {} })));
+    if (fs.existsSync(paths.config) && previousEntries.length) atomicWrite(paths.config, `${stripTrustToml(fs.readFileSync(paths.config, "utf8"), previousEntries)}\n`);
+    atomicJson(paths.manifest, buildManifest(paths, skill));
+    const checked = doctor({ codexHome: paths.home, skillRoot: skill, managedRequirements: paths.requirements });
     return { ...checked, action: "install", backup: backupDir };
   } finally { release(); }
 }
 function doctor(options) {
-  const paths = pathsFor(options.codexHome), skill = resolveSkill(options.skillRoot, paths.home);
+  const paths = pathsFor(options.codexHome, options.managedRequirements), skill = resolveSkill(options.skillRoot, paths.home);
   const errors = [];
   const adapterExists = fs.existsSync(paths.adapter);
   if (!adapterExists) errors.push("adapter missing");
-  const hooks = parseJson(paths.hooks, { hooks: {} }), entries = ownedEntries(paths.hooks, hooks);
-  if (entries.length !== 2) errors.push(`owned handler count ${entries.length}, expected 2`);
+  const requirements = fs.existsSync(paths.requirements) ? fs.readFileSync(paths.requirements, "utf8") : "";
+  if (!fs.existsSync(paths.requirements)) errors.push("managed requirements missing");
+  if (!/^\s*hooks\s*=\s*true\s*(?:#.*)?$/m.test(requirements)) errors.push("managed features.hooks is not true");
+  const managedDir = tableStringValue(requirements, "hooks", "managed_dir");
+  if (!managedDir || !pathContains(managedDir, paths.adapter)) errors.push("hooks.managed_dir does not contain adapter");
+  for (const event of ["SessionStart", "UserPromptSubmit"]) {
+    const command = `/usr/bin/python3 ${quoteCommand(paths.adapter)} ${event}`;
+    if (requirements.split(`command = ${JSON.stringify(command)}`).length - 1 !== 1) errors.push(`managed ${event} handler count is not 1`);
+  }
   if (!fs.existsSync(paths.manifest)) errors.push("installed manifest missing");
   else {
     const manifest = parseJson(paths.manifest, {});
     if (adapterExists && manifest.adapter_sha256 !== fileHash(paths.adapter)) errors.push("adapter hash drift");
-    if (canonical(manifest.entries || []) !== canonical(entries)) errors.push("Hook definition/trust hash drift");
+    if (manifest.requirements_file !== paths.requirements) errors.push("managed requirements path drift");
   }
-  const config = fs.existsSync(paths.config) ? fs.readFileSync(paths.config, "utf8") : "";
-  if (!/\[features\][\s\S]*?\bhooks\s*=\s*true/.test(config)) errors.push("features.hooks is not true");
-  for (const entry of entries) if (!config.includes(`trusted_hash = "${entry.hash}"`)) errors.push(`trust hash missing for ${entry.event}`);
-  return { action: "doctor", healthy: errors.length === 0, codex_home: paths.home, skill_root: skill, entries, errors };
+  return { action: "doctor", healthy: errors.length === 0, codex_home: paths.home, skill_root: skill, requirements_file: paths.requirements, managed: true, events: ["SessionStart", "UserPromptSubmit"], errors };
 }
 function uninstall(options) {
-  const paths = pathsFor(options.codexHome), release = acquire(paths); try {
-    const backupDir = backup(paths), hooks = removeOwned(parseJson(paths.hooks, { hooks: {} }));
-    const entries = fs.existsSync(paths.manifest) ? parseJson(paths.manifest, {}).entries || [] : [];
-    atomicJson(paths.hooks, hooks); atomicWrite(paths.config, `${stripTrustToml(fs.existsSync(paths.config) ? fs.readFileSync(paths.config, "utf8") : "", entries)}\n`);
+  const paths = pathsFor(options.codexHome, options.managedRequirements), release = acquire(paths); try {
+    const backupDir = backup(paths);
+    const manifest = fs.existsSync(paths.manifest) ? parseJson(paths.manifest, {}) : {};
+    if (fs.existsSync(paths.requirements)) atomicWrite(paths.requirements, `${removeOwnedRequirements(fs.readFileSync(paths.requirements, "utf8"))}\n`, 0o644);
+    if (fs.existsSync(paths.hooks)) atomicJson(paths.hooks, removeOwned(parseJson(paths.hooks, { hooks: {} })));
+    if (fs.existsSync(paths.config) && (manifest.entries || []).length) atomicWrite(paths.config, `${stripTrustToml(fs.readFileSync(paths.config, "utf8"), manifest.entries)}\n`);
     fs.rmSync(paths.runtime, { recursive: true, force: true });
-    return { action: "uninstall", codex_home: paths.home, backup: backupDir, healthy: true };
+    return { action: "uninstall", codex_home: paths.home, requirements_file: paths.requirements, backup: backupDir, healthy: true };
   } finally { release(); }
 }
 function parseArgs(argv) {
-  const command = argv[0], options = { json: false, dryRun: false, codexHome: process.env.CODEX_HOME || path.join(os.homedir(), ".codex") };
-  if (!new Set(["install", "doctor", "uninstall"]).has(command)) throw new Error("usage: install.js <install|doctor|uninstall> [--codex-home PATH] [--skill-root PATH] [--dry-run] [--json]");
+  const command = argv[0], options = { json: false, dryRun: false, codexHome: process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), managedRequirements: "/etc/codex/requirements.toml" };
+  if (!new Set(["install", "doctor", "uninstall"]).has(command)) throw new Error("usage: install.js <install|doctor|uninstall> [--codex-home PATH] [--skill-root PATH] [--managed-requirements PATH] [--dry-run] [--json]");
   for (let i = 1; i < argv.length; i++) {
     if (argv[i] === "--json") options.json = true;
     else if (argv[i] === "--dry-run") options.dryRun = true;
     else if (argv[i] === "--codex-home") options.codexHome = argv[++i];
     else if (argv[i] === "--skill-root") options.skillRoot = argv[++i];
+    else if (argv[i] === "--managed-requirements") options.managedRequirements = argv[++i];
     else throw new Error(`unknown argument: ${argv[i]}`);
   }
   return { command, options };
@@ -195,4 +272,4 @@ function main() {
   } catch (error) { console.error(JSON.stringify({ healthy: false, error: error.message })); process.exitCode = 1; }
 }
 if (require.main === module) main();
-module.exports = { canonical, hookHash, mergeHooks, removeOwned, ownedEntries, pathsFor, stripTrustToml, trustToml };
+module.exports = { canonical, hookHash, managedRequirements, mergeHooks, removeOwned, removeOwnedRequirements, ownedEntries, pathsFor, setTableKey, stripTrustToml, trustToml };
