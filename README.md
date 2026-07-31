@@ -18,7 +18,7 @@ Cloud setup/maintenance
 
 ## Current phase
 
-Version `0.2.1` installs and maintains:
+Version `0.2.0` is a managed-Hook implementation candidate. It installs only:
 
 - `SessionStart`: optional upstream session catchup followed by active-plan injection;
 - `UserPromptSubmit`: active-plan and recent-progress injection.
@@ -49,17 +49,12 @@ The installer refuses to trust a global Skill whose canonical files do not match
 node install.js install --dry-run --json --codex-home /opt/codex
 sudo node install.js install --json --codex-home /opt/codex
 node install.js doctor --json --codex-home /opt/codex
-sudo node install.js install --repair --json --codex-home /opt/codex
 sudo node install.js uninstall --json --codex-home /opt/codex
 ```
 
 Optional `--skill-root PATH` selects an explicit global Skill root. Otherwise the installer checks `$HOME/.agents/skills`, `$CODEX_HOME/skills`, then `$HOME/.codex/skills`.
 
 `--managed-requirements PATH` overrides the managed-policy destination for tests or nonstandard deployments. It defaults to `/etc/codex/requirements.toml`. Production installation therefore requires root access. If an existing `hooks.managed_dir` does not contain this package's adapter, installation fails closed instead of replacing an administrator's managed Hook root.
-
-`install --repair` is intentionally narrower than `install`. It requires an intact schema-v3 owned manifest and unchanged unowned requirements, upstream pin, installation paths, and runtime file set. It repairs only the owned adapter or owned managed-Hook definitions. Unknown drift fails closed with `REPAIR_BLOCKED_UNKNOWN_DRIFT`; maintenance automation must stop and notify a Human in that case.
-
-Upgrade once from `v0.2.0` with a normal `install` to create the schema-v3 repair fingerprints. `install --repair` deliberately refuses to upgrade an older manifest because that is not a provably owned drift.
 
 ## Safety properties
 
@@ -68,9 +63,7 @@ Upgrade once from `v0.2.0` with a normal `install` to create the schema-v3 repai
 - uses atomic writes and an exclusive installer lock;
 - installs only owned handlers and removes only owned handlers/trust entries;
 - validates pinned Skill hashes and installed adapter/managed-Hook definitions;
-- records full and unowned requirements hashes so repair cannot absorb unrelated policy changes;
 - supports read-only dry-run and drift-detecting doctor;
-- verifies that installation backups can restore all pre-existing managed files byte-for-byte;
 - uses the documented system-managed Hook channel and never uses `--dangerously-bypass-hook-trust` or private trust-state keys;
 - never installs a second memory system.
 
