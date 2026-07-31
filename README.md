@@ -25,9 +25,13 @@ Version `0.2.0` is a managed-Hook implementation candidate. It installs only:
 
 Both are read-only and emit `PWF_GLOBAL_HOOK_CANARY_V1` during the verification phase.
 
-Deferred until both events are observed in a fresh Cloud task:
+Configured and verified for `startup` and `resume`, but still awaiting a forced-compaction Cloud test:
 
-- `PreCompact`, `PostCompact`, and `SessionStart(source=compact)`;
+- `SessionStart(source=clear|compact)`.
+
+Deferred lifecycle events:
+
+- `PreCompact` and `PostCompact`;
 - `PreToolUse`, `PostToolUse`, and `PermissionRequest`;
 - `Stop` and completion gating.
 

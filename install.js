@@ -11,6 +11,8 @@ const VERSION = require("./package.json").version;
 const UPSTREAM = require("./upstream-manifest.json");
 const OWNER = "pwf-codex-cloud-hooks";
 const OWNED_SEGMENT = `${path.sep}hooks${path.sep}planning-with-files${path.sep}hook_adapter.py`;
+const EVENTS = ["SessionStart", "UserPromptSubmit"];
+const MANIFEST_SCHEMA = 3;
 
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
 function fileHash(file) { return sha256(fs.readFileSync(file)); }
@@ -217,6 +219,23 @@ function install(options) {
     return { ...checked, action: "install", backup: backupDir };
   } finally { release(); }
 }
+function repair(options) {
+  const { paths, skill } = options;
+  const before = inspectInstallation(paths, skill);
+  if (before.healthy) return { action: options.dryRun ? "repair-dry-run" : "repair", healthy: true, changed: false, repairable: false, codex_home: paths.home, skill_root: skill, requirements_file: paths.requirements, events: EVENTS, errors: [] };
+  if (!before.repairable) throw new Error(`REPAIR_BLOCKED_UNKNOWN_DRIFT: ${before.blockers.join("; ")}`);
+  const repairedRequirements = managedRequirements(removeOwnedRequirements(before.requirements), paths);
+  if (sha256(repairedRequirements) !== before.manifest.requirements_sha256) throw new Error("REPAIR_BLOCKED_UNKNOWN_DRIFT: reconstructed requirements do not match manifest");
+  if (options.dryRun) return { action: "repair-dry-run", healthy: false, changed: true, repairable: true, codex_home: paths.home, skill_root: skill, requirements_file: paths.requirements, events: EVENTS, errors: before.errors };
+  const release = acquire(paths); try {
+    const backupDir = backup(paths);
+    fs.mkdirSync(paths.runtime, { recursive: true, mode: 0o700 });
+    fs.copyFileSync(path.join(ROOT, "hooks", "hook_adapter.py"), paths.adapter); fs.chmodSync(paths.adapter, 0o755);
+    atomicWrite(paths.requirements, repairedRequirements, 0o644);
+    const checked = doctor({ codexHome: paths.home, skillRoot: skill, managedRequirements: paths.requirements });
+    return { ...checked, action: "repair", changed: true, backup: backupDir };
+  } finally { release(); }
+}
 function doctor(options) {
   const paths = pathsFor(options.codexHome, options.managedRequirements), skill = resolveSkill(options.skillRoot, paths.home);
   const errors = [];
@@ -256,11 +275,13 @@ function parseArgs(argv) {
   for (let i = 1; i < argv.length; i++) {
     if (argv[i] === "--json") options.json = true;
     else if (argv[i] === "--dry-run") options.dryRun = true;
+    else if (argv[i] === "--repair") options.repair = true;
     else if (argv[i] === "--codex-home") options.codexHome = argv[++i];
     else if (argv[i] === "--skill-root") options.skillRoot = argv[++i];
     else if (argv[i] === "--managed-requirements") options.managedRequirements = argv[++i];
     else throw new Error(`unknown argument: ${argv[i]}`);
   }
+  if (options.repair && command !== "install") throw new Error("--repair is valid only with install");
   return { command, options };
 }
 function main() {
