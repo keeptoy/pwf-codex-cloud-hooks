@@ -4,21 +4,21 @@ Personal Codex Cloud installer for the global lifecycle Hooks used by [`OthmanAd
 
 ## Why this exists
 
-Codex can discover the standalone Skill from `$HOME/.agents/skills/planning-with-files`, while project state remains in `AGENTS.md` and `.planning/`. That does **not** install lifecycle Hooks. This package installs the Hook runtime into the active `$CODEX_HOME` without vendoring it into every product repository.
+Codex can discover the standalone Skill from `$HOME/.agents/skills/planning-with-files`, while project state remains in `AGENTS.md` and `.planning/`. That does **not** install lifecycle Hooks. This package installs the Hook runtime into the active `$CODEX_HOME` and registers it as a system-managed Hook in `/etc/codex/requirements.toml`, without vendoring it into every product repository or relying on interactive `/hooks` approval.
 
 The target deployment model is:
 
 ```text
 Cloud setup/maintenance
   -> pinned installer artifact + checksum
-  -> $CODEX_HOME/hooks.json and $CODEX_HOME/hooks/planning-with-files/
-  -> exact reviewed trust hashes in $CODEX_HOME/config.toml
+  -> $CODEX_HOME/hooks/planning-with-files/
+  -> managed Hook policy in /etc/codex/requirements.toml
   -> new-session runtime canary
 ```
 
 ## Current phase
 
-Version `0.1.0` is a B1 implementation candidate. It installs only:
+Version `0.2.0` is a managed-Hook implementation candidate. It installs only:
 
 - `SessionStart`: optional upstream session catchup followed by active-plan injection;
 - `UserPromptSubmit`: active-plan and recent-progress injection.
@@ -42,26 +42,28 @@ The installer refuses to trust a global Skill whose canonical files do not match
 ## Commands
 
 ```bash
-node install.js install --dry-run --json --codex-home /tmp/codex-home
-node install.js install --json --codex-home /tmp/codex-home
-node install.js doctor --json --codex-home /tmp/codex-home
-node install.js uninstall --json --codex-home /tmp/codex-home
+node install.js install --dry-run --json --codex-home /opt/codex
+sudo node install.js install --json --codex-home /opt/codex
+node install.js doctor --json --codex-home /opt/codex
+sudo node install.js uninstall --json --codex-home /opt/codex
 ```
 
 Optional `--skill-root PATH` selects an explicit global Skill root. Otherwise the installer checks `$HOME/.agents/skills`, `$CODEX_HOME/skills`, then `$HOME/.codex/skills`.
 
+`--managed-requirements PATH` overrides the managed-policy destination for tests or nonstandard deployments. It defaults to `/etc/codex/requirements.toml`. Production installation therefore requires root access. If an existing `hooks.managed_dir` does not contain this package's adapter, installation fails closed instead of replacing an administrator's managed Hook root.
+
 ## Safety properties
 
 - backs up affected configuration before writes;
-- merges and preserves unrelated Hook handlers and MCP/config content;
+- merges and preserves unrelated requirements and managed Hook handlers;
 - uses atomic writes and an exclusive installer lock;
 - installs only owned handlers and removes only owned handlers/trust entries;
-- validates pinned Skill hashes and installed adapter/Hook definitions;
+- validates pinned Skill hashes and installed adapter/managed-Hook definitions;
 - supports read-only dry-run and drift-detecting doctor;
-- never uses `--dangerously-bypass-hook-trust`;
+- uses the documented system-managed Hook channel and never uses `--dangerously-bypass-hook-trust` or private trust-state keys;
 - never installs a second memory system.
 
-The precomputed trust route is suitable only after Human review of the pinned source, installed commands, and computed hashes.
+The system-managed route is suitable only after Human review of the pinned source and installed commands. The setup account must be authorized to administer `/etc/codex/requirements.toml`.
 
 ## Tests
 
