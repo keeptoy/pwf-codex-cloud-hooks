@@ -69,7 +69,7 @@ The precomputed trust route is suitable only after Human review of the pinned so
 npm test
 ```
 
-Tests use a temporary Codex home. They verify dry-run immutability, config/Hook merge preservation, idempotence, trust state, doctor drift detection, uninstall ownership, and both Hook payloads. They do not write the live `$CODEX_HOME`.
+Tests create both a temporary Codex home and self-contained temporary projects. They verify dry-run immutability, config/Hook merge preservation, idempotence, trust state, doctor drift detection, uninstall ownership, both Hook payloads, and the no-plan canary path. They do not depend on an enclosing OODA checkout and do not write the live `$CODEX_HOME`.
 
 ## Cloud deployment sequence
 
