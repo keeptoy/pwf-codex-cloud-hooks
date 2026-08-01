@@ -195,77 +195,15 @@ function backup(paths) {
   }
   return dir;
 }
-function buildManifest(paths, skill, requirements) {
-  return {
-    schema_version: MANIFEST_SCHEMA,
-    owner: OWNER,
-    installer_version: VERSION,
-    upstream: UPSTREAM,
-    skill_root: skill,
-    adapter_sha256: fileHash(path.join(ROOT, "hooks", "hook_adapter.py")),
-    requirements_file: paths.requirements,
-    requirements_sha256: sha256(requirements),
-    unowned_requirements_sha256: sha256(removeOwnedRequirements(requirements)),
-    events: EVENTS,
-  };
-}
-function readManifest(paths) {
-  if (!fs.existsSync(paths.manifest)) return { manifest: null, error: "installed manifest missing" };
-  try { return { manifest: parseJson(paths.manifest, null), error: null }; }
-  catch { return { manifest: null, error: "installed manifest is invalid JSON" }; }
-}
-function inspectInstallation(paths, skill) {
-  const errors = [], blockers = [];
-  const add = (message, repairable = false) => { errors.push(message); if (!repairable) blockers.push(message); };
-  const sourceAdapterHash = fileHash(path.join(ROOT, "hooks", "hook_adapter.py"));
-  const adapterExists = fs.existsSync(paths.adapter);
-  const requirementsExists = fs.existsSync(paths.requirements);
-  const requirements = requirementsExists ? fs.readFileSync(paths.requirements, "utf8") : "";
-  const { manifest, error: manifestError } = readManifest(paths);
-
-  if (manifestError) add(manifestError);
-  if (manifest) {
-    if (manifest.schema_version !== MANIFEST_SCHEMA) add(`manifest schema ${manifest.schema_version}, expected ${MANIFEST_SCHEMA}`);
-    if (manifest.owner !== OWNER) add("manifest owner mismatch");
-    if (manifest.installer_version !== VERSION) add("manifest installer version mismatch");
-    if (canonical(manifest.upstream) !== canonical(UPSTREAM)) add("manifest upstream mismatch");
-    if (manifest.skill_root !== skill) add("manifest skill root mismatch");
-    if (manifest.requirements_file !== paths.requirements) add("managed requirements path drift");
-    if (canonical(manifest.events) !== canonical(EVENTS)) add("manifest events mismatch");
-    if (manifest.adapter_sha256 !== sourceAdapterHash) add("manifest adapter hash mismatch");
-  }
-
-  if (!requirementsExists) add("managed requirements missing");
-  if (requirementsExists && manifest) {
-    const baseHash = sha256(removeOwnedRequirements(requirements));
-    if (baseHash !== manifest.unowned_requirements_sha256) add("unowned managed requirements drift");
-    if (sha256(requirements) !== manifest.requirements_sha256) add("owned managed requirements drift", baseHash === manifest.unowned_requirements_sha256);
-  }
-  if (requirementsExists) {
-    if (!/^\s*hooks\s*=\s*true\s*(?:#.*)?$/m.test(requirements)) add("managed features.hooks is not true", Boolean(manifest));
-    const managedDir = tableStringValue(requirements, "hooks", "managed_dir");
-    if (!managedDir || !pathContains(managedDir, paths.adapter)) add("hooks.managed_dir does not contain adapter");
-    for (const event of EVENTS) {
-      const command = `/usr/bin/python3 ${quoteCommand(paths.adapter)} ${event}`;
-      if (requirements.split(`command = ${JSON.stringify(command)}`).length - 1 !== 1) add(`managed ${event} handler count is not 1`, Boolean(manifest));
-    }
-  }
-
-  if (!adapterExists) add("adapter missing", Boolean(manifest));
-  else if (fileHash(paths.adapter) !== sourceAdapterHash) add("adapter hash drift", Boolean(manifest));
-  if (fs.existsSync(paths.runtime)) {
-    const unknown = fs.readdirSync(paths.runtime).filter(name => !new Set([path.basename(paths.adapter), path.basename(paths.manifest)]).has(name));
-    if (unknown.length) add(`unknown runtime files: ${unknown.sort().join(", ")}`);
-  }
-  return { errors, blockers, manifest, requirements, healthy: errors.length === 0, repairable: errors.length > 0 && blockers.length === 0 };
+function buildManifest(paths, skill) {
+  return { schema_version: 2, owner: OWNER, installer_version: VERSION, upstream: UPSTREAM, skill_root: skill, adapter_sha256: fileHash(paths.adapter), requirements_file: paths.requirements, events: ["SessionStart", "UserPromptSubmit"] };
 }
 function install(options) {
   const paths = pathsFor(options.codexHome, options.managedRequirements), skill = resolveSkill(options.skillRoot, paths.home);
   if (!fs.existsSync("/usr/bin/python3")) throw new Error("managed Hook interpreter not found: /usr/bin/python3");
-  if (options.repair) return repair({ ...options, paths, skill });
   const currentRequirements = fs.existsSync(paths.requirements) ? fs.readFileSync(paths.requirements, "utf8") : "";
   const proposedRequirements = managedRequirements(currentRequirements, paths);
-  if (options.dryRun) return { action: "dry-run", codex_home: paths.home, skill_root: skill, requirements_file: paths.requirements, events: EVENTS, changed: proposedRequirements !== currentRequirements };
+  if (options.dryRun) return { action: "dry-run", codex_home: paths.home, skill_root: skill, requirements_file: paths.requirements, events: ["SessionStart", "UserPromptSubmit"], changed: proposedRequirements !== currentRequirements };
   const release = acquire(paths); try {
     const backupDir = backup(paths);
     fs.mkdirSync(paths.runtime, { recursive: true, mode: 0o700 });
@@ -276,7 +214,7 @@ function install(options) {
     const previousEntries = previousManifest.entries || [];
     if (fs.existsSync(paths.hooks)) atomicJson(paths.hooks, removeOwned(parseJson(paths.hooks, { hooks: {} })));
     if (fs.existsSync(paths.config) && previousEntries.length) atomicWrite(paths.config, `${stripTrustToml(fs.readFileSync(paths.config, "utf8"), previousEntries)}\n`);
-    atomicJson(paths.manifest, buildManifest(paths, skill, proposedRequirements));
+    atomicJson(paths.manifest, buildManifest(paths, skill));
     const checked = doctor({ codexHome: paths.home, skillRoot: skill, managedRequirements: paths.requirements });
     return { ...checked, action: "install", backup: backupDir };
   } finally { release(); }
@@ -300,8 +238,25 @@ function repair(options) {
 }
 function doctor(options) {
   const paths = pathsFor(options.codexHome, options.managedRequirements), skill = resolveSkill(options.skillRoot, paths.home);
-  const inspected = inspectInstallation(paths, skill);
-  return { action: "doctor", healthy: inspected.healthy, repairable: inspected.repairable, codex_home: paths.home, skill_root: skill, requirements_file: paths.requirements, managed: true, events: EVENTS, errors: inspected.errors, blockers: inspected.blockers };
+  const errors = [];
+  const adapterExists = fs.existsSync(paths.adapter);
+  if (!adapterExists) errors.push("adapter missing");
+  const requirements = fs.existsSync(paths.requirements) ? fs.readFileSync(paths.requirements, "utf8") : "";
+  if (!fs.existsSync(paths.requirements)) errors.push("managed requirements missing");
+  if (!/^\s*hooks\s*=\s*true\s*(?:#.*)?$/m.test(requirements)) errors.push("managed features.hooks is not true");
+  const managedDir = tableStringValue(requirements, "hooks", "managed_dir");
+  if (!managedDir || !pathContains(managedDir, paths.adapter)) errors.push("hooks.managed_dir does not contain adapter");
+  for (const event of ["SessionStart", "UserPromptSubmit"]) {
+    const command = `/usr/bin/python3 ${quoteCommand(paths.adapter)} ${event}`;
+    if (requirements.split(`command = ${JSON.stringify(command)}`).length - 1 !== 1) errors.push(`managed ${event} handler count is not 1`);
+  }
+  if (!fs.existsSync(paths.manifest)) errors.push("installed manifest missing");
+  else {
+    const manifest = parseJson(paths.manifest, {});
+    if (adapterExists && manifest.adapter_sha256 !== fileHash(paths.adapter)) errors.push("adapter hash drift");
+    if (manifest.requirements_file !== paths.requirements) errors.push("managed requirements path drift");
+  }
+  return { action: "doctor", healthy: errors.length === 0, codex_home: paths.home, skill_root: skill, requirements_file: paths.requirements, managed: true, events: ["SessionStart", "UserPromptSubmit"], errors };
 }
 function uninstall(options) {
   const paths = pathsFor(options.codexHome, options.managedRequirements), release = acquire(paths); try {
@@ -315,8 +270,8 @@ function uninstall(options) {
   } finally { release(); }
 }
 function parseArgs(argv) {
-  const command = argv[0], options = { json: false, dryRun: false, repair: false, codexHome: process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), managedRequirements: "/etc/codex/requirements.toml" };
-  if (!new Set(["install", "doctor", "uninstall"]).has(command)) throw new Error("usage: install.js <install|doctor|uninstall> [--repair] [--codex-home PATH] [--skill-root PATH] [--managed-requirements PATH] [--dry-run] [--json]");
+  const command = argv[0], options = { json: false, dryRun: false, codexHome: process.env.CODEX_HOME || path.join(os.homedir(), ".codex"), managedRequirements: "/etc/codex/requirements.toml" };
+  if (!new Set(["install", "doctor", "uninstall"]).has(command)) throw new Error("usage: install.js <install|doctor|uninstall> [--codex-home PATH] [--skill-root PATH] [--managed-requirements PATH] [--dry-run] [--json]");
   for (let i = 1; i < argv.length; i++) {
     if (argv[i] === "--json") options.json = true;
     else if (argv[i] === "--dry-run") options.dryRun = true;
