@@ -205,3 +205,20 @@
   - Recomputed and synchronized the current patched `session-catchup.py` SHA-256: `fc765590dc32b3949027de97e33dad6a049daf148719ba1822598a6c146461e2`.
   - `node --test tests/skill-patch.test.js`: 3/3 passed, including pristine patching, idempotence, unknown drift rejection, scoped plans, `$CODEX_HOME/sessions`, and long-wrapper sentinel preservation.
   - Full `npm test`: the same 6/12 native-Windows result; all six failures stop at the intentional `/usr/bin/python3` Cloud preflight.
+
+### Phase 10: Cloud acceptance and documentation sync
+- **Status:** complete
+- Actions taken:
+  - Received confirmation that the complete Cloud black-box matrix A—F passed against the final v0.2.2 package.
+  - Recorded test-package SHA-256 `4e3e3608e4634f03677cb30562fb53ac0bdd9e3d2334fd34419eaa2b33ab07a8` as non-final acceptance evidence.
+  - Confirmed the resume report preserved the long-wrapper sentinel and observed `Runtime: codex`, the planning update, unsynced messages, and Planning context.
+  - Updated README and the runbook to distinguish completed Cloud functional acceptance from the still-pending final package publication.
+  - Added the completed acceptance state to `黑盒验证.md` while retaining its reusable regression template.
+  - Restored the bootstrap all-zero checksum placeholder because documentation changes alter the final ZIP bytes; the maintainer will pin the newly built archive manually.
+  - Left Phase 4 open only for the final rebuild, SHA-256 pin, and publication step.
+
+### Handoff to Managed Runtime Modernization
+- **Status:** inactive except for the manual v0.2.2 packaging gate
+- Switched `.planning/.active_plan` to `2026-08-01-managed-runtime-modernization`.
+- Preserved this plan as the implementation, Cloud acceptance, and final-package record for v0.2.2.
+- Added the current catch-up patch to the modernization roadmap as a temporary compatibility overlay that should migrate into the owned runtime and then be retired when upstream or the canonical bundle provides equivalent behavior.

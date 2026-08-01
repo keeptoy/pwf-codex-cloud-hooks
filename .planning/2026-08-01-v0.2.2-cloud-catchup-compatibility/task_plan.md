@@ -4,7 +4,7 @@
 Implement one auditable, idempotent compatibility patch for upstream planning-with-files v3.8.2 so Codex Cloud SessionStart catch-up uses the explicit Codex runtime, resolves `$CODEX_HOME/sessions`, recognizes scoped `.planning` state, and preserves trailing user context without weakening installer drift protection.
 
 ## Next Step
-Publish the immutable v0.2.2 ZIP, record its SHA-256 in the bootstrap, then run the Linux installer suite and tests A—D from the new Markdown runbook.
+After documentation is final, rebuild the v0.2.2 ZIP, calculate its new SHA-256, manually replace the bootstrap placeholder, and publish that exact archive.
 
 ## Current Phase
 Phase 4
@@ -33,9 +33,9 @@ Phase 4
 - [x] Run available Node/Python/upstream checks
 - [x] Verify hashes, idempotence, and corruption blocking
 - [x] Verify the source release contract and required payload files
-- [ ] Verify the final immutable ZIP layout and SHA-256 after publication
+- [ ] Verify the final immutable ZIP layout and SHA-256 after documentation freeze
 - [x] Provide Cloud release and black-box validation steps
-- **Status:** pending
+- **Status:** pending final packaging
 
 ### Phase 5: Black-box runbook modernization
 - [x] Read and classify every scenario in the legacy TXT
@@ -74,6 +74,13 @@ Phase 4
 - [x] Run targeted and available full verification
 - **Status:** complete
 
+### Phase 10: Cloud acceptance and documentation sync
+- [x] Record the tested package SHA-256 as non-final evidence
+- [x] Record full A—F Cloud black-box acceptance
+- [x] Mark README and runbook as functionally accepted with packaging pending
+- [x] Keep the scoped delivery plan open only for the manual packaging gate
+- **Status:** complete
+
 ## Key Questions
 1. How can bootstrap patch the global Skill before install.js validates it?
 2. How should provenance record both pristine upstream and managed patched hashes?
@@ -107,3 +114,5 @@ Phase 4
 | Cloud `skill-patch.test.js` tried to read absent `init-cloud-sandbox-v0.2.1.bash` | 1 | Remove the repository-history assertion; v0.2.2 tests now depend only on v0.2.2 artifacts. |
 | Bootstrap contract test required the pre-release all-zero checksum after the real v0.2.2 SHA was recorded | 1 | Accept any pinned 64-character lowercase SHA-256 while retaining the explicit all-zero rejection guard assertion. |
 | Full 12-case suite reports six installer failures on native Windows | 1 | All six stop at the intentional `/usr/bin/python3` Cloud preflight; targeted patch and adapter tests pass, and installer cases remain a Linux/Cloud release gate. |
+| Release-status grep flagged the accurate all-zero rejection-guard documentation as stale | 1 | Narrow the check to obsolete “contains an all-zero placeholder” wording while retaining documentation of the active safety guard. |
+| Documentation changes invalidated the previously tested ZIP hash | 1 | Restore the all-zero bootstrap placeholder, relabel the old hash as test-package evidence, and leave final repack/hash pinning as a manual release step. |

@@ -1,7 +1,7 @@
 # Task Plan: Managed Runtime Modernization
 
 ## Goal
-Replace the long-term parallel planning implementation in `hook_adapter.py` with a minimal, pinned, hash-verified upstream runtime bundle while preserving the repository's Codex Cloud managed-policy, rollout, recovery, and compatibility guarantees.
+Replace the long-term parallel planning implementation and mutable global-Skill execution in `hook_adapter.py` with a minimal, pinned, hash-verified upstream runtime bundle while preserving the repository's Codex Cloud managed-policy, rollout, recovery, and compatibility guarantees. Retire the v0.2.2 catch-up compatibility patch as a global-Skill mutation by absorbing only its still-needed behavior into the owned runtime or dropping each delta when upstream provides it.
 
 ## Non-goals
 - Do not copy the upstream `.codex/hooks.json` registration model into production.
@@ -9,6 +9,7 @@ Replace the long-term parallel planning implementation in `hook_adapter.py` with
 - Do not enable every upstream lifecycle event in one release.
 - Do not enable hard Stop gating before advisory behavior and host semantics are proven in Cloud.
 - Do not change existing legacy-plan behavior without an explicit mode or migration contract.
+- Do not preserve the v0.2.2 downstream patch as a permanent fork or add patch-version migration machinery before public deployment requires it.
 
 ## Invariants
 1. Managed Hook commands use absolute paths beneath the configured `managed_dir`.
@@ -18,9 +19,12 @@ Replace the long-term parallel planning implementation in `hook_adapter.py` with
 5. `SessionStart` and `UserPromptSubmit` remain read-only until a separately reviewed phase says otherwise.
 6. Canary output remains available throughout rollout and is removed only after fresh-session verification.
 7. Every phase adds tests before its behavior is enabled in the Cloud setup artifact.
+8. Runtime identity, session-store location, project root, event source, and output limits are explicit host contracts; they are never inferred solely from an installed script path.
+9. Hook stdout remains valid, bounded Codex JSON. Detailed skip/failure reasons go to a separate diagnostic surface and never corrupt injected context.
+10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Begin Phase 1 by defining the upstream runtime allowlist, provenance schema, exact legacy-output compatibility fixtures, and import/check workflow without changing installed Hook behavior.
+Begin Phase 1 by freezing the Cloud-proven v0.2.2 behavior as compatibility fixtures, defining the owned runtime/compatibility-overlay allowlist, specifying the explicit Codex host contract and diagnostic reason codes, and documenting a non-self-referential release artifact boundary. Do not change installed Hook behavior yet.
 
 ## Current Phase
 Phase 1 — Runtime provenance and compatibility contract
@@ -36,26 +40,48 @@ Phase 1 — Runtime provenance and compatibility contract
 - **Exit criteria:** Audit results, discrepancies, scope boundaries, and staged roadmap are reviewable in Git.
 - **Status:** complete
 
+### Phase 0.5: v0.2.2 Cloud evidence integration
+- [x] Record the `.agents` runtime-misclassification failure and explicit `PWF_RUNTIME=codex` fix.
+- [x] Record `/opt/codex/sessions`, missing Hook-time `CODEX_HOME`, and adapter installed-path fallback behavior.
+- [x] Record scoped-plan catch-up parity and structured `patch_apply_end` requirements.
+- [x] Record real Cloud wrapper truncation, bounded head/tail preservation, and the successful resume sentinel regression.
+- [x] Mark the single v0.2.2 compatibility patch as a temporary bridge and modernization input, not a long-term runtime architecture.
+- **Exit criteria:** The long-term roadmap incorporates all deployment and transcript facts proven by the v0.2.2 Cloud investigation.
+- **Status:** complete
+
 ### Phase 1: Runtime provenance and compatibility contract
 - [ ] Define the minimal upstream runtime allowlist and direct dependency graph.
+- [ ] Define a compatibility-overlay ledger for downstream deltas: reason, upstream anchor, input/output hashes, Cloud fixture, owner, and explicit retirement condition.
+- [ ] Enter the four v0.2.2 deltas in that ledger: explicit Codex runtime, `$CODEX_HOME/sessions`, scoped planning state, and bounded long-wrapper user context.
 - [ ] Extend the upstream manifest schema to record archive identity, source paths, per-file SHA-256, executable mode, and license provenance.
 - [ ] Add a deterministic import/check command that extracts only allowlisted files from the pinned archive and never follows a moving branch.
 - [ ] Decide whether imported source files live in the package or are generated for release; document the reproducible-build procedure.
+- [ ] Define the release artifact allowlist and keep the checksum-pinning bootstrap outside the bytes whose checksum it pins, or document an equivalent two-stage publication procedure.
 - [ ] Add `THIRD_PARTY_NOTICES.md` or equivalent MIT attribution before distributing substantial upstream code.
 - [ ] Capture golden fixtures for current `SessionStart`, `UserPromptSubmit`, no-plan, scoped-plan, newest-plan, and legacy-root output.
+- [ ] Add Cloud-shaped catch-up fixtures for `.agents`, `/opt/codex/sessions`, absent Hook-time `CODEX_HOME`, structured `patch_apply_end`, duplicate transcript record families, and a long wrapper with a tail sentinel.
+- [ ] Define a versioned adapter-to-runtime request contract containing runtime, project root, event/source, session identity, session-store override, resolved plan state, and output budget.
+- [ ] Define machine-readable catch-up diagnostic outcomes such as `no_plan`, `no_session_store`, `no_matching_session`, `no_planning_update`, `no_unsynced_context`, `report_emitted`, and `runtime_error`.
 - [ ] Extend installed-manifest/runtime inventory checks so missing, changed, and unknown files fail closed.
 - [ ] Test install, doctor, repair, uninstall, and backup restoration with a multi-file runtime.
-- **Exit criteria:** A reviewed runtime bundle can be reproduced from the pinned upstream archive, every executed file is verified, and current Hook behavior is unchanged.
+- **Exit criteria:** A reviewed runtime bundle can be reproduced from the pinned upstream archive, every downstream delta and executed file is verified, the release boundary is reproducible, and current Hook behavior is unchanged.
 - **Status:** pending
 
-### Phase 2: Safety foundation behind the existing two events
+### Phase 2: Owned catch-up runtime and safety foundation
+- [ ] Install catch-up and its allowlisted dependencies beneath the owned managed runtime; stop executing `session-catchup.py` from a mutable global Skill directory.
+- [ ] Apply any still-required compatibility overlay only to the owned imported copy, leaving the global upstream Skill pristine.
+- [ ] Pass runtime/session/project/event data through the explicit host contract instead of inferring Codex from a script path or relying on setup-shell environment persistence.
+- [ ] Make catch-up and prompt injection share one canonical scoped/root plan resolver so one path cannot see a plan that the other rejects.
+- [ ] Normalize real Codex JSONL record families, deduplicate logically repeated user/assistant messages where safe, preserve structured planning updates, and enforce per-message plus total-report budgets.
+- [ ] Add a non-injecting diagnostic command that reports reason codes and selected paths without exposing transcript content by default.
 - [ ] Add `PLANNING_DISABLED=1` as an explicit one-shot opt-out.
 - [ ] Use canonical path containment so scoped-plan symlinks cannot escape the project root.
 - [ ] Add backward-compatible session isolation using `session_id` and `.planning/sessions/<id>.attached`.
 - [ ] Define malformed stdin, missing files, invalid UTF-8, timeout, and child-process failure behavior.
 - [ ] Keep the Codex loop fail-open for advisory runtime failures while failing closed for unsafe context injection.
+- [ ] Test the observed root/root Cloud identity and a synthetic install-user/Hook-user split with explicit readability and session-store expectations.
 - [ ] Add Linux Cloud tests and document Windows as unsupported unless a separate managed Windows runtime is designed.
-- **Exit criteria:** Existing users retain legacy behavior, opted-out/unattached sessions stay silent, and external-path plan content is never injected.
+- **Exit criteria:** Catch-up executes only owned verified files, current Cloud behavior remains compatible, diagnostic skips are explainable, opted-out/unattached sessions stay silent, and external-path plan content is never injected.
 - **Status:** pending
 
 ### Phase 3: Canonical user-prompt injection
@@ -64,6 +90,7 @@ Phase 1 — Runtime provenance and compatibility contract
 - [ ] Preserve current legacy-mode output semantics through golden tests or document and approve each intentional difference.
 - [ ] Normalize diagnostics so upstream stderr cannot corrupt Hook JSON stdout.
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
+- [ ] Remove global Skill discovery and the v0.2.2 bootstrap patch step once both catch-up and prompt injection run exclusively from the owned runtime bundle.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
 - **Status:** pending
 
@@ -118,6 +145,7 @@ Phase 1 — Runtime provenance and compatibility contract
 - [ ] Run the complete test matrix and reproducible-import verification.
 - [ ] Exercise dry-run, clean install, upgrade, repair, doctor, backup restore, uninstall, and reinstall.
 - [ ] Publish an immutable release artifact and record its checksum in the Cloud setup script.
+- [ ] Prove the packaged-file allowlist, archive root, and bootstrap/checksummed-payload separation so documentation or checksum pinning cannot silently invalidate the artifact.
 - [ ] Reset Cloud cache/create fresh tasks and observe exact lifecycle canaries.
 - [ ] Remove temporary canaries only after all enabled lifecycle paths are proven.
 - [ ] Recompute and review production hashes after canary removal.
@@ -134,21 +162,30 @@ Phase 1 — Runtime provenance and compatibility contract
 | Roll out lifecycle events incrementally | Managed Hooks are globally trusted, can coexist and run concurrently with other sources, and are harder for users to disable. |
 | Add hard Stop gating last | It has the greatest recursion, concurrency, and runaway risk and requires real host verification. |
 | Treat nine tests as nine test cases, not nine features | Several tests cover multiple guarantees and several README claims are integration properties rather than separate product features. |
+| Treat the v0.2.2 catch-up patch as a temporary compatibility overlay | It is valuable Cloud-proven behavior, but mutating and executing a global Skill conflicts with the owned-runtime trust boundary. |
+| Make the host/runtime contract explicit | `.agents` placement and missing Hook-time environment proved that script-path and setup-shell inference are not stable Cloud interfaces. |
+| Add reason-coded diagnostics without injecting them by default | Silent early returns made black-box failures expensive to localize, while stderr or debug text must not contaminate Hook JSON/context. |
+| Preserve bounded head and tail with an overall report budget | Real Cloud wrappers can move the user request to the end; head-only truncation loses meaning, but unbounded transcript injection is unsafe and costly. |
+| Keep final archive construction separate from checksum pinning | Documentation and bootstrap edits change bytes; an explicit artifact boundary prevents stale or self-referential release hashes. |
 
 ## Verification Matrix
 | Area | Required checks |
 |------|-----------------|
 | Source integrity | Archive checksum, allowlist, per-file hashes, modes, license notice, reproducible import |
 | Adapter protocol | Empty/malformed stdin, cwd, session_id, event name, stdout JSON, stderr isolation, timeout |
+| Host/runtime contract | Explicit Codex identity, absent CODEX_HOME, `/opt/codex/sessions`, session override, install/Hook user matrix |
 | Plan resolution | PLAN_ID, active pointer, newest scoped plan, legacy root, invalid slug, symlink escape |
+| Catch-up transcript | response/event record families, structured patch update, duplicate normalization, wrapper tail, per-message/total budgets, reason codes |
 | Injection | no plan, legacy, smart, attested, unattested v3, tampered, nonce, output limits |
 | Installer | dry-run, merge, conflict, idempotence, clean install, upgrade, backup, uninstall |
 | Doctor/repair | missing/changed/unknown runtime, owned requirements drift, unowned drift, manifest drift |
 | Lifecycle | startup, resume, clear, compact, manual/auto PreCompact, tool matchers, Stop coexistence |
 | Rollback | old manifest, failed partial install, restore backup, reinstall previous pinned release |
+| Packaging | explicit file allowlist, deterministic ZIP root/order/modes, bootstrap separation, final SHA pin |
 
 ## Errors Encountered
 | Error | Resolution |
 |-------|------------|
 | Initial broad repository output was truncated by the terminal output limit | Re-ran targeted searches and numbered excerpts for the claims used in the audit. |
 | Earlier web search API returned HTTP 401 | Used direct HTTPS access to the official documentation and a pinned Git clone for primary-source inspection. |
+| Final roadmap assertion used a case-sensitive phrase that differed only by capitalization | Keep the roadmap unchanged and rerun the consistency check with case-insensitive matching. |

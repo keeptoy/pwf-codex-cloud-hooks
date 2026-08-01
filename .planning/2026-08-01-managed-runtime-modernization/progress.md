@@ -4,7 +4,8 @@
 
 ### Current Status
 - **Completed:** Phase 0 — repository audit and roadmap capture.
-- **Next:** Phase 1 — runtime provenance and compatibility contract.
+- **Completed:** Phase 0.5 — v0.2.2 Cloud evidence integration.
+- **Next:** Phase 1 — runtime provenance, compatibility-overlay, host-contract, diagnostics, and artifact-boundary contract.
 - **Active plan:** `2026-08-01-managed-runtime-modernization`.
 
 ### Actions Taken
@@ -54,3 +55,20 @@
 - Python adapter, Node installer, and Bash bootstrap syntax checks passed.
 - `git diff --check` passed.
 - Required README onboarding headings and active-plan pointer checks passed.
+
+## Follow-up: v0.2.2 Cloud evidence integration
+
+### Actions Taken
+- Switched `.planning/.active_plan` from the nearly completed v0.2.2 catch-up delivery back to this modernization roadmap.
+- Reviewed the complete v0.2.2 compatibility plan, Cloud transcript diagnostics, final resume evidence, current adapter, installer inventory model, bootstrap flow, and original modernization phases.
+- Confirmed the original owned-runtime bundle direction remains sound.
+- Promoted the four Cloud-proven catch-up deltas into an explicit compatibility-overlay/retirement roadmap.
+- Expanded Phase 1 with the adapter/runtime request contract, diagnostic reason codes, Cloud-shaped transcript fixtures, overlay ledger, and reproducible artifact boundary.
+- Expanded Phase 2 so the next runtime change moves catch-up beneath the owned managed runtime, stops executing mutable global Skill scripts, normalizes transcript records, shares plan resolution, bounds output, and tests the install/Hook user matrix.
+- Added the explicit Phase 3 exit step that removes global Skill discovery and the v0.2.2 bootstrap patch after owned catch-up and prompt injection are complete.
+- Updated release verification to prevent stale or self-referential ZIP checksum workflows.
+
+### Outcome
+- No wholesale redesign is needed.
+- Priority changes from “add more upstream capabilities” to “first own and diagnose the already Cloud-proven catch-up path.”
+- Advanced attestation, compact, tool, permission, and Stop work remains staged in the original order after the runtime boundary is corrected.

@@ -4,10 +4,11 @@ System-managed lifecycle Hooks that connect a global
 [`OthmanAdi/planning-with-files`](https://github.com/OthmanAdi/planning-with-files)
 Skill installation to Codex Cloud sessions.
 
-> **Status:** `v0.2.1` remains the Cloud-validated production baseline.
-> `v0.2.2` is the release candidate that adds one temporary, hash-pinned
-> compatibility patch for upstream Skill `v3.8.2` session catch-up. Its Release
-> ZIP checksum and fresh-Cloud black-box result must be recorded before rollout.
+> **Status:** `v0.2.2` is functionally accepted and ready for final packaging.
+> On 2026-08-01 the complete Cloud black-box matrix passed, including
+> setup/doctor, lifecycle canaries, planning context, resume catch-up, guarded
+> repair, unknown-drift fail-closed behavior, backup restoration, and final
+> healthy doctor state. The final Release ZIP checksum is not pinned yet.
 
 ## Start here
 
@@ -51,15 +52,15 @@ project-memory format.
 
 ### What `0.2.2` installs
 
-The release candidate registers exactly two managed events:
+The `v0.2.2` release registers exactly two managed events:
 
 | Event | Matcher | Current action | Verification state |
 |---|---|---|---|
-| `SessionStart` | `startup\|resume\|clear\|compact` | Runs the patched upstream `session-catchup.py` when resumable context exists, then injects the active plan and recent progress | automated catch-up regression passes; fresh-Cloud `resume` black box pending |
-| `UserPromptSubmit` | none | Injects the active plan and recent progress | observed |
+| `SessionStart` | `startup\|resume\|clear\|compact` | Runs the patched upstream `session-catchup.py` when resumable context exists, then injects the active plan and recent progress | automated and fresh-Cloud `resume` regressions passed |
+| `UserPromptSubmit` | none | Injects the active plan and recent progress | Cloud-observed |
 
-Both handlers are read-only and emit `PWF_GLOBAL_HOOK_CANARY_V1` while lifecycle
-verification remains in progress.
+Both handlers are read-only and emit `PWF_GLOBAL_HOOK_CANARY_V1` as an owned
+diagnostic marker.
 
 The `v0.2.2` bootstrap first installs the pristine upstream `v3.8.2` Skill and
 then applies `PWF_CODEX_CLOUD_COMPAT_PATCH` to
@@ -194,9 +195,9 @@ allowlist of every upstream runtime file that the managed adapter can execute.
 | `tests/installer.test.js` | Managed-policy ownership, drift, repair, backup, and uninstall tests |
 | `tests/fixtures/planning-with-files/` | Self-contained pinned Skill fixture; not a second production Skill |
 | `planning-with-files-3.8.2/` | Ignored local upstream reference tree supplied for development; never package it |
-| `.planning/.active_plan` | Pointer to the current v0.2.2 compatibility delivery plan |
-| `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` | Active patch, integration, test, runbook, release, and Cloud-acceptance state |
-| `.planning/2026-08-01-managed-runtime-modernization/` | Independent long-term managed-runtime modernization roadmap and audit history |
+| `.planning/.active_plan` | Pointer to the current Managed Runtime Modernization plan |
+| `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` | Completed implementation and Cloud-acceptance record; only manual final packaging remains |
+| `.planning/2026-08-01-managed-runtime-modernization/` | Active long-term managed-runtime modernization roadmap and audit history |
 
 ## Install and operate
 
@@ -288,12 +289,13 @@ bash init-cloud-sandbox-v0.2.2.bash help
 bash init-cloud-sandbox-v0.2.2.bash verify
 ```
 
-The checked-in `v0.2.2` script deliberately contains an all-zero
-`HOOKS_SHA256` placeholder and fails before download while it remains unset.
-After publishing the immutable `v0.2.2` Release ZIP, replace that placeholder
-with the asset's real SHA-256. The already-published v0.2.1 release remains the
-historical rollback baseline; neither the v0.2.2 package nor its tests require a
-local copy of the v0.2.1 bootstrap.
+The checked-in `v0.2.2` script deliberately keeps an all-zero `HOOKS_SHA256`
+placeholder and fails before download while it remains unset. Documentation is
+part of the ZIP, so its final SHA-256 can be calculated only after these release
+files stop changing and the archive is rebuilt. Replace the placeholder manually
+with that final archive hash immediately before publication. The already-published
+v0.2.1 release remains historical rollback context; neither the v0.2.2 package nor
+its tests require a local v0.2.1 bootstrap.
 
 Component commands do not install their dependencies automatically. Use `all`
 for the complete ordered workflow or follow the dependency notes printed by
@@ -349,6 +351,7 @@ $CODEX_HOME/hooks/planning-with-files/
   |   |-- check-complete.sh
   |   |-- gate-stop.sh
   |   `-- ledger-summary.sh
+  |-- compatibility-overlays.json     # temporary downstream deltas + retirement rules
   |-- installed-manifest.json
   `-- THIRD_PARTY_NOTICES.md
 ```
@@ -361,6 +364,7 @@ This is a target, not the current filesystem layout.
 
 - stdin JSON and event validation;
 - `cwd` and `session_id` extraction;
+- explicit Codex runtime, session-store, event/source, and output-budget request fields;
 - supervised subprocess execution and timeout handling;
 - stdout/stderr isolation;
 - Codex `additionalContext`, `systemMessage`, and decision JSON;
@@ -374,12 +378,14 @@ The pinned upstream runtime will own planning semantics:
 - attestation and nonce framing;
 - smart injection and ledger summaries;
 - compact reminders and completion semantics.
+- catch-up transcript normalization, diagnostic reason codes, and bounded reports.
 
 `install.js` will continue to own deployment and governance:
 
 - absolute managed commands;
 - atomic install, backup, doctor, repair, and uninstall;
 - upstream archive provenance and per-file hashes;
+- deterministic compatibility overlays with pristine/patched hashes and retirement conditions;
 - exact runtime allowlist and unknown-file rejection;
 - staged event registration, rollout, rollback, and canaries.
 
@@ -390,6 +396,8 @@ The pinned upstream runtime will own planning semantics:
 - It keeps the actual managed runtime reproducible and reversible.
 - It preserves this repository's stricter Cloud ownership and drift model.
 - It imports only reviewed dependencies instead of copying all upstream `.codex/` files.
+- It moves the Cloud-proven catch-up path out of the mutable global Skill and into
+  the same owned inventory as the adapter.
 
 ### Modernization invariants
 
@@ -398,6 +406,10 @@ The pinned upstream runtime will own planning semantics:
 - keep managed commands beneath `managed_dir`;
 - fail closed on runtime integrity and unsafe context injection;
 - keep advisory runtime failures non-fatal to the Codex loop;
+- make Runtime identity and session location explicit rather than inferring them
+  from a Skill path or transient setup environment;
+- keep injected catch-up output bounded while exposing detailed skip/failure
+  reasons only through a non-injecting diagnostic surface;
 - add hard Stop gating last and only behind an explicit mode.
 
 ## How to continue the work
@@ -420,22 +432,27 @@ git status --short --branch
 Treat `task_plan.md` as the execution contract, `findings.md` as durable research
 and decisions, and `progress.md` as the chronological implementation log.
 
-### Current v0.2.2 delivery handoff
+### Current v0.2.2 delivery status
 
 - Patch, adapter/installer/bootstrap integration, automated regression coverage,
-  and the beginner black-box runbook are complete.
-- The remaining gate is external: publish the immutable v0.2.2 ZIP, record its
-  SHA-256, run the Linux installer suite, and execute tests A—D in
-  [`黑盒验证.md`](黑盒验证.md).
-- Keep `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` active until
-  those release and Cloud acceptance gates finish.
+  Cloud functional acceptance, and the beginner black-box runbook are complete.
+- The complete A—F Cloud matrix in [`黑盒验证.md`](黑盒验证.md) passed on
+  2026-08-01, including the long-wrapper unsynced sentinel and final doctor.
+- The only remaining release operation is to rebuild the ZIP after documentation
+  is final, calculate its new SHA-256, and manually replace the bootstrap
+  placeholder before publication.
+- `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` retains the
+  implementation, acceptance evidence, and packaging gate.
 
 ### Long-term modernization handoff
 
-The broader managed-runtime bundle roadmap remains independently preserved in
-`.planning/2026-08-01-managed-runtime-modernization/`. Resume that plan after
-the v0.2.2 compatibility release is accepted; do not conflate the temporary
-catch-up patch with the larger lifecycle expansion.
+`.planning/2026-08-01-managed-runtime-modernization/` is active again. The
+v0.2.2 patch is now an explicit temporary compatibility-overlay milestone:
+Phase 1 records its four Cloud-proven deltas and retirement rules; Phase 2 moves
+catch-up into the owned verified runtime; Phase 3 removes global Skill discovery
+and bootstrap patching after canonical prompt injection also migrates. New
+lifecycle events remain deferred until this runtime boundary and its diagnostic
+contract are complete.
 
 ### Working rules
 
