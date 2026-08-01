@@ -1,0 +1,6 @@
+node_modules/
+__pycache__/
+*.pyc
+*.tgz
+coverage/
+planning-with-files-3.8.2/
