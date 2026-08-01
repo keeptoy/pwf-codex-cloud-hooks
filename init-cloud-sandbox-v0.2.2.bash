@@ -554,20 +554,30 @@ To complete the runtime black-box verification:
    PWF_GLOBAL_HOOK_CANARY_V1 event=SessionStart source=startup
    PWF_GLOBAL_HOOK_CANARY_V1 event=UserPromptSubmit
 
-杩欐槸涓€娆?planning-with-files lifecycle Hook 榛戠洅楠岃瘉銆?
-涓ユ牸闄愬埗锛?1. 涓嶈璋冪敤浠讳綍宸ュ叿锛?2. 涓嶈杩愯 shell 鍛戒护锛?3. 涓嶈璇诲彇浠讳綍鏂囦欢锛?4. 涓嶈鏍规嵁 AGENTS.md銆佸璇濆唴瀹规垨宸茬煡瀛楃涓叉帹娴嬬粨鏋滐紱
-5. 涓嶈鑷鏋勯€犳垨琛ュ叏 canary锛?6. 鍙姤鍛婂湪鐢熸垚鏈鍥炲涔嬪墠锛宺untime 宸茬粡娉ㄥ叆鍒颁綘涓婁笅鏂囦腑鐨勫唴瀹广€?
-璇烽€愬瓧鍒楀嚭浣犲疄闄呯湅鍒扮殑鎵€鏈変互
+这是一次 planning-with-files lifecycle Hook 黑盒验证。
+
+严格限制：
+1. 不要调用任何工具；
+2. 不要运行 shell 命令；
+3. 不要读取任何文件；
+4. 不要根据 AGENTS.md、对话内容或已知字符串推测结果；
+5. 不要自行构造或补全 canary；
+6. 只报告在生成本次回复之前，runtime 已经注入到你上下文中的内容。
+
+请逐字列出你实际看到的所有以
 PWF_GLOBAL_HOOK_CANARY
-寮€澶寸殑瀹屾暣琛屻€?
-鐒跺悗涓ユ牸鎸変互涓嬫牸寮忓洖绛旓細
+开头的完整行。
 
-SessionStart: OBSERVED 鎴?NOT_OBSERVED
-SessionStart source: 瀹為檯鍊硷紱鏈瀵熷埌鍒欏啓 NONE
-UserPromptSubmit: OBSERVED 鎴?NOT_OBSERVED
-Planning context: OBSERVED 鎴?NOT_OBSERVED
+然后严格按以下格式回答：
 
-濡傛灉娌℃湁瀹為檯鐪嬪埌鏌愪竴椤癸紝蹇呴』鍐?NOT_OBSERVED銆?涓嶈涓轰簡楠岃瘉鑰屼娇鐢ㄤ换浣曞伐鍏锋垨璇诲彇浠撳簱鏂囦欢銆?
+SessionStart: OBSERVED 或 NOT_OBSERVED
+SessionStart source: 实际值；未观察到则写 NONE
+UserPromptSubmit: OBSERVED 或 NOT_OBSERVED
+Planning context: OBSERVED 或 NOT_OBSERVED
+
+如果没有实际看到某一项，必须写 NOT_OBSERVED。
+不要为了验证而使用任何工具或读取仓库文件。
+
 EOF
 }
 
