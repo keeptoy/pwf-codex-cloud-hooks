@@ -31,7 +31,7 @@ readonly HOOKS_VERSION="${HOOKS_VERSION:-v0.2.2}"
 readonly HOOKS_PACKAGE="${HOOKS_PACKAGE:-pwf-codex-cloud-hooks-${HOOKS_VERSION}.zip}"
 readonly HOOKS_ARCHIVE_ROOT="${HOOKS_ARCHIVE_ROOT:-pwf-codex-cloud-hooks}"
 readonly HOOKS_URL="${HOOKS_URL:-https://github.com/keeptoy/pwf-codex-cloud-hooks/releases/download/${HOOKS_VERSION}/${HOOKS_PACKAGE}}"
-readonly HOOKS_SHA256="${HOOKS_SHA256:-075bc46605bcc32428db9ff883cd2cf11709c23fbd06311c2f056119dda4ade3}"
+readonly HOOKS_SHA256="${HOOKS_SHA256:-ab6cafbae979083eadeabd5146ab9dfc29fdf0702bf366254589f8f8ef05145d}"
 readonly PLANNING_SKILL_PATCH_ID="PWF_CODEX_CLOUD_COMPAT_PATCH_V1"
 readonly PLANNING_SKILL_PATCHED_SHA256="f0e7aa7dc981e1a094f695991e38d7a475e59ffbe635cd5335428c5456ac256e"
 
