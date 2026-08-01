@@ -50,6 +50,13 @@ Phase 4
 - [x] Point `.planning/.active_plan` at the new scoped task
 - **Status:** complete
 
+### Phase 7: v0.2.2 Release-test self-containment
+- [x] Remove the test-only dependency on the absent v0.2.1 bootstrap
+- [x] Preserve every v0.2.2 bootstrap ordering and checksum assertion
+- [x] Correct README rollback wording and repository map
+- [x] Rerun the targeted Node suite and verify dependency removal
+- **Status:** complete
+
 ## Key Questions
 1. How can bootstrap patch the global Skill before install.js validates it?
 2. How should provenance record both pristine upstream and managed patched hashes?
@@ -79,3 +86,5 @@ Phase 4
 | Original workspace path became invalid after the directory was renamed | 1 | Located the uniquely matching `pwf-codex-cloud-hooks` directory on Desktop and continued there. |
 | `apply_patch` inherited the invalid old workspace path | 1 | Created a temporary verified junction from the old path to the renamed workspace; remove it after all patches. |
 | PowerShell `Remove-Item` threw a null-reference error for the temporary Junction | 1 | Junction and target remained intact; switch to same-process non-recursive `.NET Directory.Delete(path, false)` after revalidation. |
+| Cloud `skill-patch.test.js` tried to read absent `init-cloud-sandbox-v0.2.1.bash` | 1 | Remove the repository-history assertion; v0.2.2 tests now depend only on v0.2.2 artifacts. |
+| Bootstrap contract test required the pre-release all-zero checksum after the real v0.2.2 SHA was recorded | 1 | Accept any pinned 64-character lowercase SHA-256 while retaining the explicit all-zero rejection guard assertion. |

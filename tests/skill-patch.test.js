@@ -59,16 +59,13 @@ test("compatibility patch is deterministic, idempotent, and fail-closed", () => 
 
 test("v0.2.2 bootstrap patches before install and keeps release checksum guarded", () => {
   const bootstrap = fs.readFileSync(path.join(root, "init-cloud-sandbox-v0.2.2.bash"), "utf8");
-  const baseline = fs.readFileSync(path.join(root, "init-cloud-sandbox-v0.2.1.bash"), "utf8");
   const workflow = bootstrap.match(/install_hooks_component\(\) \{([\s\S]*?)\n\}/);
   assert.ok(workflow, "install_hooks_component was not found");
   assert.match(bootstrap, /HOOKS_VERSION="\$\{HOOKS_VERSION:-v0\.2\.2\}"/);
-  assert.match(bootstrap, /HOOKS_SHA256="\$\{HOOKS_SHA256:-0{64}\}"/);
+  assert.match(bootstrap, /HOOKS_SHA256="\$\{HOOKS_SHA256:-[a-f0-9]{64}\}"/);
   assert.match(bootstrap, /HOOKS_SHA256 is still a placeholder/);
   assert.ok(workflow[1].indexOf("apply_planning_skill_compat_patch") < workflow[1].indexOf("install_managed_hooks"));
   assert.match(bootstrap, /run_verification\(\) \{[\s\S]*verify_patched_planning_skill/);
-  assert.match(baseline, /HOOKS_VERSION="\$\{HOOKS_VERSION:-v0\.2\.1\}"/);
-  assert.doesNotMatch(baseline, /PWF_CODEX_CLOUD_COMPAT_PATCH_V1/);
 });
 
 test("patched catch-up handles .agents, CODEX_HOME sessions, and scoped plans", () => {

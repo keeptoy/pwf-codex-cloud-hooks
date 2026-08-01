@@ -184,7 +184,6 @@ allowlist of every upstream runtime file that the managed adapter can execute.
 | `hooks/hook_adapter.py` | Current read-only Codex protocol adapter and legacy injection implementation |
 | `patches/patch_planning_skill.py` | Atomic, idempotent, fail-closed `v3.8.2` Cloud compatibility patcher |
 | `upstream-manifest.json` | Pinned upstream release identity and approved Skill-file hashes |
-| `init-cloud-sandbox-v0.2.1.bash` | Pinned Codex Cloud bootstrap and black-box verification workflow |
 | `init-cloud-sandbox-v0.2.2.bash` | Release-candidate bootstrap that patches the Skill before installing Hooks |
 | `黑盒验证.md` | Beginner-oriented Cloud runbook for health, lifecycle, catch-up, repair, and fail-closed tests |
 | `tests/hook-adapter.test.js` | Hook payload and no-plan behavior tests |
@@ -287,8 +286,9 @@ bash init-cloud-sandbox-v0.2.2.bash verify
 The checked-in `v0.2.2` script deliberately contains an all-zero
 `HOOKS_SHA256` placeholder and fails before download while it remains unset.
 After publishing the immutable `v0.2.2` Release ZIP, replace that placeholder
-with the asset's real SHA-256. Keep `init-cloud-sandbox-v0.2.1.bash` unchanged as
-the known rollback baseline.
+with the asset's real SHA-256. The already-published v0.2.1 release remains the
+historical rollback baseline; neither the v0.2.2 package nor its tests require a
+local copy of the v0.2.1 bootstrap.
 
 Component commands do not install their dependencies automatically. Use `all`
 for the complete ordered workflow or follow the dependency notes printed by

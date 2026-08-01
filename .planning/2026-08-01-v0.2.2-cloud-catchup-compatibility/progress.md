@@ -170,3 +170,14 @@
   - Moved `task_plan.md`, `findings.md`, and `progress.md` from the repository root into the dedicated scoped plan.
   - Preserved the older `2026-08-01-managed-runtime-modernization` plan as independent historical/roadmap state.
   - Updated `.planning/.active_plan` to select the v0.2.2 compatibility task.
+
+### Phase 7: v0.2.2 Release-test self-containment
+- **Status:** complete
+- Actions taken:
+  - Reproduced the Cloud failure locally: the v0.2.1 bootstrap is absent while `skill-patch.test.js` tried to read it unconditionally.
+  - Removed the unrelated v0.2.1 file read and preservation assertions from the v0.2.2 bootstrap contract test.
+  - Retained all v0.2.2 guarantees: version pin, checksum placeholder guard, patch-before-install order, and patched-Skill verification.
+  - Updated README so the published v0.2.1 release is historical rollback context, not a local v0.2.2 test dependency.
+  - Corrected the checksum assertion to accept the final pinned v0.2.2 SHA-256 while still requiring the all-zero placeholder rejection code.
+  - Reran `node --check` and `node --test tests/skill-patch.test.js`: all 3 targeted cases passed.
+  - Verified the test tree contains no v0.2.1 bootstrap dependency and still requires the v0.2.2 bootstrap, SHA format, and placeholder guard.

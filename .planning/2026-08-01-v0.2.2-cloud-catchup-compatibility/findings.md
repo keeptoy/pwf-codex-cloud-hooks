@@ -89,6 +89,7 @@
 - Sentinel text alone is weak evidence because it also appears in prior conversation. A valid catch-up pass must show the Runtime-injected report framing, `Runtime: codex`, a planning update line, a positive unsynced count, the unsynced context block, and the sentinel.
 - The Markdown runbook should order tests by risk: read-only health, no-tool lifecycle, planning context creation, resume catch-up, owned repair, then unknown-drift fail-closed.
 - The root planning artifacts belong to the v0.2.2 Cloud catch-up compatibility delivery, not the older managed-runtime-modernization roadmap; keep both as separate scoped plans and activate the v0.2.2 plan until its external release gates finish.
+- The Cloud `npm test` failure on `init-cloud-sandbox-v0.2.1.bash` was caused by a repository-history assertion inside `skill-patch.test.js`. v0.2.1 is not an input to the v0.2.2 patch/runtime contract and is intentionally absent from the current Release workspace, so the test must validate v0.2.2 in isolation.
 
 ## Technical Decisions
 | Decision | Rationale |
