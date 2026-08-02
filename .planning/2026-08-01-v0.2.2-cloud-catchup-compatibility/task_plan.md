@@ -4,10 +4,10 @@
 Implement one auditable, idempotent compatibility patch for upstream planning-with-files v3.8.2 so Codex Cloud SessionStart catch-up uses the explicit Codex runtime, resolves `$CODEX_HOME/sessions`, recognizes scoped `.planning` state, and preserves trailing user context without weakening installer drift protection.
 
 ## Next Step
-After documentation is final, rebuild the v0.2.2 ZIP, calculate its new SHA-256, manually replace the bootstrap placeholder, and publish that exact archive.
+Released and archived. Future catch-up refactoring is tracked by the active v0.3.0 Managed Runtime Modernization plan.
 
 ## Current Phase
-Phase 4
+Complete
 
 ## Phases
 
@@ -33,9 +33,9 @@ Phase 4
 - [x] Run available Node/Python/upstream checks
 - [x] Verify hashes, idempotence, and corruption blocking
 - [x] Verify the source release contract and required payload files
-- [ ] Verify the final immutable ZIP layout and SHA-256 after documentation freeze
+- [x] Verify the final immutable ZIP layout and SHA-256 after documentation freeze
 - [x] Provide Cloud release and black-box validation steps
-- **Status:** pending final packaging
+- **Status:** complete
 
 ### Phase 5: Black-box runbook modernization
 - [x] Read and classify every scenario in the legacy TXT
@@ -75,10 +75,10 @@ Phase 4
 - **Status:** complete
 
 ### Phase 10: Cloud acceptance and documentation sync
-- [x] Record the tested package SHA-256 as non-final evidence
+- [x] Record the published Release ZIP SHA-256
 - [x] Record full A—F Cloud black-box acceptance
-- [x] Mark README and runbook as functionally accepted with packaging pending
-- [x] Keep the scoped delivery plan open only for the manual packaging gate
+- [x] Mark README and runbook with the published v0.2.2 baseline
+- [x] Archive the scoped delivery plan after publication
 - **Status:** complete
 
 ## Key Questions

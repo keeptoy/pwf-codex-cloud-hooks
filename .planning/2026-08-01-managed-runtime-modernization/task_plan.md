@@ -1,7 +1,7 @@
-# Task Plan: Managed Runtime Modernization
+# Task Plan: v0.3.0 Managed Runtime Modernization
 
 ## Goal
-Replace the long-term parallel planning implementation and mutable global-Skill execution in `hook_adapter.py` with a minimal, pinned, hash-verified upstream runtime bundle while preserving the repository's Codex Cloud managed-policy, rollout, recovery, and compatibility guarantees. Retire the v0.2.2 catch-up compatibility patch as a global-Skill mutation by absorbing only its still-needed behavior into the owned runtime or dropping each delta when upstream provides it.
+Deliver v0.3.0 by replacing the long-term parallel planning implementation and mutable global-Skill execution in `hook_adapter.py` with a minimal, pinned, hash-verified upstream runtime bundle while preserving the repository's Codex Cloud managed-policy, rollout, recovery, and compatibility guarantees. Retire the v0.2.2 catch-up compatibility patch as a global-Skill mutation by absorbing only its still-needed behavior into the owned runtime or dropping each delta when upstream provides it.
 
 ## Non-goals
 - Do not copy the upstream `.codex/hooks.json` registration model into production.
@@ -47,6 +47,15 @@ Phase 1 — Runtime provenance and compatibility contract
 - [x] Record real Cloud wrapper truncation, bounded head/tail preservation, and the successful resume sentinel regression.
 - [x] Mark the single v0.2.2 compatibility patch as a temporary bridge and modernization input, not a long-term runtime architecture.
 - **Exit criteria:** The long-term roadmap incorporates all deployment and transcript facts proven by the v0.2.2 Cloud investigation.
+- **Status:** complete
+
+### Phase 0.6: v0.3.0 iteration initialization
+- [x] Preserve v0.2.2 as the published Cloud-validated baseline.
+- [x] Bump package metadata to `0.3.0`.
+- [x] Rename the development bootstrap to `init-cloud-sandbox-v0.3.0.bash`.
+- [x] Reset the v0.3.0 Release ZIP checksum to the guarded all-zero placeholder.
+- [x] Point tests, README, and the reusable Cloud runbook at the v0.3.0 development iteration while retaining v0.2.2 evidence.
+- **Exit criteria:** The worktree cannot be mistaken for the published v0.2.2 release, and no v0.3.0 artifact is treated as published.
 - **Status:** complete
 
 ### Phase 1: Runtime provenance and compatibility contract
@@ -189,3 +198,8 @@ Phase 1 — Runtime provenance and compatibility contract
 | Initial broad repository output was truncated by the terminal output limit | Re-ran targeted searches and numbered excerpts for the claims used in the audit. |
 | Earlier web search API returned HTTP 401 | Used direct HTTPS access to the official documentation and a pinned Git clone for primary-source inspection. |
 | Final roadmap assertion used a case-sensitive phrase that differed only by capitalization | Keep the roadmap unchanged and rerun the consistency check with case-insensitive matching. |
+| Environment-declared workspace path no longer existed after the earlier directory rename | Located the unique `pwf-codex-cloud-hooks` directory and used a verified temporary Junction only for edits. |
+| Initial version-reference `rg` pattern lost quoting in PowerShell and produced an unclosed group | Reran with a single-quoted regular expression before deciding the version migration scope. |
+| Python stdin verification received the Chinese runbook filename as `????.md` on Windows | Keep the successful Node tests, rerun document assertions with native PowerShell `-LiteralPath`, and explicitly inspect each external command exit code. |
+| A combined status command returned exit 1 after `rg` correctly found no stale v0.2.2 current-entry references | Treat `rg` exit 1 as the expected no-match result and verify the rename with explicit file-existence assertions. |
+| PowerShell parsed a concatenated expected SHA line inside an array as separate expression fragments | Build the expected all-zero line in a named scalar before constructing the assertion array. |

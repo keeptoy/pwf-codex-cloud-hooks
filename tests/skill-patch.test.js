@@ -58,11 +58,11 @@ test("compatibility patch is deterministic, idempotent, and fail-closed", () => 
   }
 });
 
-test("v0.2.2 bootstrap patches before install and keeps release checksum guarded", () => {
-  const bootstrap = fs.readFileSync(path.join(root, "init-cloud-sandbox-v0.2.2.bash"), "utf8");
+test("v0.3.0 bootstrap patches before install and keeps release checksum guarded", () => {
+  const bootstrap = fs.readFileSync(path.join(root, "init-cloud-sandbox-v0.3.0.bash"), "utf8");
   const workflow = bootstrap.match(/install_hooks_component\(\) \{([\s\S]*?)\n\}/);
   assert.ok(workflow, "install_hooks_component was not found");
-  assert.match(bootstrap, /HOOKS_VERSION="\$\{HOOKS_VERSION:-v0\.2\.2\}"/);
+  assert.match(bootstrap, /HOOKS_VERSION="\$\{HOOKS_VERSION:-v0\.3\.0\}"/);
   assert.match(bootstrap, /HOOKS_SHA256="\$\{HOOKS_SHA256:-[a-f0-9]{64}\}"/);
   assert.match(bootstrap, /HOOKS_SHA256 is still a placeholder/);
   assert.match(bootstrap, /PLANNING_SKILL_PATCH_ID="PWF_CODEX_CLOUD_COMPAT_PATCH"/);

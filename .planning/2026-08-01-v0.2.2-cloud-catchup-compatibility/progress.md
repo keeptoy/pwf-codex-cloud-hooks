@@ -216,9 +216,11 @@
   - Added the completed acceptance state to `黑盒验证.md` while retaining its reusable regression template.
   - Restored the bootstrap all-zero checksum placeholder because documentation changes alter the final ZIP bytes; the maintainer will pin the newly built archive manually.
   - Left Phase 4 open only for the final rebuild, SHA-256 pin, and publication step.
+  - Final v0.2.2 Release published with ZIP SHA-256 `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84`.
+  - Closed Phase 4 and archived this scoped plan after publication.
 
 ### Handoff to Managed Runtime Modernization
-- **Status:** inactive except for the manual v0.2.2 packaging gate
+- **Status:** published and archived
 - Switched `.planning/.active_plan` to `2026-08-01-managed-runtime-modernization`.
-- Preserved this plan as the implementation, Cloud acceptance, and final-package record for v0.2.2.
+- Preserved this plan as the implementation, Cloud acceptance, and published-release record for v0.2.2.
 - Added the current catch-up patch to the modernization roadmap as a temporary compatibility overlay that should migrate into the owned runtime and then be retired when upstream or the canonical bundle provides equivalent behavior.

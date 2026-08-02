@@ -3,6 +3,7 @@
 ## Session: 2026-08-01
 
 ### Current Status
+- **Iteration:** v0.3.0 development; v0.2.2 published baseline.
 - **Completed:** Phase 0 — repository audit and roadmap capture.
 - **Completed:** Phase 0.5 — v0.2.2 Cloud evidence integration.
 - **Next:** Phase 1 — runtime provenance, compatibility-overlay, host-contract, diagnostics, and artifact-boundary contract.
@@ -72,3 +73,21 @@
 - No wholesale redesign is needed.
 - Priority changes from “add more upstream capabilities” to “first own and diagnose the already Cloud-proven catch-up path.”
 - Advanced attestation, compact, tool, permission, and Stop work remains staged in the original order after the runtime boundary is corrected.
+
+## Session: 2026-08-02 — v0.3.0 iteration initialization
+
+### Actions Taken
+- Confirmed the worktree was clean after the maintainer published and backed up v0.2.2.
+- Recorded published v0.2.2 Release ZIP SHA-256 `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84` in the historical acceptance plan and runbook.
+- Bumped `package.json` from `0.2.2` to `0.3.0`.
+- Renamed the active development bootstrap from `init-cloud-sandbox-v0.2.2.bash` to `init-cloud-sandbox-v0.3.0.bash`, changed its default Release tag to `v0.3.0`, and reset its archive SHA-256 to the guarded all-zero placeholder.
+- Updated the bootstrap contract test, README, and Cloud regression runbook for v0.3.0 while preserving v0.2.2 as the published rollback and acceptance baseline.
+- Kept Phase 1 as the first behavioral modernization phase; this version initialization changes identity and documentation only.
+
+### Verification
+- Package/bootstrap/test/document version contract: v0.3.0 consistent.
+- Development bootstrap Release ZIP checksum: guarded 64-zero placeholder.
+- Published v0.2.2 SHA retained only as historical baseline evidence.
+- `node --test tests/hook-adapter.test.js tests/skill-patch.test.js`: 6 passed, 0 failed.
+- Node syntax checks for installer and all tests: passed.
+- v0.3.0 bootstrap contains zero CR bytes; `git diff --check`: passed.

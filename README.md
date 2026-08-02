@@ -4,11 +4,10 @@ System-managed lifecycle Hooks that connect a global
 [`OthmanAdi/planning-with-files`](https://github.com/OthmanAdi/planning-with-files)
 Skill installation to Codex Cloud sessions.
 
-> **Status:** `v0.2.2` is functionally accepted and ready for final packaging.
-> On 2026-08-01 the complete Cloud black-box matrix passed, including
-> setup/doctor, lifecycle canaries, planning context, resume catch-up, guarded
-> repair, unknown-drift fail-closed behavior, backup restoration, and final
-> healthy doctor state. The final Release ZIP checksum is not pinned yet.
+> **Status:** `v0.2.2` is the published, Cloud-validated baseline. `v0.3.0` is
+> the active development iteration for Managed Runtime Modernization and is not
+> published yet. Its bootstrap checksum remains a guarded placeholder until the
+> final v0.3.0 archive is built.
 
 ## Start here
 
@@ -50,9 +49,10 @@ project-memory format.
 
 ## Current behavior
 
-### What `0.2.2` installs
+### Published `v0.2.2` behavior inherited by `v0.3.0`
 
-The `v0.2.2` release registers exactly two managed events:
+Until a reviewed modernization phase changes the runtime, the `v0.3.0` worktree
+preserves the two managed events proven by `v0.2.2`:
 
 | Event | Matcher | Current action | Verification state |
 |---|---|---|---|
@@ -62,7 +62,7 @@ The `v0.2.2` release registers exactly two managed events:
 Both handlers are read-only and emit `PWF_GLOBAL_HOOK_CANARY_V1` as an owned
 diagnostic marker.
 
-The `v0.2.2` bootstrap first installs the pristine upstream `v3.8.2` Skill and
+The `v0.3.0` bootstrap initially installs the pristine upstream `v3.8.2` Skill and
 then applies `PWF_CODEX_CLOUD_COMPAT_PATCH` to
 `scripts/session-catchup.py`. The patch makes four narrow compatibility fixes:
 
@@ -189,14 +189,14 @@ allowlist of every upstream runtime file that the managed adapter can execute.
 | `hooks/hook_adapter.py` | Current read-only Codex protocol adapter and legacy injection implementation |
 | `patches/patch_planning_skill.py` | Atomic, idempotent, fail-closed `v3.8.2` Cloud compatibility patcher |
 | `upstream-manifest.json` | Pinned upstream release identity and approved Skill-file hashes |
-| `init-cloud-sandbox-v0.2.2.bash` | Release-candidate bootstrap that patches the Skill before installing Hooks |
+| `init-cloud-sandbox-v0.3.0.bash` | Development bootstrap for the active modernization iteration |
 | `黑盒验证.md` | Beginner-oriented Cloud runbook for health, lifecycle, catch-up, repair, and fail-closed tests |
 | `tests/hook-adapter.test.js` | Hook payload and no-plan behavior tests |
 | `tests/installer.test.js` | Managed-policy ownership, drift, repair, backup, and uninstall tests |
 | `tests/fixtures/planning-with-files/` | Self-contained pinned Skill fixture; not a second production Skill |
 | `planning-with-files-3.8.2/` | Ignored local upstream reference tree supplied for development; never package it |
 | `.planning/.active_plan` | Pointer to the current Managed Runtime Modernization plan |
-| `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` | Completed implementation and Cloud-acceptance record; only manual final packaging remains |
+| `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` | Completed implementation, Cloud-acceptance, and published-release record |
 | `.planning/2026-08-01-managed-runtime-modernization/` | Active long-term managed-runtime modernization roadmap and audit history |
 
 ## Install and operate
@@ -223,7 +223,7 @@ Use `--skill-root PATH` to select an explicit installation.
 npm test
 python3 -m py_compile hooks/hook_adapter.py
 node --check install.js
-bash -n init-cloud-sandbox-v0.2.2.bash
+bash -n init-cloud-sandbox-v0.3.0.bash
 git diff --check
 ```
 
@@ -239,7 +239,7 @@ features. Several cases cover multiple related guarantees. Together they cover:
 - rejection of unowned, manifest, and unknown-runtime drift;
 - byte-for-byte restoration from installation backups;
 - deterministic/idempotent patching and rejection of unknown Skill drift;
-- guarded v0.2.2 checksum and patch-before-installer bootstrap ordering;
+- guarded v0.3.0 checksum and patch-before-installer bootstrap ordering;
 - `.agents` installation, `$CODEX_HOME/sessions`, scoped-plan, resume-adapter,
   and unsynced-sentinel catch-up behavior, including a sentinel after a long
   Cloud wrapper.
@@ -275,7 +275,7 @@ instead of replacing the administrator's managed Hook root.
 
 ### Cloud bootstrap
 
-`init-cloud-sandbox-v0.2.2.bash` is the Debian/Ubuntu amd64 release-candidate
+`init-cloud-sandbox-v0.3.0.bash` is the Debian/Ubuntu amd64 development
 bootstrap. It can install prerequisites, PowerShell, Node.js, the Skill, and the managed Hook
 package, then validate the filesystem, TOML, Codex feature state, adapter
 protocol, and canaries.
@@ -284,18 +284,18 @@ Codex Cloud does not need to provide `CODEX_HOME` before setup. The bootstrap
 exports `/opt/codex` as its default; an explicitly supplied value still wins.
 
 ```bash
-sudo bash init-cloud-sandbox-v0.2.2.bash all
-bash init-cloud-sandbox-v0.2.2.bash help
-bash init-cloud-sandbox-v0.2.2.bash verify
+sudo bash init-cloud-sandbox-v0.3.0.bash all
+bash init-cloud-sandbox-v0.3.0.bash help
+bash init-cloud-sandbox-v0.3.0.bash verify
 ```
 
-The checked-in `v0.2.2` script deliberately keeps an all-zero `HOOKS_SHA256`
+The checked-in `v0.3.0` script deliberately keeps an all-zero `HOOKS_SHA256`
 placeholder and fails before download while it remains unset. Documentation is
 part of the ZIP, so its final SHA-256 can be calculated only after these release
 files stop changing and the archive is rebuilt. Replace the placeholder manually
-with that final archive hash immediately before publication. The already-published
-v0.2.1 release remains historical rollback context; neither the v0.2.2 package nor
-its tests require a local v0.2.1 bootstrap.
+with that final archive hash immediately before publication. The published
+`v0.2.2` release remains the Cloud-validated rollback baseline; v0.3.0 does not
+require a local copy of the v0.2.2 bootstrap.
 
 Component commands do not install their dependencies automatically. Use `all`
 for the complete ordered workflow or follow the dependency notes printed by
@@ -423,28 +423,27 @@ From the repository root:
 
 ```bash
 cat .planning/.active_plan
-cat .planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/task_plan.md
-cat .planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/progress.md
-cat .planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/findings.md
+cat .planning/2026-08-01-managed-runtime-modernization/task_plan.md
+cat .planning/2026-08-01-managed-runtime-modernization/progress.md
+cat .planning/2026-08-01-managed-runtime-modernization/findings.md
 git status --short --branch
 ```
 
 Treat `task_plan.md` as the execution contract, `findings.md` as durable research
 and decisions, and `progress.md` as the chronological implementation log.
 
-### Current v0.2.2 delivery status
+### Published v0.2.2 baseline
 
 - Patch, adapter/installer/bootstrap integration, automated regression coverage,
-  Cloud functional acceptance, and the beginner black-box runbook are complete.
+  Cloud acceptance, final packaging, and publication are complete.
 - The complete A—F Cloud matrix in [`黑盒验证.md`](黑盒验证.md) passed on
   2026-08-01, including the long-wrapper unsynced sentinel and final doctor.
-- The only remaining release operation is to rebuild the ZIP after documentation
-  is final, calculate its new SHA-256, and manually replace the bootstrap
-  placeholder before publication.
+- Published Release ZIP SHA-256:
+  `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84`.
 - `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` retains the
-  implementation, acceptance evidence, and packaging gate.
+  implementation, acceptance evidence, and release history.
 
-### Long-term modernization handoff
+### Active v0.3.0 modernization
 
 `.planning/2026-08-01-managed-runtime-modernization/` is active again. The
 v0.2.2 patch is now an explicit temporary compatibility-overlay milestone:
@@ -478,10 +477,10 @@ and architectural rationale live in the sibling `findings.md`.
    `hooks/hook_adapter.py`, and `patches/patch_planning_skill.py`. Do not include
    the local `planning-with-files-3.8.2/` reference tree.
 4. Inspect the final ZIP contents, then publish that exact archive.
-5. Record the archive SHA-256 in `init-cloud-sandbox-v0.2.2.bash`; do not bypass
+5. Record the archive SHA-256 in `init-cloud-sandbox-v0.3.0.bash`; do not bypass
    its placeholder guard.
 6. Run bootstrap install and doctor in a fresh environment.
-7. Follow the `v0.2.2` catch-up procedure in
+7. Follow the `v0.3.0` regression procedure in
    [`黑盒验证.md`](黑盒验证.md) and require the
    resume canary, `Runtime: codex`, unsynced count, and sentinel.
 8. Keep canaries until every newly enabled lifecycle path is proven.

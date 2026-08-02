@@ -92,7 +92,7 @@
 - The Cloud `npm test` failure on `init-cloud-sandbox-v0.2.1.bash` was caused by a repository-history assertion inside `skill-patch.test.js`. v0.2.1 is not an input to the v0.2.2 patch/runtime contract and is intentionally absent from the current Release workspace, so the test must validate v0.2.2 in isolation.
 - Cloud transcript diagnostics proved the missing sentinel was present in a standard post-update `response_item/message/user` record. `extract_messages_after` retained the full content, but report rendering used `msg['content'][:300]`, so a long Cloud PR-feedback wrapper hid the trailing user instruction.
 - Final Cloud acceptance passed the complete A—F runbook against the pinned v0.2.2 package. The accepted resume report observed the full catch-up framing, `Runtime: codex`, scoped planning update, positive unsynced count, long-wrapper tail sentinel, and Planning context; repair, unknown drift fail-closed, backup restoration, and final healthy doctor also passed.
-- Cloud-tested package SHA-256: `4e3e3608e4634f03677cb30562fb53ac0bdd9e3d2334fd34419eaa2b33ab07a8`. It is not the final release hash because subsequent documentation updates change the archive bytes; the bootstrap must remain on its all-zero placeholder until the final rebuild.
+- Published v0.2.2 Release ZIP SHA-256: `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84`. This closes the final packaging gate; later work belongs to v0.3.0 Managed Runtime Modernization.
 
 ## Technical Decisions
 | Decision | Rationale |

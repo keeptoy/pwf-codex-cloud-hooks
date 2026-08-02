@@ -12,6 +12,10 @@
 > produced this roadmap. The current accepted implementation and Cloud evidence
 > are recorded in the v0.2.2 evidence section later in this file.
 
+Current release/iteration boundary as of 2026-08-02:
+- `v0.2.2` is published and Cloud validated; Release ZIP SHA-256 is `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84`.
+- `v0.3.0` is the active unpublished modernization worktree. Its bootstrap intentionally uses the all-zero archive checksum placeholder until final packaging.
+
 ## Repository Audit
 
 ### Confirmed matches
