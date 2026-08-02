@@ -91,3 +91,70 @@
 - `node --test tests/hook-adapter.test.js tests/skill-patch.test.js`: 6 passed, 0 failed.
 - Node syntax checks for installer and all tests: passed.
 - v0.3.0 bootstrap contains zero CR bytes; `git diff --check`: passed.
+
+## Session: 2026-08-02 — project understanding consolidation
+
+### Actions Taken
+- Re-read the repository runtime, installer, bootstrap, compatibility patch, tests, active roadmap, and the relevant upstream v3.8.2 Codex Hook/runtime sources.
+- Reconciled the maintainer's Cloud deployment facts with the v0.2.2 black-box failure and diagnostic evidence.
+- Created `PROJECT_UNDERSTANDING.md` as the durable project mental model for future resume, clear, and compaction recovery.
+- Recorded the confirmed two-asset Release boundary: the initialization Bash remains outside the ZIP that it downloads and verifies.
+- Recorded `/opt/codex` as the current default/verified Cloud root while treating Hook-time `CODEX_HOME` as non-authoritative.
+- Kept Phase 1 and its Next Step unchanged; no runtime behavior or implementation code changed.
+
+### Verification
+- `node --test tests/hook-adapter.test.js tests/skill-patch.test.js`: 6 passed, 0 failed during the preceding read-only code audit.
+- Documentation-only update; no full Linux installer or Cloud black-box run was attempted.
+
+### Cloud lifecycle clarification
+- Maintainer confirmed that every cold sandbox start runs the configured initialization script, while continued conversations may reuse a cached sandbox.
+- Recorded that observations from an initialized/cached sandbox cannot be treated as default-image facts without a no-init control sandbox.
+- Agreed to collect a read-only default-image baseline first, then a sanitized transcript-shape probe; raw Hook stdin observation remains a later, separately designed step.
+
+## Session: 2026-08-02 — no-init Cloud baseline and transcript schema probe
+
+### Evidence Received
+- Ran the agreed probe in a new empty GitHub repository with no sandbox initialization script.
+- Confirmed the default agent environment has `CODEX_HOME=/opt/codex`, an existing `/opt/codex/sessions`, and no `CODEX_SESSIONS_DIR` override.
+- Confirmed `/etc/codex/requirements.toml`, `/root/.codex`, and `/root/.agents` are absent before this repository or the upstream Skill is installed.
+- Captured the dated platform sample: root user, Ubuntu 24.04.4, Codex CLI `0.144.0-alpha.4`, and stable enabled Hooks.
+- Confirmed `CODEX_THREAD_ID`, `session_meta.id`, and `session_meta.session_id` identify the same session in this sample.
+- Captured sanitized `session_meta`, successful `patch_apply_end`, `response_item`, and `event_msg` shapes.
+- Proved exact cross-family duplication of user and assistant message text between `response_item` and `event_msg`.
+
+### Outcome
+- Default-image facts are now separated from bootstrap/cache effects.
+- Phase 1 has sufficient sanitized JSONL structure to create Cloud-shaped identity, patch-update, and duplicate-record fixtures.
+- The next observation task was a minimal reversible Hook canary recording stdin keys/types and selected environment-variable presence without prompt or transcript bodies; the following session completed it.
+- Phase 1 status remains pending; no installed Hook behavior or production code changed.
+
+## Session: 2026-08-02 — real Managed Hook stdin probe
+
+### Evidence Received
+- Installed the temporary schema-only Managed Hook in a disposable Cloud sandbox and observed both `SessionStart` and `UserPromptSubmit` canaries.
+- Captured four sanitized records: startup SessionStart, first UserPromptSubmit, resume SessionStart, and resume UserPromptSubmit.
+- Confirmed the exact event-specific top-level stdin fields without recording prompt or transcript bodies.
+- Confirmed a stable stdin `session_id` across startup, resume, and prompts, plus a distinct `turn_id` for each prompt.
+- Confirmed both events receive `transcript_path` directly from the Host.
+- Confirmed current Hook subprocess environments contain `CODEX_HOME=/opt/codex` while `CODEX_THREAD_ID`, `CODEX_SESSIONS_DIR`, and `PWF_SESSION_ID` are absent.
+
+### Planning Impact
+- Added `validated transcript path` to the Phase 1 adapter/runtime request contract and verification matrix.
+- Changed session-store enumeration from the implicit primary selection method to an explicit compatibility fallback when no valid Host transcript is supplied.
+- Corrected the roadmap shorthand from “Hook-time CODEX_HOME missing” to fixtures covering both current presence and compatible absence.
+- After maintainer review, corrected “Hook inherited CODEX_HOME” to the evidence-bounded statement “Hook environment contained CODEX_HOME”; the probe compared but never set this variable.
+- Kept Phase 1 pending and current production behavior unchanged.
+
+## Session: 2026-08-02 — CODEX_HOME lifecycle provenance resolved
+
+### Evidence Received
+- Ran the same minimal shell presence check during Cloud sandbox initialization: `CODEX_HOME` was absent.
+- Re-ran it after sandbox startup during the first prompt conversation: `CODEX_HOME=/opt/codex`.
+- Combined this with the managed Hook probe, where the Hook environment also contained `/opt/codex`.
+- Confirmed neither the empty-repository initializer nor the Hook probe initializer assigned or exported `CODEX_HOME`.
+
+### Outcome
+- The current lifecycle contract is stage-specific: setup has no `CODEX_HOME`; Codex agent and managed Hook runtime environments have `/opt/codex`.
+- The platform makes the variable available between sandbox initialization and Codex Runtime startup; it is not a persistent export from this repository's bootstrap.
+- The bootstrap's `${CODEX_HOME:-/opt/codex}` remains necessary as an installation-stage default, while adapter/runtime fallback remains necessary for portability and future image changes.
+- Phase 1 remains pending; this was evidence and documentation refinement only.

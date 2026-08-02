@@ -282,6 +282,11 @@ protocol, and canaries.
 
 Codex Cloud does not need to provide `CODEX_HOME` before setup. The bootstrap
 exports `/opt/codex` as its default; an explicitly supplied value still wins.
+Current Cloud evidence shows the variable is absent while the sandbox
+initialization script runs, then is available as `/opt/codex` after the Codex
+runtime starts, including in the observed managed Hook processes. The bootstrap
+default is therefore an installation-stage fallback, not the source of the
+later runtime variable.
 
 ```bash
 sudo bash init-cloud-sandbox-v0.3.0.bash all

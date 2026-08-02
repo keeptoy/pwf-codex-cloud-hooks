@@ -14,7 +14,8 @@
 - 运行依赖图
 - v0.2.2 四项 Cloud 补丁的 overlay 台账
 - 每项补丁的原因、输入/输出哈希、上游锚点、移除条件
-- adapter → runtime 请求结构
+- adapter → runtime 请求结构，包括 stdin `session_id`、validated `transcript_path`、
+  session-store fallback、event/source、project root 和输出预算
 - diagnostic reason codes
 - Release ZIP 的收录边界
 - 明确哪些是上游原文件、哪些是 overlay、哪些是本项目代码
@@ -47,7 +48,10 @@
 - 加入真实 Cloud 形态：
   - Skill 位于 .agents/skills
   - Session 位于 /opt/codex/sessions
-  - Hook 运行时缺少 CODEX_HOME
+  - 初始化阶段 CODEX_HOME 缺失，Codex Runtime/Hook 阶段为 /opt/codex；兼容 fixture
+    覆盖阶段差异与未来缺失
+  - SessionStart/UserPromptSubmit 的真实 stdin schema
+  - 稳定 session_id、逐 prompt 变化的 turn_id、Host 提供的 transcript_path
   - patch_apply_end
   - response_item / event_msg 重复记录
   - 长 PR wrapper

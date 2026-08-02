@@ -19,7 +19,7 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 5. `SessionStart` and `UserPromptSubmit` remain read-only until a separately reviewed phase says otherwise.
 6. Canary output remains available throughout rollout and is removed only after fresh-session verification.
 7. Every phase adds tests before its behavior is enabled in the Cloud setup artifact.
-8. Runtime identity, session-store location, project root, event source, and output limits are explicit host contracts; they are never inferred solely from an installed script path.
+8. Runtime identity, validated transcript path, session-store fallback, project root, event source, and output limits are explicit host contracts; they are never inferred solely from an installed script path.
 9. Hook stdout remains valid, bounded Codex JSON. Detailed skip/failure reasons go to a separate diagnostic surface and never corrupt injected context.
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
@@ -42,7 +42,7 @@ Phase 1 — Runtime provenance and compatibility contract
 
 ### Phase 0.5: v0.2.2 Cloud evidence integration
 - [x] Record the `.agents` runtime-misclassification failure and explicit `PWF_RUNTIME=codex` fix.
-- [x] Record `/opt/codex/sessions`, missing Hook-time `CODEX_HOME`, and adapter installed-path fallback behavior.
+- [x] Record `/opt/codex/sessions`, non-authoritative Hook-time `CODEX_HOME`, and adapter installed-path fallback behavior.
 - [x] Record scoped-plan catch-up parity and structured `patch_apply_end` requirements.
 - [x] Record real Cloud wrapper truncation, bounded head/tail preservation, and the successful resume sentinel regression.
 - [x] Mark the single v0.2.2 compatibility patch as a temporary bridge and modernization input, not a long-term runtime architecture.
@@ -68,8 +68,8 @@ Phase 1 — Runtime provenance and compatibility contract
 - [ ] Define the release artifact allowlist and keep the checksum-pinning bootstrap outside the bytes whose checksum it pins, or document an equivalent two-stage publication procedure.
 - [ ] Add `THIRD_PARTY_NOTICES.md` or equivalent MIT attribution before distributing substantial upstream code.
 - [ ] Capture golden fixtures for current `SessionStart`, `UserPromptSubmit`, no-plan, scoped-plan, newest-plan, and legacy-root output.
-- [ ] Add Cloud-shaped catch-up fixtures for `.agents`, `/opt/codex/sessions`, absent Hook-time `CODEX_HOME`, structured `patch_apply_end`, duplicate transcript record families, and a long wrapper with a tail sentinel.
-- [ ] Define a versioned adapter-to-runtime request contract containing runtime, project root, event/source, session identity, session-store override, resolved plan state, and output budget.
+- [ ] Add Cloud-shaped catch-up fixtures for `.agents`, `/opt/codex/sessions`, absent initialization-stage and present runtime/Hook-stage `CODEX_HOME` plus a missing-variable compatibility case, real SessionStart/UserPromptSubmit stdin schemas, stable `session_id`, distinct `turn_id`, Host-provided `transcript_path`, structured `patch_apply_end`, duplicate transcript record families, and a long wrapper with a tail sentinel.
+- [ ] Define a versioned adapter-to-runtime request contract containing runtime, project root, event/source, session identity, validated transcript path, session-store fallback/override, resolved plan state, and output budget.
 - [ ] Define machine-readable catch-up diagnostic outcomes such as `no_plan`, `no_session_store`, `no_matching_session`, `no_planning_update`, `no_unsynced_context`, `report_emitted`, and `runtime_error`.
 - [ ] Extend installed-manifest/runtime inventory checks so missing, changed, and unknown files fail closed.
 - [ ] Test install, doctor, repair, uninstall, and backup restoration with a multi-file runtime.
@@ -79,7 +79,7 @@ Phase 1 — Runtime provenance and compatibility contract
 ### Phase 2: Owned catch-up runtime and safety foundation
 - [ ] Install catch-up and its allowlisted dependencies beneath the owned managed runtime; stop executing `session-catchup.py` from a mutable global Skill directory.
 - [ ] Apply any still-required compatibility overlay only to the owned imported copy, leaving the global upstream Skill pristine.
-- [ ] Pass runtime/session/project/event data through the explicit host contract instead of inferring Codex from a script path or relying on setup-shell environment persistence.
+- [ ] Pass runtime/session/transcript/project/event data through the explicit host contract instead of inferring Codex from a script path, scanning before using a valid Host transcript, or relying on setup-shell environment persistence.
 - [ ] Make catch-up and prompt injection share one canonical scoped/root plan resolver so one path cannot see a plan that the other rejects.
 - [ ] Normalize real Codex JSONL record families, deduplicate logically repeated user/assistant messages where safe, preserve structured planning updates, and enforce per-message plus total-report budgets.
 - [ ] Add a non-injecting diagnostic command that reports reason codes and selected paths without exposing transcript content by default.
@@ -181,8 +181,8 @@ Phase 1 — Runtime provenance and compatibility contract
 | Area | Required checks |
 |------|-----------------|
 | Source integrity | Archive checksum, allowlist, per-file hashes, modes, license notice, reproducible import |
-| Adapter protocol | Empty/malformed stdin, cwd, session_id, event name, stdout JSON, stderr isolation, timeout |
-| Host/runtime contract | Explicit Codex identity, absent CODEX_HOME, `/opt/codex/sessions`, session override, install/Hook user matrix |
+| Adapter protocol | Empty/malformed stdin, real event-specific schemas, cwd, session_id, turn_id, transcript_path, event/source, stdout JSON, stderr isolation, timeout |
+| Host/runtime contract | Explicit Codex identity, initialization/runtime CODEX_HOME stage split, missing-variable compatibility, absent Hook-time CODEX_THREAD_ID, validated transcript path, `/opt/codex/sessions` fallback, session override, install/Hook user matrix |
 | Plan resolution | PLAN_ID, active pointer, newest scoped plan, legacy root, invalid slug, symlink escape |
 | Catch-up transcript | response/event record families, structured patch update, duplicate normalization, wrapper tail, per-message/total budgets, reason codes |
 | Injection | no plan, legacy, smart, attested, unattested v3, tampered, nonce, output limits |

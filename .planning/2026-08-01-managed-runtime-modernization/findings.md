@@ -125,6 +125,32 @@ Use a hybrid managed-runtime bundle:
 - The final resume black box observed `SESSION CATCHUP DETECTED`, `Runtime: codex`, the scoped planning update, a positive unsynced count, the long-wrapper tail sentinel, and Planning context. The compatibility behavior is therefore a proven baseline fixture, not a speculative requirement.
 - The observed install and Hook users were both root. That sample rules out a user mismatch only for that environment; it does not prove a general cross-user deployment contract.
 
+### No-init cold-sandbox baseline (2026-08-02)
+- A new empty repository with no repository initialization script proved that `CODEX_HOME=/opt/codex` and `/opt/codex/sessions` are properties of the current post-start Codex agent environment, not exports introduced by this repository's bootstrap. This is a dated runtime observation, not a permanent platform guarantee.
+- The sample ran as root with `HOME=/root`; `CODEX_SESSIONS_DIR` and `USER` were unset. `/root/.codex`, `/root/.agents`, and `/etc/codex/requirements.toml` were absent.
+- Codex CLI `0.144.0-alpha.4` reported the `hooks` feature as stable and enabled. The platform supplies Hook capability, while this repository still supplies managed requirements, installation policy, and the planning runtime.
+- `CODEX_THREAD_ID`, `session_meta.id`, and `session_meta.session_id` had identical UUID lengths and sanitized hashes. Session identity can therefore be correlated in this sample, but raw Hook stdin must still be observed before making `session_id` required in the adapter contract.
+- The selected rollout matched the project through `session_meta.cwd`; `session_meta.source` was `vscode`.
+- A successful `apply_patch` emitted a structured `event_msg` with `payload.type=patch_apply_end`, `success=true`, relative-path `changes`, and `call_id`, `turn_id`, `status`, `stdout`, and `stderr` keys. This is suitable for the Phase 1 planning-update fixture.
+- User and assistant messages appeared as exact cross-family duplicates in adjacent `response_item` and `event_msg` records. Role, length, and sanitized content hash matched. Deduplication must be conservative and preserve ordering and the only copy of any message.
+- The sanitized rollout contained 56 valid records with record families `session_meta`, `turn_context`, `world_state`, `event_msg`, and `response_item`; the requested Cloud-shaped schemas are now available for fixture construction without message bodies.
+- This baseline narrowed the remaining host-contract questions to the actual Hook stdin key/type shape and Hook-process environment; the following managed probe resolved them for the current image.
+
+### Managed Hook stdin schema probe (2026-08-02)
+- Both canaries were actually injected before the first reply: `SessionStart` and `UserPromptSubmit`.
+- `SessionStart` stdin had exactly seven observed top-level fields: `cwd`, `hook_event_name`, `model`, `permission_mode`, `session_id`, `source`, and `transcript_path`.
+- `UserPromptSubmit` stdin had exactly eight observed top-level fields: `cwd`, `hook_event_name`, `model`, `permission_mode`, `prompt`, `session_id`, `transcript_path`, and `turn_id`.
+- The same 36-character `session_id` hash appeared in startup, resume, and both prompt events. Each prompt had a different 36-character `turn_id`.
+- `SessionStart.source=startup` and `SessionStart.source=resume` were both observed. The supplied four-record output already includes the requested resume sample.
+- Hook subprocess environments contained `CODEX_HOME=/opt/codex`; `CODEX_SESSIONS_DIR`, `CODEX_THREAD_ID`, and `PWF_SESSION_ID` were absent. The earlier agent-shell `CODEX_THREAD_ID` is therefore not a Hook contract.
+- The temporary probe initializer did not assign or export `CODEX_HOME`. Its `equals_opt_codex = value == "/opt/codex"` expression only compared the value returned by `os.environ.get("CODEX_HOME")`; it could not create or modify the variable.
+- A separate lifecycle-stage control ran the same shell test during sandbox initialization and after the first prompt. `CODEX_HOME` was absent during initialization and `/opt/codex` after Codex Runtime startup. Together with the probe initializer's lack of any assignment/export, this locates platform provisioning between setup and runtime and rules out this repository's initializer as the source of the later value.
+- The exact internal platform mechanism remains irrelevant to the adapter contract: setup must supply its own default, while runtime may consume but must not require the observed variable.
+- The Host supplies `transcript_path` directly on both enabled events. The owned catch-up runtime should validate and prefer this path, using session-store enumeration only as a compatibility fallback.
+- A supplied transcript path must still be checked for absolute/canonical containment beneath an allowed session root, regular-file type, expected rollout shape, and matching `session_meta` identity before reading content.
+- `prompt` is available only to UserPromptSubmit and is sensitive. Normal diagnostics and fixtures should record its type/length at most, never its body.
+- Current evidence supersedes the earlier current-state shorthand “Hook-time CODEX_HOME is missing.” The durable requirement is to support both observed presence and a missing-variable compatibility fixture.
+
 ### What this changes in the modernization architecture
 - The original managed-runtime direction remains correct and is strengthened by the evidence. Today the owned adapter still discovers and executes `session-catchup.py` from the mutable global Skill. Install/doctor hash validation helps, but it does not make that file part of the owned runtime inventory at execution time.
 - The highest-value next implementation milestone is therefore not a new lifecycle event. It is moving the Cloud-proven catch-up behavior and its allowlisted dependencies beneath `$CODEX_HOME/hooks/planning-with-files/`, then invoking that owned copy through an explicit adapter/runtime contract.
