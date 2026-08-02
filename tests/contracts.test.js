@@ -103,12 +103,27 @@ test("Phase 1 contracts and Round 2 manifest freeze provenance, overlays, host p
   for (const contract of Object.values(upstream.managed_runtime.contracts)) {
     assert.equal(fileHash(path.join(root, contract.path)), contract.sha256, contract.path);
   }
+  assert.equal(bundle.local_files.length, 1);
+  assert.equal(bundle.local_files[0].id, "owned_catchup");
+  assert.equal(bundle.local_files[0].activation_phase, 2);
+  assert.deepEqual(bundle.local_files[0].direct_file_dependencies, [{ id: "session_catchup", condition: "always", required: true }]);
+  assert.equal(fileHash(path.join(root, bundle.local_files[0].package_path)), bundle.local_files[0].sha256);
+  assert.deepEqual(upstream.managed_runtime.local_files, [{
+    id: "owned_catchup",
+    package_path: "runtime/owned-catchup.py",
+    mode: "0755",
+    origin: "local_managed_runtime",
+    sha256: bundle.local_files[0].sha256,
+  }]);
   assert.equal(fileHash(path.join(root, upstream.managed_runtime.importer.path)), upstream.managed_runtime.importer.sha256);
   assert.equal(fileHash(path.join(root, upstream.managed_runtime.license_provenance.notice_path)), upstream.managed_runtime.license_provenance.notice_sha256);
 
   assert.equal(request.$schema, "https://json-schema.org/draft/2020-12/schema");
   assert.equal(request.additionalProperties, false);
   assert.deepEqual(request.required, ["schema_version", "runtime", "event", "project", "transcript", "output_budget"]);
+  assert.deepEqual(request.properties.project.required, ["root", "planning_enabled", "session_attachment", "plan_state", "plan_scope", "plan_dir"]);
+  assert.deepEqual(request.properties.project.properties.session_attachment.enum, ["legacy", "attached", "detached"]);
+  assert.equal(request.properties.event.properties.session_id.pattern, "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$");
   assert.equal(request.properties.output_budget.properties.max_report_chars.const, 20000);
   assert.equal(request.properties.output_budget.properties.max_messages.const, 15);
   assert.equal(request.properties.output_budget.properties.user_head_chars.const, 350);
@@ -119,8 +134,20 @@ test("Phase 1 contracts and Round 2 manifest freeze provenance, overlays, host p
   assert.equal(result.$schema, "https://json-schema.org/draft/2020-12/schema");
   assert.equal(result.additionalProperties, false);
   assert.ok(result.$defs.outcome.enum.includes("report_emitted"));
+  assert.ok(result.$defs.outcome.enum.includes("diagnostic_report_available"));
+  assert.ok(result.$defs.outcome.enum.includes("planning_disabled"));
+  assert.ok(result.$defs.outcome.enum.includes("session_not_attached"));
   assert.ok(result.$defs.outcome.enum.includes("no_plan"));
   assert.ok(result.$defs.outcome.enum.includes("runtime_error"));
+  assert.ok(result.$defs.outcome.enum.includes("malformed_transcript"));
+  assert.ok(result.$defs.outcome.enum.includes("transcript_unreadable"));
+  assert.ok(result.properties.diagnostic.required.includes("planning_enabled"));
+  assert.ok(result.properties.diagnostic.required.includes("session_attachment"));
+  assert.ok(result.properties.diagnostic.required.includes("selected_transcript_path"));
+  assert.ok(result.properties.diagnostic.required.includes("selected_plan_dir"));
+  assert.ok(result.properties.warnings.items.enum.includes("invalid_utf8_record"));
+  assert.ok(result.properties.warnings.items.enum.includes("invalid_json_record"));
+  assert.ok(result.properties.warnings.items.enum.includes("record_too_large"));
   assert.equal(result.properties.report.maxLength, 20000);
 
   assert.equal(artifact.archive_root, "pwf-codex-cloud-hooks/");

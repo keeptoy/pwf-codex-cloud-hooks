@@ -58,23 +58,24 @@
 - session 实际位于 `/opt/codex/sessions`；
 - 后续 Hook 进程不能依赖初始化 Shell 中的环境变量继续存在。
 
-因此本仓库同时需要 Cloud 部署适配层和临时上游兼容补丁。
+因此本仓库同时需要 Cloud 部署适配层和仅位于 owned copy 的临时上游兼容 overlay。
 
-## 4. 当前 v0.2.2/v0.3.0 继承的运行链
+## 4. 当前 v0.3.0-alpha.2 候选运行链
 
 ```text
 init-cloud-sandbox-v0.3.0.bash
   |-- 准备 Debian/Ubuntu amd64 Cloud 沙箱依赖
   |-- 安装上游 planning-with-files v3.8.2 Skill
   |-- 下载并校验本仓库 GitHub Release ZIP
-  |-- 对全局 Skill 的 session-catchup.py 应用受哈希保护的兼容补丁
-  `-- 调用 install.js 安装、doctor 并验证 Managed Hooks
+  |-- 保持全局 Skill 为 pristine upstream v3.8.2
+  `-- 调用 install.js 安装、doctor 并验证 owned Managed Hooks
 
 /etc/codex/requirements.toml
   `-- /usr/bin/python3 /opt/codex/hooks/planning-with-files/hook_adapter.py <event>
         |-- 解析 Codex Hook stdin JSON
-        |-- 自己解析并注入 active plan 和 recent progress
-        `-- SessionStart 时调用全局 Skill 中已打补丁的 session-catchup.py
+        |-- UserPromptSubmit 仍本地解析并注入 active plan 和 recent progress
+        `-- SessionStart 时监督 sibling owned-catchup.py
+              `-- 只导入 owned upstream/session-catchup.py
 ```
 
 当前只启用两个 Managed Hook：
@@ -351,7 +352,7 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 - 初始化 Cloud 沙箱依赖；
 - 安装 pinned upstream Skill；
 - 下载、校验和解压本仓库 Release ZIP；
-- 先打 Skill 兼容补丁，再调用 installer；
+- 保持全局 Skill pristine，再调用 installer；
 - 执行 filesystem、TOML、Codex feature、adapter protocol 和 doctor 检查；
 - 提示操作者在全新 Cloud 任务中做黑盒验收。
 
@@ -371,35 +372,35 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 - 输出 rollout canary；
 - 当前自行解析 active/newest/root plan；
 - 当前自行读取 plan head 和 progress tail；
-- SessionStart 时监督运行全局 Skill 中的 patched catch-up；
+- SessionStart 时构造严格 v1 请求并监督运行 sibling `owned-catchup.py`；
 - Runtime advisory 失败时保持 Codex loop 可继续。
 
-### `patches/patch_planning_skill.py`
+### `patches/patch_planning_skill.py`（历史 overlay 复现工具）
 
 - 对 pinned pristine v3.8.2 输入做四处确定性转换；
 - 校验 exact anchors、输入/输出 SHA；
 - 原子替换并保留文件 mode；
 - 重复执行幂等；
-- 未知内容 fail-closed。
+- 未知内容 fail-closed；
+- alpha.2 Release 与 bootstrap 不再包含或调用它。
 
 ## 11. 当前长期缺口
 
-- Runtime 仍执行用户全局 Skill 目录中的可变文件；
-- owned runtime 当前只有 adapter 和 installed manifest；
+- owned runtime 当前安装 adapter、active `owned-catchup.py`、四个 pinned upstream
+  文件、overlay ledger、notice 和 installed manifest；
 - adapter 仍维护一套平行的 plan resolution/injection 实现；
-- 当前 resolver 缺少上游的 `PLAN_ID`、BOM 和 canonical containment；
-- scoped symlink 可能逃逸项目根目录；
+- adapter 的本地 resolver 已补齐 `PLAN_ID`、BOM 和 canonical containment，但在
+  Phase 3 canonical prompt injection 前仍是一套平行实现；
 - installer 校验的 `resolve-plan-dir.sh` 当前没有被 Managed Hook 执行；
-- 安装时记录的 `skill_root` 没有成为 Hook 运行时显式输入；
-- 当前 catch-up 忽略 Host 已提供的 `transcript_path`，仍扫描 session store 选择 rollout；
-- catch-up 静默跳过，没有机器可读 reason code；
-- 已证明 transcript 存在跨 `response_item`/`event_msg` 的逐字重复，但 runtime 尚未实现
-  完整归一化和安全去重；
-- per-message 截断存在，但缺少明确的完整报告预算；
-- 当前没有 opt-out、可靠 session isolation、attestation、nonce、smart injection、
+- 安装时记录的 `skill_root` 只用于 pristine Skill 安装校验，不是 Hook 运行时输入；
+- active owned catch-up 优先验证 Host `transcript_path`，只对明确 session roots 开放 fallback；
+- owned runtime 已提供机器可读 reason code、selected-path diagnostics 和不含 transcript 内容的诊断模式；
+- runtime 已显式归一化 `response_item`/`event_msg`、保守去重，并对损坏
+  UTF-8/JSON、未知 record、总报告预算和子进程失败给出非注入结果；
+- adapter 已实现 opt-out 和 backward-compatible session isolation；当前仍没有 attestation、nonce、smart injection、
   structured ledger、compact/tool/permission/Stop Managed Hooks；
 - normal install 中途失败依赖备份人工恢复，不是自动事务回滚；
-- 当前没有可复现的 upstream allowlist 导入器和正式 Release artifact builder。
+- upstream allowlist 导入器和精确 Release artifact builder 已在 Phase 1 完成。
 
 ## 12. v0.3.0 目标架构
 
@@ -408,6 +409,7 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
   `-- absolute command beneath managed_dir
         `-- $CODEX_ROOT/hooks/planning-with-files/
               |-- hook_adapter.py
+              |-- owned-catchup.py             # Phase 2 Round 4 active for SessionStart
               |-- upstream/                     # pinned + allowlisted
               |-- compatibility-overlays.json   # 每项有退休条件
               |-- installed-manifest.json
@@ -438,9 +440,16 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 - Phase 0.5：吸收 v0.2.2 Cloud 实证；
 - Phase 0.6：初始化 v0.3.0 迭代身份。
 
-当前阶段：Phase 1 三轮本地实现均已完成，仍未切换 Hook 执行行为。第 3 轮已经补齐
-fixtures、多文件 installer 生命周期、兼容性 golden 和确定性 alpha.1 候选构建；下一步
-是发布两个独立 pre-release 资产并做新 Cloud 沙箱安装/doctor 冒烟。
+当前阶段：Phase 1 三轮本地实现和 `v0.3.0-alpha.1` Cloud 验收均已完成。Phase 2
+第 1–3 轮完成 owned runtime、plan/session safety、transcript normalization、diagnostics
+与 supervisor failure semantics；第 4 轮已在本地激活 SessionStart owned catch-up，停止
+global Skill mutation，补上 Linux 权限门槛，并进入 18-entry alpha.2 Release 边界。
+Managed Hook 命令仍只注册 adapter，UserPromptSubmit 仍本地实现。下一步是发布并执行
+alpha.2 fresh-Cloud hard acceptance；通过前 alpha.1 仍是回滚点。
+
+Release 封板存在明确依赖顺序：先确定版本并冻结 ZIP 内容，构建并计算 ZIP SHA-256；
+再把版本、包名和 ZIP SHA 写入 ZIP 外部 Bash，计算封板后的 Bash SHA-256；最后发布并
+核验两个资产。封板前脚本的 SHA 不能当作 Release Bash SHA。
 
 第 1 轮已完成：
 
@@ -459,10 +468,11 @@ fixtures、多文件 installer 生命周期、兼容性 golden 和确定性 alph
 
 Phase 1 三轮均不得改变已经通过 v0.2.2 Cloud 验收的 Hook 行为。
 
-第 3 轮 installer 会把四个上游脚本作为 inactive owned inventory 安装和校验，同时安装
-overlay ledger 与 MIT notice；Managed Hook 命令仍只执行 `hook_adapter.py`。当前测试共
-25 个用例，包含六个精确 v0.2.2 输出 golden、真实 Cloud 形态 JSONL、七文件 payload
-生命周期和 18-entry 确定性 Release ZIP。
+Phase 1 第 3 轮 installer 把四个上游脚本作为 inactive owned inventory 安装和校验，
+同时安装 overlay ledger 与 MIT notice；Phase 2 加入并激活本地 owned entrypoint。
+Managed Hook 命令仍只注册 `hook_adapter.py`。当前测试登记 45 个：Windows 42 PASS、
+3 个 Linux-only 跳过；Release allowlist 为 18 entries（新增 owned runtime、移除历史
+global patcher）。alpha.1 的 25-case/18-entry/7-payload 数据保留为历史验收快照。
 
 ## 14. 本仓库可能退役的条件
 

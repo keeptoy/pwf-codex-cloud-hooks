@@ -33,6 +33,7 @@
         },
         "session_id": {
           "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
           "minLength": 1,
           "maxLength": 128
         },
@@ -46,10 +47,16 @@
     "project": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["root", "plan_state", "plan_scope", "plan_dir"],
+      "required": ["root", "planning_enabled", "session_attachment", "plan_state", "plan_scope", "plan_dir"],
       "properties": {
         "root": {
           "$ref": "#/$defs/absolutePath"
+        },
+        "planning_enabled": {
+          "type": "boolean"
+        },
+        "session_attachment": {
+          "enum": ["legacy", "attached", "detached"]
         },
         "plan_state": {
           "enum": ["none", "resolved"]
@@ -164,6 +171,48 @@
       "if": {
         "properties": {
           "project": {
+            "properties": { "planning_enabled": { "const": false } },
+            "required": ["planning_enabled"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "project": {
+            "properties": {
+              "plan_state": { "const": "none" },
+              "plan_scope": { "const": "none" },
+              "plan_dir": { "type": "null" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "project": {
+            "properties": { "session_attachment": { "const": "detached" } },
+            "required": ["session_attachment"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "project": {
+            "properties": {
+              "plan_state": { "const": "none" },
+              "plan_scope": { "const": "none" },
+              "plan_dir": { "type": "null" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "project": {
             "properties": { "plan_state": { "const": "none" } },
             "required": ["plan_state"]
           }
@@ -203,7 +252,8 @@
         "properties": {
           "transcript": {
             "properties": {
-              "host_path": { "$ref": "#/$defs/absolutePath" }
+              "host_path": { "$ref": "#/$defs/absolutePath" },
+              "session_store_roots": { "minItems": 1 }
             }
           }
         }

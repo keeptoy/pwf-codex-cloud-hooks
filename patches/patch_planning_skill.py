@@ -158,7 +158,7 @@ def load_contract(manifest_path: Path) -> tuple[str, str]:
     patched = contract.get("patched_sha256")
     if not isinstance(pristine, str) or not isinstance(patched, str):
         raise ValueError(f"{PATCH_ID} hashes missing")
-    managed = manifest.get("managed_skill_files", {}).get(TARGET)
+    managed = manifest.get("historical_patched_skill_files", {}).get(TARGET)
     if managed != patched:
         raise ValueError("managed Skill hash does not match compatibility patch")
     return pristine, patched

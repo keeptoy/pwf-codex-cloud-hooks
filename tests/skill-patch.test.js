@@ -58,20 +58,19 @@ test("compatibility patch is deterministic, idempotent, and fail-closed", () => 
   }
 });
 
-test("v0.3.0 bootstrap patches before install and keeps release checksum guarded", () => {
+test("alpha.2 bootstrap keeps the ZIP guard and leaves the global Skill pristine", () => {
   const bootstrap = fs.readFileSync(path.join(root, "init-cloud-sandbox-v0.3.0.bash"), "utf8");
   const workflow = bootstrap.match(/install_hooks_component\(\) \{([\s\S]*?)\n\}/);
   assert.ok(workflow, "install_hooks_component was not found");
-  assert.match(bootstrap, /HOOKS_VERSION="\$\{HOOKS_VERSION:-v0\.3\.0\}"/);
-  assert.match(bootstrap, /HOOKS_SHA256="\$\{HOOKS_SHA256:-[a-f0-9]{64}\}"/);
+  assert.match(bootstrap, /HOOKS_VERSION="\$\{HOOKS_VERSION:-v0\.3\.0-alpha\.2\}"/);
+  assert.match(bootstrap, /HOOKS_SHA256="\$\{HOOKS_SHA256:-61f2001f3dd3934d79144d5f1be09385a55936aba9f7481ad5e2177a486059db\}"/);
   assert.match(bootstrap, /HOOKS_SHA256 is still a placeholder/);
-  assert.match(bootstrap, /PLANNING_SKILL_PATCH_ID="PWF_CODEX_CLOUD_COMPAT_PATCH"/);
-  assert.ok(bootstrap.includes(`PLANNING_SKILL_PATCHED_SHA256="${patchContract.patched_sha256}"`));
-  assert.ok(workflow[1].indexOf("apply_planning_skill_compat_patch") < workflow[1].indexOf("install_managed_hooks"));
-  assert.match(bootstrap, /run_verification\(\) \{[\s\S]*verify_patched_planning_skill/);
+  assert.doesNotMatch(bootstrap, /apply_planning_skill_compat_patch|verify_patched_planning_skill|PLANNING_SKILL_PATCHED_SHA256/);
+  assert.match(workflow[1], /install_managed_hooks/);
+  assert.match(bootstrap, /run_verification\(\) \{[\s\S]*verify_planning_skill/);
 });
 
-test("patched catch-up handles .agents, CODEX_HOME sessions, and scoped plans", () => {
+test("historical compatibility overlay remains reproducible for the owned imported copy", () => {
   const { workspace, skill } = fixture("pwf-catchup-runtime-");
   const project = path.join(workspace, "project");
   const scoped = path.join(project, ".planning", "catchup-regression");
@@ -107,34 +106,6 @@ test("patched catch-up handles .agents, CODEX_HOME sessions, and scoped plans", 
     assert.match(result.stdout, /\.\.\.\[truncated\]\.\.\./);
     assert.match(result.stdout, new RegExp(sentinel));
 
-    const installedAdapter = path.join(codexHome, "hooks", "planning-with-files", "hook_adapter.py");
-    fs.mkdirSync(path.dirname(installedAdapter), { recursive: true });
-    fs.copyFileSync(path.join(root, "hooks", "hook_adapter.py"), installedAdapter);
-    const adapterEnv = {
-      ...process.env,
-      HOME: workspace,
-      USERPROFILE: workspace,
-    };
-    delete adapterEnv.PWF_RUNTIME;
-    delete adapterEnv.CODEX_HOME;
-    delete adapterEnv.CODEX_SESSIONS_DIR;
-    delete adapterEnv.CODEX_THREAD_ID;
-    const adapter = spawnSync(
-      python,
-      [installedAdapter, "SessionStart"],
-      {
-        encoding: "utf8",
-        env: adapterEnv,
-        input: JSON.stringify({ cwd: project, source: "resume" }),
-      },
-    );
-    assert.equal(adapter.status, 0, adapter.stderr);
-    const payload = JSON.parse(adapter.stdout);
-    const context = payload.hookSpecificOutput.additionalContext;
-    assert.match(context, /PWF_GLOBAL_HOOK_CANARY_V1 event=SessionStart source=resume/);
-    assert.match(context, /SESSION CATCHUP DETECTED/);
-    assert.match(context, /Runtime: codex/);
-    assert.match(context, /PWF_CATCHUP_UNSYNCED_SENTINEL_82C4/);
   } finally {
     fs.rmSync(workspace, { recursive: true, force: true });
   }

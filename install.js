@@ -60,6 +60,17 @@ function sourceRuntimeFiles() {
     expected: fileHash(path.join(ROOT, "hooks", "hook_adapter.py")),
     mode: 0o755,
   }];
+  for (const item of managed.local_files || []) {
+    const relative = path.posix.relative("runtime", item.package_path);
+    if (!relative || relative.startsWith("../") || path.posix.isAbsolute(relative)) throw new Error(`BLOCKED_PACKAGE_DRIFT: invalid local runtime package path ${item.package_path}`);
+    files.push({
+      id: item.id,
+      relative,
+      source: path.join(ROOT, ...item.package_path.split("/")),
+      expected: item.sha256,
+      mode: Number.parseInt(item.mode, 8),
+    });
+  }
   for (const item of managed.files) {
     const relative = path.posix.relative("runtime", item.package_path);
     if (!relative || relative.startsWith("../") || path.posix.isAbsolute(relative)) throw new Error(`BLOCKED_PACKAGE_DRIFT: invalid runtime package path ${item.package_path}`);
@@ -99,6 +110,14 @@ function runtimeInventory() {
   return sourceRuntimeFiles().map(file => ({ id: file.id, path: file.relative, sha256: file.expected, mode: file.mode.toString(8).padStart(4, "0") }));
 }
 function writeRuntimeFiles(paths) {
+  fs.mkdirSync(paths.runtime, { recursive: true, mode: 0o755 });
+  fs.chmodSync(paths.runtime, 0o755);
+  const directories = new Set(sourceRuntimeFiles().map(file => path.posix.dirname(file.relative)).filter(relative => relative !== "."));
+  for (const relative of [...directories].sort((a, b) => a.split("/").length - b.split("/").length || a.localeCompare(b))) {
+    const directory = path.join(paths.runtime, ...relative.split("/"));
+    fs.mkdirSync(directory, { recursive: true, mode: 0o755 });
+    fs.chmodSync(directory, 0o755);
+  }
   for (const file of sourceRuntimeFiles()) atomicWrite(path.join(paths.runtime, ...file.relative.split("/")), fs.readFileSync(file.source), file.mode);
 }
 function resolveSkill(explicit, codexHome) {
@@ -109,7 +128,9 @@ function resolveSkill(explicit, codexHome) {
   ];
   const skill = candidates.find(p => fs.existsSync(path.join(p, "SKILL.md")));
   if (!skill) throw new Error("planning-with-files SKILL.md was not found in an approved global location");
-  const requiredFiles = UPSTREAM.managed_skill_files || UPSTREAM.required_skill_files;
+  // The global Skill remains an independently installed, pristine upstream
+  // package. Managed Hooks no longer patch or execute its catch-up script.
+  const requiredFiles = UPSTREAM.required_skill_files;
   for (const [relative, expected] of Object.entries(requiredFiles)) {
     const file = path.join(skill, relative);
     if (!fs.existsSync(file) || fileHash(file) !== expected) throw new Error(`BLOCKED_UPSTREAM_OR_INSTALL_DRIFT: ${relative}`);
@@ -341,6 +362,19 @@ function inspectInstallation(paths, skill) {
     ...[...actualDirectories].filter(item => !expectedDirectories.has(item)),
   ].sort();
   if (unknown.length) add(`unknown runtime entries: ${unknown.join(", ")}`);
+  if (process.platform !== "win32" && actualDirectories.size) {
+    try {
+      if ((fs.statSync(paths.runtime).mode & 0o777) !== 0o755) add("runtime directory mode drift", Boolean(manifest));
+      for (const relative of expectedDirectories) {
+        const target = path.join(paths.runtime, ...relative.split("/"));
+        if (actualDirectories.has(relative) && (fs.statSync(target).mode & 0o777) !== 0o755) {
+          add(`${relative} directory mode drift`, Boolean(manifest));
+        }
+      }
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+  }
   for (const [relative, expected] of expectedFiles) {
     const target = path.join(paths.runtime, ...relative.split("/"));
     if (!actualFiles.has(relative)) add(`${expected.id} missing`, Boolean(manifest));
@@ -392,7 +426,6 @@ function install(options) {
   assertSafeRuntimeForInstall(paths);
   const release = acquire(paths); try {
     const backupDir = backup(paths);
-    fs.mkdirSync(paths.runtime, { recursive: true, mode: 0o700 });
     writeRuntimeFiles(paths);
     atomicWrite(paths.requirements, proposedRequirements, 0o644);
     // Remove handlers and trust entries left by the v0.1 non-managed installation.
@@ -415,7 +448,6 @@ function repair(options) {
   if (options.dryRun) return { action: "repair-dry-run", healthy: false, changed: true, repairable: true, codex_home: paths.home, skill_root: skill, requirements_file: paths.requirements, events: EVENTS, errors: before.errors };
   const release = acquire(paths); try {
     const backupDir = backup(paths);
-    fs.mkdirSync(paths.runtime, { recursive: true, mode: 0o700 });
     writeRuntimeFiles(paths);
     atomicWrite(paths.requirements, repairedRequirements, 0o644);
     const checked = doctor({ codexHome: paths.home, skillRoot: skill, managedRequirements: paths.requirements });

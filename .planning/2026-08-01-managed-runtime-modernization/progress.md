@@ -325,10 +325,92 @@
 - Cloud fixture verification passes with both observed Hook-time `CODEX_HOME` resolution and the missing-variable compatibility path using an explicit session-store override. It preserves update message #25, seven extracted messages, bounded wrapper tail, and single logical assistant/user renderings.
 - Added a deterministic Release builder/checker with exact 18-entry ordering, 1980 timestamp, deflate settings, POSIX modes, byte-for-byte source verification, and explicit external-bootstrap exclusion. The reproducibility test builds two identical ZIPs and passes.
 - Full `npm test` regression passes 25/25 with no failures, covering contracts, import, current adapter, golden output, Cloud fixtures, multi-file lifecycle, Release packaging, and the legacy compatibility patch path.
-- Built and verified the final local `dist/pwf-codex-cloud-hooks-v0.3.0-alpha.1.zip` after runtime-root symlink hardening: 18 entries, 59,097 bytes, SHA-256 `94fe21837d26bbe07d23cdf88b89133c12e6f431eafd8c412ece96204f6a5027`. External `init-cloud-sandbox-v0.3.0.bash` SHA-256 is `5fda25beb397affe8e47b2e27e5bec7fa15180dbfb3d57feb9f6e508876e306f`.
+- Built and verified the final local `dist/pwf-codex-cloud-hooks-v0.3.0-alpha.1.zip` after runtime-root symlink hardening: 18 entries, 59,097 bytes, SHA-256 `94fe21837d26bbe07d23cdf88b89133c12e6f431eafd8c412ece96204f6a5027`. The initially measured external-bootstrap hash `5fda25beb397affe8e47b2e27e5bec7fa15180dbfb3d57feb9f6e508876e306f` was pre-seal and was superseded once the alpha version and ZIP SHA defaults were written.
 - Added `docs/v0.3.0-alpha.1-cloud-smoke.md` with the two-asset publication contract, checksum-verified fresh setup command, exact installed-inventory probe, and simplified compatibility smoke. The document and planning log are excluded from the ZIP, so recording the candidate hash is non-self-referential.
 - Local Bash is unavailable; no new Bash syntax PASS is claimed. Candidate ZIP check, Node syntax, Python compilation, runtime inventory, and `git diff --check` pass.
 - Final installer audit now rejects symlinked `hooks/` or runtime roots before recursive traversal and covers unknown empty directories. The complete suite was rerun after this hardening and remains 25/25 PASS; the candidate was then rebuilt and the smoke document updated to the final SHA above.
 - Post-interruption recovery audit confirmed that the working tree, deterministic candidate, runbook SHA pins, exact four-file source runtime, and planning state all remain consistent. Candidate and external bootstrap hashes were recomputed from disk and match the recorded values; `git diff --check` remains clean.
 - The complete suite was rerun after recovery outside the Windows worker sandbox because the first attempt hit the known `spawn EPERM` restriction: 25 passed, 0 failed. Release check reports 18 exact entries/59,097 bytes, importer check is healthy, and the production adapter, compatibility patcher, and bootstrap remain unchanged from the branch baseline.
 - Phase 1 is complete locally across all three rounds. The only remaining Phase 1 acceptance step is external: publish the ZIP and bootstrap as separate `v0.3.0-alpha.1` pre-release assets and run the documented fresh Codex Cloud smoke. No asset, commit, tag, or Hook execution switch was made locally.
+
+# Phase 1 alpha.1 Cloud smoke (2026-08-02)
+
+- The published 59,097-byte candidate downloaded successfully in a fresh Cloud task and matched SHA-256 `94fe21837d26bbe07d23cdf88b89133c12e6f431eafd8c412ece96204f6a5027`.
+- Post-start doctor passed with `healthy=true`, `repairable=false`, managed requirements enabled, and exactly `SessionStart` plus `UserPromptSubmit` registered.
+- Installed manifest/inventory passed: schema 3, seven payload records, exact eight-file installed inventory, no unknown or missing entries, and all seven payload hashes matched.
+- Managed requirements still contain only adapter commands (`adapter_commands_only=True`); none of the newly staged `upstream/` scripts is registered for execution.
+- This closes the release/SHA/install/doctor/inventory portion of the alpha.1 smoke. Remaining evidence is the simplified behavior-compatibility portion: startup/user-prompt canaries and scoped context, resume catch-up/runtime, bounded wrapper tail sentinel, and doctor healthy after resume.
+
+## Phase 1 alpha.1 compatibility acceptance (2026-08-02)
+
+- User reported all compatibility checks A through F PASS, including the startup/UserPrompt canaries, scoped planning context, resume catch-up, bounded wrapper tail sentinel, and doctor remaining healthy after resume.
+- The captured resume report selected `rollout-2026-08-02T09-23-56-019fc1c9-839a-7533-8d8e-0b2cf9296b85`, reported `Runtime: codex`, found `task_plan.md` at message #79, and extracted six unsynced messages.
+- `SESSION CATCHUP DETECTED`, the resume canary/source, previous session, planning context, three tool records, `PLANNING_BASELINE_CREATED`, `UNSYNCED_CONTEXT_ACKNOWLEDGED`, and the tail sentinel `PWF_CATCHUP_UNSYNCED_SENTINEL_82C4` were all observed.
+- Phase 1 Cloud acceptance is complete. The newly staged upstream runtime remained inactive throughout; current adapter behavior is the accepted `v0.3.0-alpha.1` rollback point for Phase 2.
+- Release sealing order was clarified: the bootstrap SHA cannot be finalized before the release version and ZIP SHA are known. The alpha bootstrap is now sealed with `v0.3.0-alpha.1` and ZIP SHA `94fe2183...`; its resulting SHA-256 is `17e2248d04027001a929dbc07fcf06c6f4a9cb727530fcdb99edbcc4e90fba32`.
+- Synchronized the bootstrap regression to assert the sealed alpha.1 version and exact accepted ZIP SHA while retaining the all-zero placeholder rejection guard. Full regression after Cloud evidence/document synchronization passes 25/25; the accepted ZIP was not rebuilt or mutated.
+
+# Phase 2 analysis (2026-08-02)
+
+- Re-read the accepted Phase 1 plan/contracts and inspected the current adapter, staged upstream catch-up/resolver, compatibility ledger, runtime bundle, and existing test coverage.
+- Confirmed the roadmap's four-round estimate remains appropriate: inactive structured runtime; plan/session safety; transcript/diagnostic failure handling; then activation/deployment and alpha.2 Cloud hard acceptance.
+- Identified two scope clarifications before implementation: global Skill patching should retire when the owned catch-up activates at the end of Phase 2, and the generic request contract must not pull UserPromptSubmit runtime execution forward from Phase 3.
+- No production behavior was changed during this analysis. Phase 2 Round 1 is the next implementation step.
+
+# Phase 2 Round 1 implementation (2026-08-02)
+
+- Started the inactive owned-catch-up protocol implementation from the Cloud-accepted alpha.1 baseline. Existing Hook commands and adapter behavior remain frozen for this round.
+- Selected a local `runtime/owned-catchup.py` entrypoint with a declared dependency on the pinned upstream parser. This avoids disguising local Codex trust-boundary code as upstream source and keeps the four existing compatibility overlays independently auditable.
+- Added the inactive entrypoint with strict v1 request validation, safe result envelopes, Host transcript containment/identity/project checks, explicit ordered scan fallback, reuse of the pinned upstream parser, and compatibility rendering under the frozen budgets. It has not been added to Hook commands.
+- Added the entrypoint to the runtime bundle's separately typed local inventory, deterministic Release allowlist/mode table, LF contract, and installer-derived exact inventory. Tightened the request schema so a `validated` Host path must carry at least one explicit allowed session root; Hook registration remains adapter-only.
+- Added five owned-runtime regressions for strict/no-plan envelopes, malformed input, required containment roots, Host-path preference, explicit fallback, session identity mismatch, bounded compatibility output, and outside-root rejection. Extended contract and installer lifecycle assertions for the new inactive file, including doctor/repair and proof that requirements do not register it.
+- First narrow regression passed 12/13. The sole failure was the expected Phase 1 Release entry count (18 versus the new exact 19); no runtime, contract, or installer assertion failed. Updated only that dated count assertion before rerunning.
+- Corrected the Release count and the narrow suite passed 13/13. Updated README, project understanding, work plan, and a new Phase 2 owned-runtime guide to distinguish the current 30-test/19-entry inactive development state from the immutable alpha.1 25-test/18-entry acceptance snapshot.
+- Full suite passed 30/30, but the following exact importer check correctly rejected bytecode caches created by dynamic module loading. Added a production fix to disable bytecode writes and a regression requiring both trusted runtime directories to remain cache-free.
+- The first cache regression isolated a test-only wrapper cache: the native-path harness imports the entrypoint as a module, whereas production executes it as a script. The upstream cache was already absent. Disabled bytecode only for that import harness while keeping the production CLI path responsible for proving upstream imports stay cache-free.
+- Final Round 1 verification: full suite 30/30 PASS; five owned-runtime cases PASS; importer exact inventory healthy; Python/Node syntax and `git diff --check` pass; runtime remains cache-free; Release contract has 19 exact entries; installed requirements still contain only adapter commands; and `hooks/hook_adapter.py` has zero diff.
+- Stabilized owned entrypoint SHA-256 is `e122a82ed7b3ba8f185bfc408ae35ff8ed80054cdb880b64f6793d1972245de6`. The runtime bundle, request schema, Release contract, upstream manifest, installer inventory, and tests carry the corresponding trusted identities.
+- Phase 2 Round 1 is complete. No production Hook behavior changed and no Cloud run is required for this inactive round; Round 2 plan/session safety is next.
+
+# Phase 2 Round 2 implementation (2026-08-02)
+
+- Began the shared plan/session safety work from the verified inactive Round 1 runtime.
+- Froze backward-compatible attachment semantics, safe session identifiers, canonical containment, resolver precedence, and the highest-priority `PLANNING_DISABLED=1` behavior before modifying production code.
+- Round 2 keeps the owned catch-up entrypoint inactive and requires all six alpha.1 golden scenarios to remain byte-for-byte unchanged.
+- Implemented one contract-shaped adapter project state with `planning_enabled`, `session_attachment`, `plan_state`, `plan_scope`, and canonical `plan_dir`; it is ready to become the Round 4 owned-runtime request without a second resolver.
+- Added safe direct marker semantics, explicit opt-out gating, `PLAN_ID` plus BOM active-pointer precedence, canonical directory/task/progress containment, and fail-closed runtime policy outcomes.
+- Tightened opt-out ordering after review: the adapter no longer scans attachment markers and the owned runtime no longer loads the upstream parser when planning is explicitly disabled; detached runtime requests also short-circuit before parser loading.
+- Added five regressions. The focused adapter/runtime/golden run passed 19/19; contract/importer/installer/Release regression passed 11/11; full suite passed 35/35 with all six alpha.1 golden outputs unchanged.
+- Synchronized owned runtime, request/result schemas, runtime bundle, upstream manifest, Release documentation, project understanding, work plan, and active planning records. The current Release allowlist remains 19 entries and the owned runtime remains unregistered.
+- Final checks pass: importer exact inventory healthy, trusted runtime caches absent, Python in-memory compilation, contract JSON parsing, and `git diff --check`.
+- Phase 2 Round 2 is complete. No Cloud run is required while the owned entrypoint remains inactive; Round 3 transcript normalization, diagnostics, and failure semantics are next.
+
+# Phase 2 Round 3 implementation (2026-08-02)
+
+- Resumed from the verified 35-case Round 2 baseline and began defensive Codex JSONL normalization, diagnostics, and explicit failure-semantics work.
+- Guardrail remains unchanged: the owned runtime stays inactive, the six alpha.1 golden outputs remain exact, and activation/deployment remain Round 4 scope.
+- Added strict binary JSONL record decoding, explicit malformed/unknown record classifications, mixed-family normalization with conservative event fallback, selected-path diagnostics, and a content-free diagnostic transformation.
+- Added an inactive adapter supervisor seam with bounded/validated stdout and reason-coded timeout/runtime failure handling; no registered Hook path calls it yet.
+- Added initial regressions for transcript corruption, unknown/event-only records, diagnostic redaction, and supervisor failure modes. Trusted hashes remain intentionally unsynchronized until the implementation stabilizes under focused tests.
+- Tightened result-envelope validation after review: outcomes, warnings, diagnostics, path lengths, inject/report consistency, and strict binary UTF-8 child output must all match the v1 contract.
+- Focused adapter/runtime/golden regression passed 23/23; the expanded owned-runtime/supervisor failure matrix passed 11/11; importer/contracts/installer/Release regression passed 11/11.
+- Synchronized the owned-runtime, result-schema, runtime-bundle, and upstream-manifest hashes without changing the exact 19-entry Release allowlist.
+- Final full regression passed 40/40. All six alpha.1 golden outputs remain exact, the owned entrypoint remains inactive, and no alpha.2 artifact was built or deployed.
+- Final hygiene also passes: Python in-memory compilation, importer exact inventory, zero trusted-runtime bytecode caches, documentation consistency scan, and `git diff --check`.
+- Phase 2 Round 3 is complete. Round 4 owns activation, global Skill patch/discovery retirement, permission/user matrices, alpha.2 packaging, and Cloud hard acceptance.
+
+# Phase 2 Round 4 implementation (2026-08-02)
+
+- Resumed from the verified 40-case inactive baseline and activated only SessionStart catch-up through the owned v1 request/result supervisor. UserPromptSubmit still uses the local adapter implementation and does not launch the child.
+- Added explicit adapter construction of event/session/project/output-budget fields, ordered existing session roots, regular-file/canonical Host transcript validation, and the installed-layout fallback for missing Hook-time `CODEX_HOME`.
+- Removed global Skill discovery/execution from the adapter. The bootstrap no longer patches or verifies patched global catch-up, and the installer now requires pristine upstream Skill hashes. The historical patcher remains only as a source provenance regression and was removed from the alpha.2 Release allowlist.
+- Changed installed runtime directories from `0700` to `0755`, retained executable/data modes, added doctor detection/repair for directory-mode drift, and added Linux root/root plus synthetic install-user/Hook-user activation gates.
+- Added activation regressions proving the exact Host request, owned sibling selection, non-execution of a malicious global Skill script, UserPrompt local-only dispatch, and advisory child failure behavior.
+- First focused activation/installer run passed 19/19 with three Linux-only cases skipped on Windows. The first full run had one expected contract-hash failure after the Release allowlist changed; synchronizing the exact release artifact hash resolved it.
+- Full Windows regression then registered 45 tests: 42 passed, 0 failed, and the three explicit Linux-only permission/real-runtime checks skipped. The six alpha.1 golden outputs remain byte-for-byte unchanged.
+- Documentation and persistent planning state now describe active owned catch-up, pristine global Skill, the 18-entry alpha.2 boundary, Windows/Linux evidence split, and alpha.1 rollback. ZIP build/seal and external Cloud hard acceptance remain.
+- Froze the deterministic `dist/pwf-codex-cloud-hooks-v0.3.0-alpha.2.zip`: 18 entries, 65,989 bytes, SHA-256 `61f2001f3dd3934d79144d5f1be09385a55936aba9f7481ad5e2177a486059db`. The historical global-Skill patcher is excluded; the active owned runtime is included.
+- Sealed the external `init-cloud-sandbox-v0.3.0.bash` only after the ZIP hash was final. Its SHA-256 is `9328748023b401df8d4cbf98c48b2885978ba074654c94a09a46cae264c2869d`; the bootstrap remains outside the ZIP, avoiding self-reference.
+- Added `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md` with immutable-asset verification, exact eight-payload/nine-installed-file inventory, pristine global Skill proof, root/root actual owned execution, synthetic nobody-Hook execution, UserPrompt local-only proof, and fresh-task resume/tail-sentinel acceptance.
+- Final local verification after sealing: full suite 45 registered / 42 PASS / 3 explicit Linux-only SKIP / 0 FAIL; deterministic Release check PASS; importer exact check PASS; Python in-memory compilation PASS; Node syntax PASS; `git diff --check` has no errors; ZIP and external Bash hashes match the acceptance runbook.
+- Round 4 local work is complete. Phase 2 remains open only for publication and fresh Codex Cloud hard acceptance; alpha.1 remains the rollback point and no tag, asset, commit, or external deployment was created from this workspace.

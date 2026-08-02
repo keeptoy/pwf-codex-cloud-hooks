@@ -187,4 +187,8 @@ Phase 8 才测试 hard gating。官方当前 Stop 契约中，decision: "block" 
 - Phase 4～8：按功能生成内部 canary/pre-release，不必每个 Phase 都正式发布
 - Phase 9：v0.3.0-rc.1 → v0.3.0
 
-Phase 1 三轮本地工作已经完成。下一步是把确定性候选 ZIP 和外部 Bash 作为 `v0.3.0-alpha.1` GitHub Pre-release 两个独立资产发布，在新 Cloud 沙箱用环境覆盖版本与候选 SHA 做安装、doctor、清单和简化兼容冒烟；通过后再进入 Phase 2，切换 owned catch-up 执行。
+Phase 1 三轮本地工作和 `v0.3.0-alpha.1` Cloud 验收均已完成：下载/SHA、安装、doctor、精确清单、逐文件哈希、adapter-only Hook 命令边界、startup/UserPrompt canary、scoped context、resume catch-up、长 wrapper 尾部 sentinel 和 resume 后 doctor 全部通过。alpha.1 继续作为 Phase 2 的 Cloud 回滚点。
+
+Phase 2 第 1 轮完成 structured owned runtime；第 2 轮完成 canonical plan/file containment、opt-out 和 session isolation；第 3 轮完成严格 transcript normalization、保守 cross-family deduplication、content-free diagnostic、损坏/预算 reason codes 和 supervisor timeout/runtime-error 矩阵；第 4 轮已在本地切换 SessionStart catch-up、停止 global Skill mutation、补齐 fail-open 与 Linux root/root/跨用户门槛，并准备 18-entry alpha.2 候选。requirements 仍只注册 adapter，UserPromptSubmit 仍本地实现。当前 45 个测试登记在 Windows 为 42 PASS/3 个 Linux-only SKIP。下一步是发布两个 alpha.2 资产并执行 fresh-Cloud 硬验收；通过前不进入 Phase 3。
+
+后续每个 Release 的封板顺序固定为：先冻结版本与 ZIP 内容，构建并计算 ZIP SHA-256；再把版本、包名和 ZIP SHA 写入 ZIP 外部的初始化 Bash；然后计算封板后 Bash 的 SHA-256；最后发布并核验两个独立资产。Bash SHA 不能在 ZIP 版本和哈希确定前得到最终值。

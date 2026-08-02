@@ -11,7 +11,7 @@
     "scripts/resolve-plan-dir.sh": "38a1c5effb35f9506e2e371ccabb6be6e4f4170acc18f1811f08d634f5f0e9bd",
     "scripts/session-catchup.py": "6476fd9024d0cbb9bfb850119fd0beff7fb7cfab9c6683ce10e4cc8d830ce6de"
   },
-  "managed_skill_files": {
+  "historical_patched_skill_files": {
     "SKILL.md": "bfcdbbbf883bc0db95f84d095d58021fc1a6b97eeeab23cd373f6261779fb232",
     "scripts/resolve-plan-dir.sh": "38a1c5effb35f9506e2e371ccabb6be6e4f4170acc18f1811f08d634f5f0e9bd",
     "scripts/session-catchup.py": "fc765590dc32b3949027de97e33dad6a049daf148719ba1822598a6c146461e2"
@@ -27,10 +27,11 @@
   "managed_runtime": {
     "schema_version": 1,
     "package_root": "runtime/upstream",
+    "local_package_root": "runtime",
     "contracts": {
       "runtime_bundle": {
         "path": "contracts/runtime-bundle-v1.json",
-        "sha256": "dad2af54ca335cc4124795defe2aef78ed6da8b6c6a66a8d417f1e86669f16b3"
+        "sha256": "6b7176fdfaaa142da51dbcba5823a77e7f4e5810f43f7bbb1f143c7d7cebaffd"
       },
       "compatibility_overlays": {
         "path": "contracts/compatibility-overlays-v1.json",
@@ -38,15 +39,15 @@
       },
       "adapter_runtime_request": {
         "path": "contracts/adapter-runtime-request-v1.schema.json",
-        "sha256": "866c2763b89e40bb41b4dae77103bae3ad29b49937c1c494a227527bfbca81f2"
+        "sha256": "a86588e3c7d55cbbeddc74110403ba815ad8715735c149d77dd0c47996ee72d5"
       },
       "runtime_result": {
         "path": "contracts/runtime-result-v1.schema.json",
-        "sha256": "ff8d116f41bc4536fcb7b919e52f8f12b5bd5b8cae42e6dfb0d7acb80a613dfb"
+        "sha256": "1cb545d9487c8d0ef9f4ccd270a786d0dc998629813e81a2cc05463b23b62ed7"
       },
       "release_artifact": {
         "path": "contracts/release-artifact-v1.json",
-        "sha256": "82bcf1dd37e5ee9d97390e27393d242fe98ee2196e90e703a436a79b048dc44d"
+        "sha256": "4f33e03a2d6fea85afbbaed707b305c8001d7025e67a0565440c71400d192923"
       }
     },
     "importer": {
@@ -60,6 +61,15 @@
       "notice_path": "THIRD_PARTY_NOTICES.md",
       "notice_sha256": "ba31b6620593dd80561e6586908ffb8e5af07a2a069510bce04c00c49a27c53c"
     },
+    "local_files": [
+      {
+        "id": "owned_catchup",
+        "package_path": "runtime/owned-catchup.py",
+        "mode": "0755",
+        "origin": "local_managed_runtime",
+        "sha256": "bb3a18b8144e63b17c33db4cccf81425f135647948e6f20f4c44c3e42ba71f85"
+      }
+    ],
     "files": [
       {
         "id": "session_catchup",

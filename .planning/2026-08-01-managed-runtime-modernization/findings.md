@@ -2,7 +2,7 @@
 
 ## Requirements
 - Confirm whether repository behavior and README claims are synchronized.
-- Explain the meaning of the current twenty-five tests, while preserving historical nine-, twelve-, thirteen-, and sixteen-test snapshots and without equating test cases to product features.
+- Explain the meaning of the current forty tests, while preserving historical nine-, twelve-, thirteen-, sixteen-, twenty-five-, thirty-, and thirty-five-test snapshots and without equating test cases to product features.
 - Persist the agreed modernization design so it survives context compaction, clear, resume, and later sessions.
 - Keep future work staged, auditable, reversible, and compatible with the current Cloud deployment.
 - Incorporate the v0.2.2 Cloud catch-up investigation as design evidence rather than leaving its patch as an isolated release workaround.
@@ -14,7 +14,9 @@
 
 Current release/iteration boundary as of 2026-08-02:
 - `v0.2.2` is published and Cloud validated; Release ZIP SHA-256 is `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84`.
-- `v0.3.0` is the active unpublished modernization worktree. Its bootstrap intentionally uses the all-zero archive checksum placeholder until final packaging.
+- `v0.3.0-alpha.1` is the Cloud-validated Phase 1 pre-release/rollback point on the active modernization path. Its ZIP SHA-256 is `94fe21837d26bbe07d23cdf88b89133c12e6f431eafd8c412ece96204f6a5027`; after sealing that version and ZIP SHA into the external bootstrap, the bootstrap SHA-256 is `17e2248d04027001a929dbc07fcf06c6f4a9cb727530fcdb99edbcc4e90fba32`.
+- Release sealing is deliberately ordered, not circular: freeze version and ZIP contents, build/hash the ZIP, write version/package/ZIP SHA into the external Bash, hash the sealed Bash, then publish and verify both independent assets. A bootstrap hash measured before those defaults are written is not the release bootstrap hash.
+- The final alpha.1 resume regression extracted six unsynced messages rather than the earlier seven-message fixture. This is not a fixed-count contract: the relevant guarantees are correct last-update selection, bounded extraction, logical context preservation, and survival of the tail sentinel for the transcript actually observed.
 
 ## Repository Audit
 
@@ -53,7 +55,7 @@ Current release/iteration boundary as of 2026-08-02:
 
 ## Current Test Interpretation
 
-The suite now has twenty-five Node test cases. Cases 1–9 are the original audit inventory, cases 10–12 were added with the v0.2.2 Cloud compatibility work, case 13 froze Phase 1 Round 1, cases 14–16 implement the Round 2 importer boundary, and cases 17–25 close Round 3:
+The suite now has forty Node test cases. Cases 1–9 are the original audit inventory, cases 10–12 were added with the v0.2.2 Cloud compatibility work, case 13 froze Phase 1 Round 1, cases 14–16 implement the Round 2 importer boundary, cases 17–25 close Phase 1 Round 3, cases 26–30 begin Phase 2 Round 1, cases 31–35 close Phase 2 Round 2, and cases 36–40 close Phase 2 Round 3:
 
 1. `SessionStart` emits scoped plan context and a source canary.
 2. `UserPromptSubmit` emits plan/progress context and a canary.
@@ -79,9 +81,24 @@ The suite now has twenty-five Node test cases. Cases 1–9 are the original audi
 22. Legacy-root fallback selection matches the exact v0.2.2 output.
 23. Sanitized Cloud observations freeze lifecycle-specific environment and Hook stdin schemas.
 24. Cloud-shaped catch-up preserves structured update #25, seven messages, duplicate-family handling, bounded wrapper tail, and the sentinel.
-25. The Release ZIP is deterministic, contains exactly 18 allowlisted entries with fixed metadata/modes, and excludes the external bootstrap.
+25. The Release ZIP is deterministic, contains the current exact 19-entry allowlist with fixed metadata/modes, and excludes the external bootstrap.
+26. The inactive owned runtime emits a strict non-injecting `no_plan` result and safely rejects malformed/extra-field input.
+27. A Host transcript cannot be marked validated without an explicit allowed containment root.
+28. A contained rollout with matching session identity/cwd is preferred directly and preserves bounded v0.2.2 catch-up output.
+29. A rejected Host path scans only explicitly supplied roots and reports both safe fallback warnings.
+30. Session identity mismatch and a Host path outside allowed roots fail closed without report injection.
+31. The inactive runtime distinguishes `planning_disabled` from `session_not_attached` and rejects resolved plans under either silent policy.
+32. Session attachment remains legacy-compatible without safe markers, then isolates on the first safe marker and never injects marker contents.
+33. `PLANNING_DISABLED=1` suppresses both catch-up and plan context while preserving the event/source canary.
+34. `PLAN_ID` takes precedence over a BOM-tolerant active pointer, which remains the fallback.
+35. A scoped-plan symlink or Windows junction cannot inject an external task plan.
+36. Invalid transcript UTF-8, JSON, non-object records, unsafe shapes, overlong records, and a missing Host file never produce partial injection.
+37. Unknown records remain non-content warnings, while event-only user/agent messages are a controlled fallback when no response-item conversation exists.
+38. `no_planning_update`, `no_unsynced_context`, and `output_budget_exceeded` remain distinct non-injecting outcomes under the fixed budgets.
+39. Diagnostic mode reports selected paths and `diagnostic_report_available` without returning any transcript content.
+40. The inactive supervisor accepts one exact v1 result and maps timeout, nonzero exit, malformed/contradictory/oversized stdout, invalid UTF-8, unknown warnings, and a missing child to safe runtime reasons.
 
-These are twenty-five test cases, not twenty-five atomic features. Cases 6–8, 10–16, and 23–25 each cover several behaviors, while some product claims share one test or are verified by static inspection rather than a standalone test. Historical progress entries reporting nine, twelve, thirteen, or sixteen passing tests remain dated audit evidence, not the current suite count.
+These are forty test cases, not forty atomic features. Cases 6–8, 10–16, and 23–40 each cover several behaviors, while some product claims share one test or are verified by static inspection rather than a standalone test. Historical progress entries reporting nine, twelve, thirteen, sixteen, twenty-five, thirty, or thirty-five passing tests remain dated audit evidence, not the current suite count.
 
 ## Architecture Decision
 
@@ -194,8 +211,8 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Distinguished the current v0.2.2-inherited scan-and-patched-Skill catch-up implementation from the Phase 2 target, which validates Host `transcript_path` first and scans session stores only as a compatibility fallback.
 - Added `turn_id`, validated `transcript_path`, project root, and transcript fallback to the target adapter/runtime contract.
 - Verified against the current official Codex Hooks documentation that the event/source and output contracts used by the roadmap are accurate. The same documentation warns that transcript JSONL is not a stable interface, so the owned reader must parse defensively instead of freezing the probe sample as a permanent schema.
-- Confirmed version/release boundaries remain coherent: package and development bootstrap are v0.3.0, the bootstrap checksum is intentionally all zero until packaging, and v0.2.2 plus its recorded SHA remains the published rollback baseline.
-- Phase 1 remains pending; this regression changed documentation and planning context only, not installed Hook behavior.
+- At this pre-packaging checkpoint, package and development bootstrap were v0.3.0, the bootstrap checksum was intentionally all zero, and v0.2.2 plus its recorded SHA remained the published rollback baseline. The later alpha.1 sealing and Cloud acceptance supersede this checkpoint state.
+- Phase 1 was still pending at this checkpoint; this regression changed documentation and planning context only, not installed Hook behavior.
 
 ## Windows Installer-Test Equivalence
 
@@ -248,3 +265,64 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Local upstream pin: `OthmanAdi/planning-with-files` release `v3.8.2`, commit `b04ffd9c8f9f93919649d197e5d4ec1bfc06fa14`.
 - Upstream Codex adapter and canonical Skill scripts inspected at the pinned commit.
 - Official Codex Hooks documentation: `https://learn.chatgpt.com/docs/hooks`.
+
+## Phase 2 Analysis (2026-08-02)
+
+- Keep the roadmap estimate at four implementation rounds. The alpha.2 Cloud hard acceptance is the Round 4 exit, not a fifth development round; actual Cloud-only defects may add a repair iteration.
+- The staged `session-catchup.py` still exposes the legacy positional-project/plain-stdout interface and infers runtime/session stores from environment or installation context. The frozen v1 JSON request/result contracts therefore need a managed entrypoint mode before activation.
+- Round 1 should build that structured path and validate/prefer Host `transcript_path`, while retaining explicit ordered scan roots only as a coded compatibility fallback. It remains inactive so protocol mistakes cannot affect the accepted alpha.1 Hook path.
+- Round 2 owns project/session safety: use one canonical resolver result for catch-up and current adapter context, fail closed on canonical-path escape, implement `PLANNING_DISABLED=1`, and define `.planning/sessions/<session_id>.attached` semantics before coding them. The attachment convention is local policy, not behavior found in upstream v3.8.2.
+- Round 3 owns untrusted/changeable transcript handling and observability: conservative cross-family deduplication, structured `patch_apply_end`, per-message plus total budgets, safe outcome/warning codes, non-injecting diagnostics, and explicit malformed JSON/UTF-8/timeout/child-failure behavior.
+- Round 4 is the only activation round: switch SessionStart catch-up from the mutable global Skill to the verified installed copy, keep UserPromptSubmit injection local until Phase 3, verify fail-open loop/fail-closed injection behavior, test root/root plus synthetic cross-user readability, seal alpha.2, and perform the full Cloud catch-up hard acceptance.
+- Two roadmap wordings need implementation-time reconciliation. Phase 2 requires the global Skill to remain pristine, while an older Phase 3 item delays bootstrap patch removal; the recommended boundary is to stop patching/discovering the global catch-up file when Round 4 activates the owned copy. Phase 3 then replaces the remaining local Python prompt-injection logic, not an already-unused global catch-up patch.
+- Although the v1 request schema permits both enabled event shapes, Phase 2 must dispatch the owned catch-up runtime only for SessionStart. UserPromptSubmit can share validation/resolution data, but its canonical upstream execution remains Phase 3 scope.
+- Any change to the managed upstream file or a new local runtime entrypoint changes the trusted artifact graph. Round 1 must update the importer/overlay ledger, runtime bundle, upstream manifest, installed inventory, release allowlist, and their hashes atomically; a hand-edited installed copy would break Phase 1 provenance guarantees.
+- Round 1 completion confirmed the local-wrapper boundary is viable without activation: it can reuse the pinned parser, enforce Host-path/session/project trust, stay inside exact installer inventory, and leave the accepted adapter/golden outputs byte-for-byte unchanged. Dynamic imports must keep `sys.dont_write_bytecode` enabled because installed runtime directories reject every cache entry as unknown drift.
+
+## Phase 2 Round 1 Initial Design
+
+- Prefer a new local `runtime/owned-catchup.py` entrypoint over adding a second large overlay to the pinned upstream script. The local entrypoint owns the Codex request/result protocol and transcript trust boundary, while `runtime/upstream/session-catchup.py` remains the pinned parsing/extraction implementation and a declared direct dependency.
+- Install the entrypoint as `owned-catchup.py` beside `hook_adapter.py`. Round 1 adds it to the exact runtime inventory and Release allowlist, but managed requirements must continue to contain only `hook_adapter.py`; activation remains Round 4.
+- `upstream-manifest.json` currently derives installed files only from `managed_runtime.files`, which represent imported upstream sources. Add a separately typed local-runtime inventory rather than pretending the entrypoint came from upstream.
+- The runtime-result contract is sufficient for inactive Round 1: normal stdout is exactly one JSON result, only `report_emitted` injects, and safe diagnostics expose selection metadata without transcript content. Round 3 will broaden normalization and error-path coverage without changing the versioned envelope.
+- Round 1 tightens a semantic gap in the request schema: a Host path cannot be meaningfully `validated` without at least one explicit session root against which containment was checked. The schema and runtime now both require that root; scan fallback remains limited to at most three unique explicit roots.
+- The first entrypoint hash was superseded after exact-inventory testing exposed Python bytecode cache writes. The stabilized identities are `owned-catchup.py` `e122a82ed7b3ba8f185bfc408ae35ff8ed80054cdb880b64f6793d1972245de6`, runtime bundle contract `aa8a90feaf67c2361e929a7c6ea7cc3cad5f753bd396f83a4047c6b7eceb7487`, request schema `478165c27b9de70634d29b2df9c8fd276742c342cb0f2bc1e484b200caee23a4`, and release artifact contract `f96ddaa00d6ddb82b941da110c6f35c05829fa6473e276ab68b807c7131482c2`.
+
+## Phase 2 Round 2 Policy
+
+- Backward compatibility is explicit: when `.planning/sessions/` contains no safe direct `<session_id>.attached` marker, every session retains the historical project-plan visibility.
+- Once at least one safe marker exists, session isolation is enabled for the project. Only the exact safe Host `session_id` marker attaches that session; missing, malformed, mismatched, symlinked, or indirect markers do not attach it.
+- A safe session identifier matches `^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$`. Marker contents never select a plan and are never injected.
+- `PLANNING_DISABLED=1` has highest priority and suppresses both resume catch-up and planning context while retaining the lifecycle canary.
+- Plan precedence remains `PLAN_ID`, BOM-tolerant `.planning/.active_plan`, newest valid scoped plan, then legacy root. Every selected directory and injected file must resolve canonically within the project root.
+- The current adapter resolves this state once for both of its paths. The inactive owned runtime receives the same resolved policy through its versioned request; activation remains Round 4.
+- Round 2 trusted identities are: adapter `19b4990b1e4b057125a6d3040061d7d3816c74456df774e64d1004743b212608`, owned runtime `224e2be605e9594c0d70cc05e8d3acef7a1281819d4c9e7773fc8ed997983254`, runtime bundle `1724239323612244291a8327fafa678042055a8558a759bc826d7e149e4f47bd`, request schema `a86588e3c7d55cbbeddc74110403ba815ad8715735c149d77dd0c47996ee72d5`, and result schema `d3ce62c2dc339fe21d2c3f39210007c1034da7c67c3ff983a0b1063e30f10c7f`.
+
+## Phase 2 Round 3 Initial Transcript Audit
+
+- The pinned parser opens Codex JSONL with UTF-8 replacement and silently skips invalid/non-object JSON records. That is compatibility-friendly but cannot by itself distinguish malformed bytes, invalid JSON, and merely unknown record families for managed diagnostics.
+- The owned entrypoint currently delegates the entire transcript parse/update/extract path to upstream and therefore cannot yet emit the already-declared `unknown_transcript_record` or `duplicate_record_suppressed` warnings.
+- The Cloud fixture contains both `response_item` and `event_msg` copies of logical user/assistant messages. Existing upstream extraction happens to render the `response_item` family and ignore the event duplicates; Round 3 must make this normalization policy explicit and conservative rather than depending on incidental branch selection.
+- Runtime request decoding already maps malformed JSON and invalid UTF-8 stdin to `invalid_request` with valid JSON stdout. Transcript corruption is a separate data-plane condition and must remain non-injecting without being confused with request-schema failure.
+- Round 3 will read selected Codex transcripts as strict UTF-8, line-delimited object JSON. Any invalid UTF-8, invalid/non-object JSON, or overlong record makes the transcript `malformed_transcript`; partial known context is not injected because the corrupt record could contain the sole trailing instruction.
+- Valid but unknown top-level or payload families remain skippable and produce `unknown_transcript_record`. This preserves forward compatibility without treating an unrecognized object as trusted conversation text.
+- In mixed Cloud transcripts, `response_item.payload.type=message` is the authoritative conversation family. Exact adjacent/event-family copies are diagnosed as `duplicate_record_suppressed`; non-equivalent event conversation records are not merged into a mixed-family report and are diagnosed as unknown. `event_msg` user/agent messages are used only as a fallback when the post-update segment has no response-item conversation messages.
+- Structured successful `event_msg.patch_apply_end` remains the only Codex planning-update boundary. Tool calls continue to come from `response_item` and retain the frozen four-tool/report budgets.
+- A separate `--diagnostic` invocation should execute the same selection path but always suppress transcript content. When normal execution would emit a report, diagnostics return a non-injecting `diagnostic_report_available` outcome plus reason codes and selected plan/transcript paths.
+- Timeout and child-process failure are adapter-supervision concerns, not transcript parser outcomes. Round 3 should add an inactive, tested supervisor seam that maps timeout, nonzero exit, malformed/oversized stdout, invalid UTF-8, and spawn failure to safe reason codes without changing registered Hook behavior.
+- The existing owned-runtime tests use a native-path import harness and exact result objects. Round 3 must extend those exact diagnostics with nullable selected paths, update the Cloud fixture expectation to explicit duplicate/unknown warnings, and keep the report text/count/sentinel assertions unchanged.
+- The failure matrix can remain dependency-free: mutate temporary copies of the existing substantial Cloud fixture after its valid `session_meta`, and use temporary Python child scripts to exercise supervisor timeout/nonzero/malformed-output behavior. No frozen Phase 1 evidence file needs to be rewritten.
+- Focused execution confirms strict normalization preserves the Cloud report body and all six adapter goldens. The sanitized fixture now produces explicit `duplicate_record_suppressed` and `unknown_transcript_record` warnings while retaining seven unsynced compatibility messages and the tail sentinel.
+- Invalid child UTF-8 exposed a Python `subprocess` text-mode edge: decoding can fail in the background reader thread and yield `stdout=None`. Binary capture plus bounded strict decoding in the adapter avoids the traceback/`None` ambiguity and gives a stable `runtime_error` result.
+- Round 3 trusted identities are: adapter `774273a6e4bc20538ff381cf410476458f80e22146e0136f387b8ad3e9ae382d`, owned runtime `8bb210636b9674fa1a23889157edee5e53a771ad3b1c4f741465c5ccb3fcf9ff`, runtime bundle `7d8d68a33d481cbd18aed92978e3e64c969d97c120cbc1d000eb43203a03be0d`, and result schema `1cb545d9487c8d0ef9f4ccd270a786d0dc998629813e81a2cc05463b23b62ed7`.
+
+## Phase 2 Round 4 Activation Findings
+
+- A managed Hook command does not need to register the child directly. Requirements continue to register only `hook_adapter.py`; SessionStart dispatches the sibling `owned-catchup.py` through the already-tested bounded supervisor, while UserPromptSubmit remains local until Phase 3.
+- The Host request can be constructed without treating `/opt/codex` as permanent. Ordered existing roots come from explicit `CODEX_SESSIONS_DIR`, Hook-time `CODEX_HOME/sessions`, then the adapter's validated installed-layout fallback. Host `transcript_path` must be an absolute regular non-symlink file canonically contained in one of those roots before it is marked validated.
+- Missing/invalid SessionStart source or session identity, a missing child, timeout, nonzero exit, invalid UTF-8, malformed/oversized result, or a non-injecting runtime outcome cannot suppress the lifecycle canary or safe local plan context. No child diagnostic/stderr text is copied into Hook JSON.
+- Removing execution of the global Skill is distinct from removing the Skill itself. Alpha.2 keeps the separately installed Skill pristine for discovery/instructions, verifies pristine v3.8.2 hashes during install/doctor, and applies compatibility deltas only to the owned imported copy.
+- The historical patcher remains useful for deterministic overlay provenance tests, but it is neither called by the bootstrap nor included in the alpha.2 ZIP. Replacing that one entry with the owned entrypoint returns the exact Release allowlist from 19 to 18 files; this is not the same 18-file composition as alpha.1.
+- Cross-user execution exposed a real deployment requirement: owned runtime directories cannot remain `0700`. Runtime directories are now `0755`, executable code is `0755`, data/notice files are `0644`, and the private installed manifest stays `0600`. Project and session-store traversal/readability remain explicit platform prerequisites for a distinct Hook identity.
+- The local suite now registers 45 tests. Windows passes 42 and skips three Linux-only checks: installed POSIX directory/file modes, real root/root owned activation, and a root-installed/nobody-Hook synthetic split. Those skipped checks are mandatory in the alpha.2 Cloud gate rather than being claimed through Windows equivalence.
+- Round 4 trusted identities before ZIP sealing are: adapter `8f4ecf2582b22ebf10a297516b2fdd30e4b927f16ffad69d90a3f71701d1754a`, owned runtime `bb3a18b8144e63b17c33db4cccf81425f135647948e6f20f4c44c3e42ba71f85`, runtime bundle `6b7176fdfaaa142da51dbcba5823a77e7f4e5810f43f7bbb1f143c7d7cebaffd`, and release artifact contract `4f33e03a2d6fea85afbbaed707b305c8001d7025e67a0565440c71400d192923`.

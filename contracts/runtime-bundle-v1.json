@@ -14,7 +14,30 @@
     "license_sha256": "4f2e5ecfaa4e0833621cfe54c0bdc2f60f086c0925540d7bdc713517eafb3c84"
   },
   "package_root": "runtime/upstream",
+  "local_package_root": "runtime",
   "installed_root": "hooks/planning-with-files/upstream",
+  "local_files": [
+    {
+      "id": "owned_catchup",
+      "package_path": "runtime/owned-catchup.py",
+      "installed_path": "hooks/planning-with-files/owned-catchup.py",
+      "origin": "local_managed_runtime",
+      "activation_phase": 2,
+      "language": "python3",
+      "mode": "0755",
+      "sha256": "bb3a18b8144e63b17c33db4cccf81425f135647948e6f20f4c44c3e42ba71f85",
+      "direct_file_dependencies": [
+        {
+          "id": "session_catchup",
+          "condition": "always",
+          "required": true
+        }
+      ],
+      "host_dependencies": [
+        "python3-standard-library"
+      ]
+    }
+  ],
   "files": [
     {
       "id": "session_catchup",

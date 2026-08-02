@@ -18,8 +18,8 @@ DEFAULT_CONTRACT = ROOT / "contracts" / "release-artifact-v1.json"
 EXECUTABLE_PATHS = {
     "install.js",
     "hooks/hook_adapter.py",
-    "patches/patch_planning_skill.py",
     "tools/import_upstream_runtime.py",
+    "runtime/owned-catchup.py",
     "runtime/upstream/session-catchup.py",
     "runtime/upstream/resolve-plan-dir.sh",
     "runtime/upstream/inject-plan.sh",

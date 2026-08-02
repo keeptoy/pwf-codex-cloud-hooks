@@ -4,10 +4,12 @@ System-managed lifecycle Hooks that connect a global
 [`OthmanAdi/planning-with-files`](https://github.com/OthmanAdi/planning-with-files)
 Skill installation to Codex Cloud sessions.
 
-> **Status:** `v0.2.2` is the published, Cloud-validated baseline. `v0.3.0` is
-> the active development iteration for Managed Runtime Modernization and is not
-> published yet. Its bootstrap checksum remains a guarded placeholder until the
-> final v0.3.0 archive is built.
+> **Status:** `v0.2.2` is the published stable rollback baseline.
+> `v0.3.0-alpha.1` is the Cloud-validated Phase 1 pre-release for Managed
+> Runtime Modernization; supply-chain, install/inventory, and behavior
+> compatibility through resume all passed. The worktree is preparing
+> `v0.3.0-alpha.2`, which activates the owned SessionStart catch-up runtime;
+> alpha.2 is not accepted until its fresh-Cloud hard acceptance passes.
 
 ## Start here
 
@@ -49,42 +51,40 @@ project-memory format.
 
 ## Current behavior
 
-### Published `v0.2.2` behavior inherited by `v0.3.0`
+### Active `v0.3.0-alpha.2` candidate behavior
 
-Until a reviewed modernization phase changes the runtime, the `v0.3.0` worktree
-preserves the two managed events proven by `v0.2.2`:
+The worktree preserves the two events proven by `v0.2.2`, but Phase 2 now owns
+the SessionStart catch-up execution boundary:
 
 | Event | Matcher | Current action | Verification state |
 |---|---|---|---|
-| `SessionStart` | `startup\|resume\|clear\|compact` | Runs the patched upstream `session-catchup.py` when resumable context exists, then injects the active plan and recent progress | automated and fresh-Cloud `resume` regressions passed |
+| `SessionStart` | `startup\|resume\|clear\|compact` | Validates Host/session/project inputs, supervises the installed `owned-catchup.py`, then injects the active plan and recent progress | automated activation passed; alpha.2 Cloud acceptance pending |
 | `UserPromptSubmit` | none | Injects the active plan and recent progress | Cloud-observed |
 
 Both handlers are read-only and emit `PWF_GLOBAL_HOOK_CANARY_V1` as an owned
 diagnostic marker.
 
-The `v0.3.0` bootstrap initially installs the pristine upstream `v3.8.2` Skill and
-then applies `PWF_CODEX_CLOUD_COMPAT_PATCH` to
-`scripts/session-catchup.py`. The patch makes four narrow compatibility fixes:
+The `v0.3.0` bootstrap leaves the global upstream `v3.8.2` Skill pristine.
+The four Cloud compatibility deltas are applied only to the hash-pinned copy at
+`runtime/upstream/session-catchup.py`:
 
-1. the adapter explicitly launches catch-up with `PWF_RUNTIME=codex` instead of
-   relying on the Skill's installation path to identify the runtime;
-2. Codex sessions resolve in the order `CODEX_SESSIONS_DIR`,
-   `$CODEX_HOME/sessions`, then `~/.codex/sessions`;
+1. the adapter/runtime contract identifies the runtime explicitly as `codex`;
+2. the adapter validates the Host `transcript_path` first, then permits scanning
+   only under explicit roots from `CODEX_SESSIONS_DIR`, `$CODEX_HOME/sessions`,
+   or the installed managed-path fallback;
 3. catch-up recognizes scoped `.planning/<slug>/task_plan.md` state as well as
    legacy root planning files;
 4. long Cloud-wrapped user messages keep a bounded head and tail, so a trailing
    user instruction or regression sentinel is not hidden by the wrapper.
 
-This is a downstream bridge, not a fork. Each disposable Cloud sandbox starts
-from the pinned pristine upstream Skill, so there is no downstream patch-upgrade
-chain. The patcher accepts only the recorded pristine or current patched
-SHA-256, is idempotent, and blocks unknown content. It should be removed when a
-pinned upstream release provides equivalent behavior.
+This is a downstream bridge, not a mutable global-Skill fork. The historical
+patcher remains in the source tree only to reproduce and audit the owned overlay;
+it is no longer included in the alpha.2 Release ZIP or called by the bootstrap.
 
-For later Hook processes where `CODEX_HOME` is absent, the owned adapter derives
-it from its installed path under `$CODEX_HOME/hooks/planning-with-files/` before
-starting catch-up. The setup-shell export is therefore not a hidden runtime
-dependency.
+For Hook processes where `CODEX_HOME` is absent, the adapter may derive the
+session-store root from its installed path under
+`$CODEX_HOME/hooks/planning-with-files/`. The setup-shell export is therefore
+not a hidden runtime dependency and `/opt/codex` is not treated as permanent.
 
 The adapter resolves project planning state in this order:
 
@@ -101,9 +101,6 @@ read `findings.md`. When no plan exists, it emits only the event canary.
 The following upstream capabilities are intentionally absent from the current
 managed runtime:
 
-- `PLANNING_DISABLED=1` one-shot opt-out;
-- session attachment/isolation;
-- canonical path-containment enforcement for plan directories;
 - plan attestation and nonce framing;
 - smart injection and structured ledger summaries;
 - `PreCompact`, `PostCompact`, `PreToolUse`, `PostToolUse`, and
@@ -176,26 +173,28 @@ The current package approves:
 - release archive SHA-256:
   `7dab03ae283da38d33b9d551c7ec621d1818b9f0f17cf9ced566d4accbfc6dd1`.
 
-`upstream-manifest.json` records both the pristine upstream input hash and the
-managed post-patch hash of `session-catchup.py`. The patcher refuses any third
-state, and `install.js` refuses installation unless the managed hash is present.
-The modernization will expand this from selected Skill validation to a complete
-allowlist of every upstream runtime file that the managed adapter can execute.
+`upstream-manifest.json` records the pristine global-Skill hashes separately
+from the managed owned-copy hash of `session-catchup.py`. `install.js` requires
+the global Skill to remain pristine and installs only the exact allowlisted
+owned runtime files beneath managed_dir.
 
 ## Repository map
 
 | Path | Purpose |
 |---|---|
 | `install.js` | Managed installer CLI: install, doctor, repair, and uninstall |
-| `hooks/hook_adapter.py` | Current read-only Codex protocol adapter and legacy injection implementation |
-| `patches/patch_planning_skill.py` | Atomic, idempotent, fail-closed `v3.8.2` Cloud compatibility patcher |
+| `hooks/hook_adapter.py` | Read-only Codex protocol adapter, SessionStart supervisor, and still-local UserPrompt injection |
+| `patches/patch_planning_skill.py` | Historical overlay reproduction/audit tool; not shipped or run by alpha.2 |
 | `tools/import_upstream_runtime.py` | Pinned-archive, allowlist-only runtime import and drift check |
 | `tools/build_release.py` | Deterministic exact-allowlist Release ZIP builder and verifier |
-| `runtime/upstream/` | Four verified Phase 2/3 runtime files; packaged now but not yet registered or executed |
+| `runtime/owned-catchup.py` | Active Phase 2 SessionStart catch-up entrypoint and transcript trust boundary |
+| `runtime/upstream/` | Four verified runtime files; catch-up is active, prompt/ledger files remain deferred |
 | `THIRD_PARTY_NOTICES.md` | Complete upstream MIT attribution for redistributed runtime code |
 | `upstream-manifest.json` | Manifest v3: archive, contracts, importer, license, source paths, modes, and file hashes |
 | `contracts/` | Versioned runtime allowlist, overlay ledger, adapter/runtime schemas, and Release ZIP boundary |
 | `docs/phase-1-runtime-contracts.md` | Human-readable Phase 1 contract and ownership guide |
+| `docs/phase-2-owned-catchup.md` | Active SessionStart owned-runtime boundary and safety policy |
+| `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md` | Alpha.2 SHA, inventory, permission, owned-runtime, and resume acceptance gate |
 | `init-cloud-sandbox-v0.3.0.bash` | Development bootstrap for the active modernization iteration |
 | `PROJECT_UNDERSTANDING.md` | Durable current-state model, Cloud evidence, boundaries, and next-step context |
 | `黑盒验证.md` | Beginner-oriented Cloud runbook for health, lifecycle, catch-up, repair, and fail-closed tests |
@@ -207,6 +206,7 @@ allowlist of every upstream runtime file that the managed adapter can execute.
 | `tests/golden-output.test.js` | Six exact v0.2.2 Hook-output compatibility scenarios |
 | `tests/cloud-fixtures.test.js` | Sanitized Cloud Hook schema, environment-stage, and catch-up JSONL regressions |
 | `tests/release-package.test.js` | Deterministic ZIP inventory, metadata, mode, and bootstrap-separation test |
+| `tests/owned-runtime.test.js` | Inactive request/result, Host transcript, fallback, identity, and containment tests |
 | `tests/fixtures/planning-with-files/` | Self-contained pinned Skill fixture; not a second production Skill |
 | `planning-with-files-3.8.2/` | Ignored local upstream reference tree supplied for development; never package it |
 | `.planning/.active_plan` | Pointer to the current Managed Runtime Modernization plan |
@@ -241,8 +241,10 @@ bash -n init-cloud-sandbox-v0.3.0.bash
 git diff --check
 ```
 
-The Node suite currently contains twenty-five **test cases**, not twenty-five atomic product
-features. Several cases cover multiple related guarantees. Together they cover:
+The Node suite currently registers forty-five **test cases**, not forty-five
+atomic product features. On Windows, forty-two pass and three Linux-only
+permission/runtime cases skip; the alpha.2 Cloud gate must run those Linux
+cases. Several cases cover multiple related guarantees. Together they cover:
 
 - both current Hook payloads and the no-plan canary;
 - read-only dry-run;
@@ -253,7 +255,7 @@ features. Several cases cover multiple related guarantees. Together they cover:
 - rejection of unowned, manifest, and unknown-runtime drift;
 - byte-for-byte restoration from installation backups;
 - deterministic/idempotent patching and rejection of unknown Skill drift;
-- guarded v0.3.0 checksum and patch-before-installer bootstrap ordering;
+- guarded v0.3.0 checksum and pristine-Skill bootstrap ordering;
 - `.agents` installation, `$CODEX_HOME/sessions`, scoped-plan, resume-adapter,
   and unsynced-sentinel catch-up behavior, including a sentinel after a long
   Cloud wrapper;
@@ -263,7 +265,16 @@ features. Several cases cover multiple related guarantees. Together they cover:
   output hashes, idempotence, and changed/unknown runtime rejection;
 - six exact v0.2.2 Hook output goldens and two Cloud-shaped evidence contracts;
 - multi-file install/doctor/repair/backup/uninstall inventory behavior;
-- deterministic 18-entry ZIP construction with fixed metadata and external Bash.
+- owned-runtime request/result, Host-path preference, explicit fallback,
+  session identity, containment, and bounded compatibility output;
+- backward-compatible session attachment/isolation, explicit opt-out, canonical
+  plan/file containment, `PLAN_ID`/BOM precedence, and safe runtime outcomes;
+- strict Codex JSONL normalization, conservative cross-family deduplication,
+  content-free diagnostics, corruption/budget reason codes, and bounded
+  child-process supervision;
+- adapter activation/fail-open behavior, proof that mutable global catch-up is
+  not executed, and Linux root/root plus synthetic cross-user gates;
+- deterministic 18-entry alpha.2 ZIP construction with fixed metadata and external Bash.
 
 Tests use temporary Codex homes and projects and do not write the live
 `$CODEX_HOME` or `/etc/codex/requirements.toml`.
@@ -315,13 +326,13 @@ bash init-cloud-sandbox-v0.3.0.bash help
 bash init-cloud-sandbox-v0.3.0.bash verify
 ```
 
-The checked-in `v0.3.0` script deliberately keeps an all-zero `HOOKS_SHA256`
-placeholder and fails before download while it remains unset. Documentation is
-part of the ZIP, so its final SHA-256 can be calculated only after these release
-files stop changing and the archive is rebuilt. Replace the placeholder manually
-with that final archive hash immediately before publication. The published
-`v0.2.2` release remains the Cloud-validated rollback baseline; v0.3.0 does not
-require a local copy of the v0.2.2 bootstrap.
+The alpha.2 workflow targets `v0.3.0-alpha.2` and uses two stages: the external
+bootstrap keeps an all-zero guard while ZIP bytes are being frozen, then only
+that external bootstrap is sealed with the final ZIP SHA. Release sealing must
+always be ordered: freeze the target version and ZIP contents, build and hash
+the ZIP, write that version/package/SHA into the external bootstrap, hash the
+sealed bootstrap, then publish and verify both assets. The published `v0.2.2`
+release remains the stable rollback baseline.
 
 Component commands do not install their dependencies automatically. Use `all`
 for the complete ordered workflow or follow the dependency notes printed by
@@ -369,6 +380,7 @@ Codex
   v
 $CODEX_HOME/hooks/planning-with-files/
   |-- hook_adapter.py                 # owned here: Codex protocol only
+  |-- owned-catchup.py                # active SessionStart child runtime
   |-- upstream/                       # exact allowlisted files from pinned release
   |   |-- resolve-plan-dir.sh
   |   |-- inject-plan.sh
@@ -379,10 +391,11 @@ $CODEX_HOME/hooks/planning-with-files/
   `-- THIRD_PARTY_NOTICES.md
 ```
 
-The filesystem tree is now installed by Phase 1, but the four upstream scripts
-remain inactive inventory. Managed Hook commands still execute only the
-v0.2.2-compatible adapter, which still uses the global patched Skill for
-catch-up until Phase 2 explicitly switches execution to the owned copy.
+Managed Hook commands still register only `hook_adapter.py`. For SessionStart,
+that adapter now validates an explicit v1 Host request and supervises the sibling
+`owned-catchup.py`, which imports only the installed verified upstream copy.
+UserPromptSubmit plan injection remains local until Phase 3. The global Skill is
+pristine and is never executed for catch-up.
 
 The Phase 1 v1 allowlist contains only those four upstream files. Attestation,
 ledger mutation, phase mutation, completion, and Stop-gating scripts remain
@@ -414,10 +427,13 @@ The pinned upstream runtime will own planning semantics:
 - catch-up transcript normalization, diagnostic reason codes, and bounded reports.
 
 The Host-provided `transcript_path` is the primary transcript selector. The
-owned runtime must canonicalize and validate it before reading, then use
-session-store enumeration only as a compatibility fallback. Codex transcript
-JSONL is not a stable public interface, so parsing must be shape/version
-defensive and fail safely when records are unknown.
+active Phase 2 entrypoint independently requires canonical containment,
+rollout shape, matching session identity/cwd, and an explicit allowed root
+before reading it, then uses only explicitly supplied session-store roots as a
+compatibility fallback. Codex transcript JSONL is not a stable public interface.
+The runtime normalizes the
+observed families, rejects malformed UTF-8/JSON without partial injection, and
+reports unknown or duplicate families without trusting them as conversation text.
 
 `install.js` will continue to own deployment and governance:
 
@@ -492,10 +508,14 @@ v0.2.2 patch is now an explicit temporary compatibility-overlay milestone:
 All three Phase 1 rounds are complete locally: contracts and overlays are
 frozen, the runtime is reproducibly imported, manifest/license provenance is
 verified, exact inactive installation is fail-closed, Cloud/golden fixtures pass,
-and the alpha.1 ZIP is deterministic. The remaining Phase 1 handoff is the
-external pre-release Cloud install/doctor smoke. Phase 2 moves
-catch-up into the owned verified runtime; Phase 3 removes global Skill discovery
-and bootstrap patching after canonical prompt injection also migrates. New
+and the alpha.1 ZIP is deterministic. The pre-release download/SHA, install,
+doctor, exact inventory, per-file hashes, adapter-only command boundary, and
+compatibility smoke through resume have passed in Cloud. Phase 1 is complete;
+Phase 2 Rounds 1–3 added and hardened the structured owned-catch-up path,
+plan/session policy, transcript normalization, diagnostics, and supervisor
+failure semantics. Round 4 has activated catch-up, retired bootstrap/global
+Skill mutation, and prepared the alpha.2 candidate; fresh-Cloud hard acceptance
+is the remaining gate. Phase 3 migrates canonical prompt injection. New
 lifecycle events remain deferred until this runtime boundary and its diagnostic
 contract are complete.
 
@@ -522,15 +542,17 @@ and architectural rationale live in the sibling `findings.md`.
    entry list and deterministic settings in
    `contracts/release-artifact-v1.json`. Do not use a repository-wide wildcard
    and do not include the local `planning-with-files-3.8.2/` reference tree.
-4. Inspect the final ZIP contents, then publish that exact archive.
-5. Record the archive SHA-256 in `init-cloud-sandbox-v0.3.0.bash`; do not bypass
-   its placeholder guard.
-6. Run bootstrap install and doctor in a fresh environment.
-7. Follow the `v0.3.0` regression procedure in
+4. Inspect the final ZIP contents and compute its SHA-256, but do not mutate the
+   ZIP after this point.
+5. Seal `init-cloud-sandbox-v0.3.0.bash` with the final version, package name,
+   and ZIP SHA-256, then compute the sealed Bash SHA-256.
+6. Publish both immutable assets and verify their uploaded hashes.
+7. Run bootstrap install and doctor in a fresh environment.
+8. Follow the `v0.3.0` regression procedure in
    [`黑盒验证.md`](黑盒验证.md) and require the
    resume canary, `Runtime: codex`, unsynced count, and sentinel.
-8. Keep canaries until every newly enabled lifecycle path is proven.
-9. Remove canaries in a separately reviewed change and recompute production hashes.
+9. Keep canaries until every newly enabled lifecycle path is proven.
+10. Remove canaries in a separately reviewed change and recompute production hashes.
 
 Never configure Cloud setup to download a moving branch or an unchecksummed
 `latest` release.

@@ -2,7 +2,7 @@
 
 > Contract version: 1
 >
-> Phase status: Phase 1 Round 3 complete locally; alpha.1 Cloud smoke pending
+> Phase status: Phase 1 complete; `v0.3.0-alpha.1` Cloud acceptance PASS
 >
 > Behavior status: runtime installed as an inactive verified inventory, but not executed; current Hook behavior is unchanged
 
@@ -146,8 +146,9 @@ for operator and redistribution context.
 
 Round 2 added the importer, four verified runtime files, and the complete
 third-party notice. Round 3 proved the expanded package lifecycle and current
-Hook output locally. The remaining Phase 1 release action is an external
-alpha.1 Cloud install/doctor smoke using the candidate ZIP and separate Bash.
+Hook output locally. The alpha.1 Release download/SHA, install, doctor, exact
+inventory, per-file hashes, adapter-only command boundary, and simplified
+behavior-compatibility smoke through resume have all passed in Cloud.
 
 ## Reproducible import and check
 
@@ -173,5 +174,5 @@ regardless of the development host filesystem.
 - Round 2: deterministic import/check, overlay application, manifest v3, and MIT
   attribution are complete; no Hook behavior changed.
 - Round 3: freeze Cloud/golden fixtures, extend installer lifecycle tests, prove
-  compatibility, and build the alpha.1 candidate — complete locally; Cloud
-  pre-release smoke remains external.
+  compatibility, and build the alpha.1 candidate — complete locally and accepted
+  in Cloud.

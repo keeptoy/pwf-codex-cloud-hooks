@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Publish the deterministic ZIP and external bootstrap as separate `v0.3.0-alpha.1` pre-release assets, then run a fresh Codex Cloud install/doctor/inventory and simplified v0.2.2 compatibility smoke using environment overrides for the alpha version and ZIP SHA. Do not write the alpha SHA into the final v0.3.0 bootstrap default and do not begin Phase 2 execution switching until this smoke is reviewed.
+Freeze and seal the deterministic `v0.3.0-alpha.2` ZIP/bootstrap pair, publish both immutable assets, then run the fresh Codex Cloud hard-acceptance script. Require real root/root owned catch-up, synthetic cross-user readability, pristine global Skill, exact inventory/doctor, Host transcript selection, tail sentinel, local-only UserPromptSubmit, and post-resume health before closing Phase 2. Keep alpha.1 as rollback.
 
 ## Current Phase
-Phase 1 — Runtime provenance and compatibility contract
+Phase 2 Round 4 locally complete; alpha.2 Cloud hard acceptance pending
 
 ## Phases
 
@@ -65,7 +65,7 @@ Phase 1 — Runtime provenance and compatibility contract
 |---|---|---|
 | 1 | Contract and ledger freeze: allowlist, dependency graph, overlay ledger, adapter/runtime request, diagnostics, artifact boundary | complete |
 | 2 | Reproducible import/check, manifest implementation, overlays, license provenance | complete |
-| 3 | Golden/Cloud fixtures, multi-file installer lifecycle, behavior-compatibility proof, alpha.1 candidate | complete locally; Cloud smoke pending |
+| 3 | Golden/Cloud fixtures, multi-file installer lifecycle, behavior-compatibility proof, alpha.1 candidate | complete; Cloud PASS |
 
 - [x] Define the minimal upstream runtime allowlist and direct dependency graph.
 - [x] Define a compatibility-overlay ledger for downstream deltas: reason, upstream anchor, input/output hashes, Cloud fixture, owner, and explicit retirement condition.
@@ -82,24 +82,33 @@ Phase 1 — Runtime provenance and compatibility contract
 - [x] Extend installed-manifest/runtime inventory checks so missing, changed, and unknown files fail closed.
 - [x] Test install, doctor, repair, uninstall, and backup restoration with a multi-file runtime.
 - **Exit criteria:** A reviewed runtime bundle can be reproduced from the pinned upstream archive, every downstream delta and executed file is verified, the release boundary is reproducible, and current Hook behavior is unchanged.
-- **Status:** complete locally (alpha.1 Cloud smoke pending)
+- **Status:** complete; `v0.3.0-alpha.1` Cloud acceptance PASS
 
 ### Phase 2: Owned catch-up runtime and safety foundation
-- [ ] Install catch-up and its allowlisted dependencies beneath the owned managed runtime; stop executing `session-catchup.py` from a mutable global Skill directory.
-- [ ] Apply any still-required compatibility overlay only to the owned imported copy, leaving the global upstream Skill pristine.
-- [ ] Pass runtime/session/transcript/project/event data through the explicit host contract instead of inferring Codex from a script path, scanning before using a valid Host transcript, or relying on setup-shell environment persistence.
-- [ ] Make catch-up and prompt injection share one canonical scoped/root plan resolver so one path cannot see a plan that the other rejects.
-- [ ] Normalize real Codex JSONL record families defensively because transcript format is not a stable Host interface, deduplicate logically repeated user/assistant messages where safe, preserve structured planning updates, and enforce per-message plus total-report budgets.
-- [ ] Add a non-injecting diagnostic command that reports reason codes and selected paths without exposing transcript content by default.
-- [ ] Add `PLANNING_DISABLED=1` as an explicit one-shot opt-out.
-- [ ] Use canonical path containment so scoped-plan symlinks cannot escape the project root.
-- [ ] Add backward-compatible session isolation using `session_id` and `.planning/sessions/<id>.attached`.
-- [ ] Define malformed stdin, missing files, invalid UTF-8, timeout, and child-process failure behavior.
-- [ ] Keep the Codex loop fail-open for advisory runtime failures while failing closed for unsafe context injection.
+
+#### Round tracking
+| Round | Scope | Status |
+|---|---|---|
+| 1 | Structured owned-runtime entrypoint, request/result validation, Host transcript preference and explicit fallback; remain inactive | complete |
+| 2 | Shared canonical plan resolution, containment, opt-out, and backward-compatible session attachment/isolation | complete |
+| 3 | Codex JSONL normalization/deduplication, bounded rendering, diagnostic surface, malformed-input/timeout/failure semantics | complete |
+| 4 | Adapter activation, pristine global Skill, installer/manifest/permission matrix, alpha.2 packaging and Cloud hard acceptance | local implementation complete; Cloud pending |
+
+- [x] Install catch-up and its allowlisted dependencies beneath the owned managed runtime; stop executing `session-catchup.py` from a mutable global Skill directory.
+- [x] Apply any still-required compatibility overlay only to the owned imported copy, leaving the global upstream Skill pristine.
+- [x] Pass runtime/session/transcript/project/event data through the explicit host contract instead of inferring Codex from a script path, scanning before using a valid Host transcript, or relying on setup-shell environment persistence.
+- [x] Make catch-up and prompt injection share one canonical scoped/root plan resolver so one path cannot see a plan that the other rejects.
+- [x] Normalize real Codex JSONL record families defensively because transcript format is not a stable Host interface, deduplicate logically repeated user/assistant messages where safe, preserve structured planning updates, and enforce per-message plus total-report budgets.
+- [x] Add a non-injecting diagnostic command that reports reason codes and selected paths without exposing transcript content by default.
+- [x] Add `PLANNING_DISABLED=1` as an explicit one-shot opt-out.
+- [x] Use canonical path containment so scoped-plan symlinks cannot escape the project root.
+- [x] Add backward-compatible session isolation using `session_id` and `.planning/sessions/<id>.attached`.
+- [x] Define malformed stdin, missing files, invalid UTF-8, timeout, and child-process failure behavior.
+- [x] Keep the Codex loop fail-open for advisory runtime failures while failing closed for unsafe context injection.
 - [ ] Test the observed root/root Cloud identity and a synthetic install-user/Hook-user split with explicit readability and session-store expectations.
-- [ ] Add Linux Cloud tests and document Windows as unsupported unless a separate managed Windows runtime is designed.
+- [x] Add Linux Cloud tests and document Windows as unsupported unless a separate managed Windows runtime is designed.
 - **Exit criteria:** Catch-up executes only owned verified files, current Cloud behavior remains compatible, diagnostic skips are explainable, opted-out/unattached sessions stay silent, and external-path plan content is never injected.
-- **Status:** pending
+- **Status:** Round 4 locally complete; Cloud exit criteria pending
 
 ### Phase 3: Canonical user-prompt injection
 - [ ] Reduce the local Python adapter to Codex payload parsing, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
@@ -107,7 +116,7 @@ Phase 1 — Runtime provenance and compatibility contract
 - [ ] Preserve current legacy-mode output semantics through golden tests or document and approve each intentional difference.
 - [ ] Normalize diagnostics so upstream stderr cannot corrupt Hook JSON stdout.
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
-- [ ] Remove global Skill discovery and the v0.2.2 bootstrap patch step once both catch-up and prompt injection run exclusively from the owned runtime bundle.
+- [ ] Remove the install-time pristine Skill discovery dependency once prompt injection also runs exclusively from the owned runtime bundle; the v0.2.2 bootstrap patch step was already retired in Phase 2 Round 4.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
 - **Status:** pending
 
@@ -178,7 +187,7 @@ Phase 1 — Runtime provenance and compatibility contract
 | Preserve legacy behavior by default | Existing plans must not be forced into attestation, ledger, or gating without an explicit migration/mode. |
 | Roll out lifecycle events incrementally | Managed Hooks are globally trusted, can coexist and run concurrently with other sources, and are harder for users to disable. |
 | Add hard Stop gating last | It has the greatest recursion, concurrency, and runaway risk and requires real host verification. |
-| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Round 1 to thirteen, Round 2 to sixteen, and Round 3 to twenty-five. Several cases cover multiple guarantees and several README claims are integration properties rather than separate product features. |
+| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Several cases cover multiple guarantees; three Round 4 Linux-only cases skip on Windows and remain Cloud gates. |
 | Treat the v0.2.2 catch-up patch as a temporary compatibility overlay | It is valuable Cloud-proven behavior, but mutating and executing a global Skill conflicts with the owned-runtime trust boundary. |
 | Make the host/runtime contract explicit | `.agents` placement, initialization/runtime environment differences, absent Hook-time `CODEX_THREAD_ID`, and the Host-provided transcript path prove that script-path and setup-shell inference are not stable Cloud interfaces. |
 | Add reason-coded diagnostics without injecting them by default | Silent early returns made black-box failures expensive to localize, while stderr or debug text must not contaminate Hook JSON/context. |
@@ -225,3 +234,15 @@ Phase 1 — Runtime provenance and compatibility contract
 | A non-escalated inline Python diagnostic could not create its temporary project under the managed Windows Temp sandbox | The preceding file-size evidence already identified the cause; retained tests use the approved Node/Python test execution path instead of retrying the blocked diagnostic. |
 | Final candidate preflight found `runtime/upstream/__pycache__` | It was left by the earlier `importlib` fixture diagnostic; exact inventory correctly blocked packaging. Remove only that verified cache and rerun the preflight before building any candidate. |
 | Final static test-count assertion reported 19 instead of the executed 25 | The line-based count intentionally missed six tests registered from the golden fixture loop. Count 19 direct declarations plus six fixture scenarios, and retain `npm test` 25/25 as execution evidence. |
+| First final-status patch used the terminal's mojibake rendering of the phase title and did not match the UTF-8 file | Re-read the file explicitly as UTF-8 and applied the status update against the real em-dash text. |
+| Initial Phase 2 symbol scan referenced obsolete root `hook_adapter.py` and made the combined `rg` command exit 1 | Located the packaged source with `rg --files` and inspected the actual `hooks/hook_adapter.py`; no conclusion relied on the failed path. |
+| First Round 1 narrow regression passed 12/13 and failed only because the deterministic Release test still expected the Phase 1 count of 18 entries | Updated the assertion to the new exact 19-entry Round 1 allowlist; retained Phase 1 alpha.1 counts as historical acceptance evidence. |
+| Post-suite importer check found `runtime/__pycache__` and `runtime/upstream/__pycache__` created by the new dynamic import | Set `sys.dont_write_bytecode=true` inside the owned runtime, added a zero-cache regression, removed only the two verified workspace cache directories, and reran exact inventory checks. |
+| First zero-cache regression still found `runtime/__pycache__/owned-catchup...pyc` | The Windows native-path harness imports the entrypoint as a module, unlike production's script execution. Set `PYTHONDONTWRITEBYTECODE=1` only on that test harness; retain the normal CLI test to prove the production path does not cache its upstream import. |
+| Initial Round 2 planning updates failed first against a stale directory and then against an outdated combined-patch anchor | Resolved `.planning/.active_plan`, re-read the active UTF-8 files, recorded both failures, and switched to narrow patches against the actual active plan. |
+| The first opt-out short-circuit patch mixed adapter and runtime anchors under the adapter file | Split the change by file and applied the adapter marker-scan short circuit and runtime parser-load short circuit independently. |
+| The first upstream-load short-circuit regression returned `invalid_request` on Windows | Its special harness requested native-path validation while passing a POSIX fixture root. Restored production `require_posix=true`; the product short circuit itself was unchanged. |
+| The first harness fix matched the identical native-harness line instead of the short-circuit harness line | Reapplied with named-array context: native fixtures retain Windows path validation and only the POSIX short-circuit fixture uses production validation. |
+| Final cache hygiene failed after all 35 functional cases passed | A manual `importlib` diagnostic had created one verified `runtime/__pycache__/owned-catchup...pyc`. Removed only that workspace cache and retained the regression that prevents production/test harness cache creation. |
+| First Round 3 supervisor regression failed on invalid child UTF-8 | Python text-mode capture raised inside its reader thread and left `stdout=None`. Switched the inactive supervisor to bounded binary capture followed by strict main-thread UTF-8 decoding, which deterministically maps invalid bytes to `runtime_error`. |
+| Initial Round 3 documentation sync used an English `current resolver` anchor where the UTF-8 source said `当前 resolver` | Split the combined patch by file and reapplied the project-understanding update against its exact text. |

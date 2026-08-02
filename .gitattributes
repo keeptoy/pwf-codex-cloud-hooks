@@ -1,5 +1,6 @@
 /contracts/*.json text eol=lf
 /runtime/upstream/* text eol=lf
+/runtime/owned-catchup.py text eol=lf
 /tools/*.py text eol=lf
 /THIRD_PARTY_NOTICES.md text eol=lf
 /upstream-manifest.json text eol=lf

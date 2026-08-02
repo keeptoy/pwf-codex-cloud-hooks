@@ -27,13 +27,11 @@ readonly POWERSHELL_PACKAGE="${POWERSHELL_PACKAGE:-powershell_${POWERSHELL_VERSI
 readonly POWERSHELL_URL="${POWERSHELL_URL:-https://github.com/PowerShell/PowerShell/releases/download/v${POWERSHELL_VERSION}/${POWERSHELL_PACKAGE}}"
 readonly POWERSHELL_SHA256="${POWERSHELL_SHA256:-1d551a739ac5db6957ca9d71bd2e332a7b688e85ea5fb43c73fd42395042ef94}"
 
-readonly HOOKS_VERSION="${HOOKS_VERSION:-v0.3.0}"
+readonly HOOKS_VERSION="${HOOKS_VERSION:-v0.3.0-alpha.2}"
 readonly HOOKS_PACKAGE="${HOOKS_PACKAGE:-pwf-codex-cloud-hooks-${HOOKS_VERSION}.zip}"
 readonly HOOKS_ARCHIVE_ROOT="${HOOKS_ARCHIVE_ROOT:-pwf-codex-cloud-hooks}"
 readonly HOOKS_URL="${HOOKS_URL:-https://github.com/keeptoy/pwf-codex-cloud-hooks/releases/download/${HOOKS_VERSION}/${HOOKS_PACKAGE}}"
-readonly HOOKS_SHA256="${HOOKS_SHA256:-0000000000000000000000000000000000000000000000000000000000000000}"
-readonly PLANNING_SKILL_PATCH_ID="PWF_CODEX_CLOUD_COMPAT_PATCH"
-readonly PLANNING_SKILL_PATCHED_SHA256="fc765590dc32b3949027de97e33dad6a049daf148719ba1822598a6c146461e2"
+readonly HOOKS_SHA256="${HOOKS_SHA256:-61f2001f3dd3934d79144d5f1be09385a55936aba9f7481ad5e2177a486059db}"
 
 # The only mutable shared state is the disposable workspace lifecycle.
 WORK_DIR=""
@@ -266,13 +264,6 @@ verify_planning_skill() {
     die "session-catchup.py was not found in the installed Skill."
 }
 
-verify_patched_planning_skill() {
-  verify_planning_skill
-  verify_sha256 \
-    "$PLANNING_SKILL_PATCHED_SHA256" \
-    "$PLANNING_WITH_FILES_ROOT/scripts/session-catchup.py"
-}
-
 install_planning_skill() {
   verify_node_toolchain
 
@@ -327,33 +318,6 @@ extract_hooks_installer() {
     die "Hook installer entry point was not found: $installer_dir/install.js"
 }
 
-apply_planning_skill_compat_patch() {
-  local installer_dir="$1"
-  local patcher="$installer_dir/patches/patch_planning_skill.py"
-  local manifest="$installer_dir/upstream-manifest.json"
-
-  require_command python3
-
-  [ -f "$patcher" ] ||
-    die "planning-with-files compatibility patcher was not found: $patcher"
-
-  [ -f "$manifest" ] ||
-    die "Upstream manifest was not found: $manifest"
-
-  # PWF_CODEX_CLOUD_COMPAT_PATCH is a temporary, hash-pinned compatibility
-  # patch for upstream v3.8.2. Disposable Cloud sandboxes always start from
-  # pristine upstream, so no prior downstream patch migration is supported.
-  # It fixes runtime/session/scoped-plan discovery and preserves trailing user
-  # context behind long Cloud wrappers.
-  # Remove this step after an equivalent upstream release is pinned and verified.
-  log "Applying planning-with-files Codex Cloud compatibility patch"
-  python3 "$patcher" apply \
-    --skill-root "$PLANNING_WITH_FILES_ROOT" \
-    --manifest "$manifest"
-
-  verify_patched_planning_skill
-}
-
 run_hooks_installer() {
   local installer_dir="$1"
   shift
@@ -392,7 +356,6 @@ install_hooks_component() {
 
   download_hooks_archive "$archive_file"
   extract_hooks_installer "$archive_file" "$extract_dir" "$installer_dir"
-  apply_planning_skill_compat_patch "$installer_dir"
   install_managed_hooks "$installer_dir"
   doctor_managed_hooks "$installer_dir"
 }
@@ -509,9 +472,12 @@ test_hook_protocol() {
 verify_managed_hooks() {
   local hook_runtime="$CODEX_HOME/hooks/planning-with-files"
   local hook_adapter="$hook_runtime/hook_adapter.py"
+  local owned_catchup="$hook_runtime/owned-catchup.py"
   local hook_manifest="$hook_runtime/installed-manifest.json"
 
   verify_hooks_filesystem "$hook_adapter" "$hook_manifest"
+  [ -x "$owned_catchup" ] ||
+    die "Owned catch-up runtime was not installed or is not executable: $owned_catchup"
   validate_managed_requirements_toml
   verify_codex_hooks_feature
   test_hook_protocol "$hook_adapter"
@@ -530,7 +496,7 @@ print_summary() {
     "Codex home:          $CODEX_HOME" \
     "Codex version:       $("$CODEX_HOME/bin/codex" --version)" \
     "Skill root:          $PLANNING_WITH_FILES_ROOT" \
-    "Skill patch:         $PLANNING_SKILL_PATCH_ID" \
+    "Skill state:         pristine upstream ${PLANNING_WITH_FILES_VERSION}" \
     "Managed policy:      $MANAGED_REQUIREMENTS" \
     "Hook runtime:        $hook_runtime" \
     "Hook adapter:        $hook_runtime/hook_adapter.py" \
@@ -622,7 +588,7 @@ run_hooks() {
 
 run_verification() {
   require_codex_runtime
-  verify_patched_planning_skill
+  verify_planning_skill
   verify_managed_hooks
 }
 
@@ -655,9 +621,9 @@ Commands:
   powershell     Install and verify PowerShell; requires the prerequisite packages.
   nodejs         Install NVM and Node.js; requires curl.
   skill          Install and verify planning-with-files only; requires Node.js.
-  hooks          Apply the Skill compatibility patch, then install, doctor, and verify
-                 Managed Hooks; requires Node.js and the upstream Skill.
-  verify         Verify the patched Skill and Managed Hooks without installing anything.
+  hooks          Install, doctor, and verify Managed Hooks; requires Node.js and the
+                 pristine upstream Skill.
+  verify         Verify the pristine Skill and Managed Hooks without installing anything.
   help           Show this help.
 
 Component commands do not implicitly install other components. Run their stated

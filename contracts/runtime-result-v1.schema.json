@@ -35,6 +35,9 @@
           "scan_fallback_used",
           "unknown_transcript_record",
           "duplicate_record_suppressed",
+          "invalid_utf8_record",
+          "invalid_json_record",
+          "record_too_large",
           "report_truncated"
         ]
       }
@@ -42,7 +45,7 @@
     "diagnostic": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["event_name", "session_id_present", "selected_transcript", "selected_plan_scope"],
+      "required": ["event_name", "session_id_present", "planning_enabled", "session_attachment", "selected_transcript", "selected_transcript_path", "selected_plan_scope", "selected_plan_dir"],
       "properties": {
         "event_name": {
           "enum": ["SessionStart", "UserPromptSubmit"]
@@ -50,11 +53,25 @@
         "session_id_present": {
           "type": "boolean"
         },
+        "planning_enabled": {
+          "type": "boolean"
+        },
+        "session_attachment": {
+          "enum": ["legacy", "attached", "detached"]
+        },
         "selected_transcript": {
           "enum": ["none", "host_path", "session_store_fallback"]
         },
+        "selected_transcript_path": {
+          "type": ["string", "null"],
+          "maxLength": 4096
+        },
         "selected_plan_scope": {
           "enum": ["none", "scoped", "legacy_root"]
+        },
+        "selected_plan_dir": {
+          "type": ["string", "null"],
+          "maxLength": 4096
         }
       }
     }
@@ -63,6 +80,9 @@
     "outcome": {
       "enum": [
         "report_emitted",
+        "diagnostic_report_available",
+        "planning_disabled",
+        "session_not_attached",
         "no_plan",
         "invalid_request",
         "transcript_path_rejected",
@@ -72,6 +92,8 @@
         "no_planning_update",
         "no_unsynced_context",
         "output_budget_exceeded",
+        "malformed_transcript",
+        "transcript_unreadable",
         "timeout",
         "runtime_error"
       ]

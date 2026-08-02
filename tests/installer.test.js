@@ -9,8 +9,6 @@ const { after, before, test } = require("node:test");
 const root = path.resolve(__dirname, "..");
 let cli;
 const pristineSkill = path.join(root, "tests", "fixtures", "planning-with-files");
-const patcher = path.join(root, "patches", "patch_planning_skill.py");
-const upstreamManifest = path.join(root, "upstream-manifest.json");
 const python = process.env.PYTHON || (process.platform === "win32" ? "python" : "python3");
 let skillWorkspace;
 let skill;
@@ -21,6 +19,7 @@ const expectedRuntimeFiles = [
   "compatibility-overlays-v1.json",
   "hook_adapter.py",
   "installed-manifest.json",
+  "owned-catchup.py",
   "upstream/inject-plan.sh",
   "upstream/ledger-summary.sh",
   "upstream/resolve-plan-dir.sh",
@@ -43,8 +42,6 @@ before(() => {
   skillWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "pwf-patched-skill-"));
   skill = path.join(skillWorkspace, "planning-with-files");
   fs.cpSync(pristineSkill, skill, { recursive: true });
-  const result = spawnSync(python, [patcher, "apply", "--skill-root", skill, "--manifest", upstreamManifest], { encoding: "utf8" });
-  assert.equal(result.status, 0, result.stderr);
 });
 
 after(() => {
@@ -104,7 +101,9 @@ test("managed install fails closed when an existing managed_dir excludes the ada
 
 test("managed install is merge-preserving, idempotent, diagnosable and uninstallable", () => {
   const home = fixture();
+  const pristineCatchup = fs.readFileSync(path.join(skill, "scripts", "session-catchup.py"));
   let result = run(home, "install"); assert.equal(result.status, 0, result.stderr); assert.equal(result.json.action, "install"); assert.equal(result.json.healthy, true);
+  assert.deepEqual(fs.readFileSync(path.join(skill, "scripts", "session-catchup.py")), pristineCatchup);
   assert.deepEqual(runtimeFiles(home), expectedRuntimeFiles);
   const installedManifest = JSON.parse(fs.readFileSync(path.join(home, "hooks", "planning-with-files", "installed-manifest.json"), "utf8"));
   assert.deepEqual(installedManifest.runtime_files.map(item => item.path).sort(), expectedRuntimeFiles.filter(item => item !== "installed-manifest.json").sort());
@@ -112,6 +111,7 @@ test("managed install is merge-preserving, idempotent, diagnosable and uninstall
   let requirements = fs.readFileSync(requirementsPath, "utf8");
   assert.match(requirements, /enforce_residency = "us"/); assert.match(requirements, /browser_use = false/); assert.match(requirements, /command = "\\\/usr\\\/bin\\\/keep"|command = "\/usr\/bin\/keep"/);
   assert.match(requirements, /hooks = true/); assert.equal((requirements.match(/hook_adapter\.py/g) || []).length, 2);
+  assert.doesNotMatch(requirements, /owned-catchup\.py/);
   result = run(home, "install"); assert.equal(result.status, 0, result.stderr);
   requirements = fs.readFileSync(requirementsPath, "utf8"); assert.equal((requirements.match(/hook_adapter\.py/g) || []).length, 2);
   result = run(home, "doctor"); assert.equal(result.status, 0, result.stderr); assert.equal(result.json.healthy, true);
@@ -121,6 +121,19 @@ test("managed install is merge-preserving, idempotent, diagnosable and uninstall
   assert.equal(fs.existsSync(path.join(home, "hooks", "planning-with-files")), false);
 });
 
+test("installed runtime permissions are cross-user readable on the Linux target", { skip: process.platform === "win32" }, () => {
+  const home = fixture();
+  try {
+    const result = run(home, "install"); assert.equal(result.status, 0, result.stderr);
+    const runtime = path.join(home, "hooks", "planning-with-files");
+    assert.equal(fs.statSync(runtime).mode & 0o777, 0o755);
+    assert.equal(fs.statSync(path.join(runtime, "upstream")).mode & 0o777, 0o755);
+    assert.equal(fs.statSync(path.join(runtime, "hook_adapter.py")).mode & 0o777, 0o755);
+    assert.equal(fs.statSync(path.join(runtime, "owned-catchup.py")).mode & 0o777, 0o755);
+    assert.equal(fs.statSync(path.join(runtime, "upstream", "session-catchup.py")).mode & 0o777, 0o755);
+  } finally { fs.rmSync(home, { recursive: true, force: true }); }
+});
+
 test("repair fixes only owned adapter and managed definition drift", () => {
   const home = fixture(), adapter = path.join(home, "hooks", "planning-with-files", "hook_adapter.py"), requirements = path.join(home, "etc", "codex", "requirements.toml");
   let result = run(home, "install"); assert.equal(result.status, 0, result.stderr);
@@ -128,6 +141,11 @@ test("repair fixes only owned adapter and managed definition drift", () => {
   fs.appendFileSync(adapter, "# drift\n");
   result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, true); assert.match(result.json.errors.join(" "), /adapter hash drift/);
   result = run(home, "install", "--repair"); assert.equal(result.status, 0, result.stderr); assert.equal(result.json.action, "repair");
+
+  const ownedCatchup = path.join(home, "hooks", "planning-with-files", "owned-catchup.py");
+  fs.appendFileSync(ownedCatchup, "# drift\n");
+  result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, true); assert.match(result.json.errors.join(" "), /owned_catchup hash drift/);
+  result = run(home, "install", "--repair"); assert.equal(result.status, 0, result.stderr);
 
   const catchup = path.join(home, "hooks", "planning-with-files", "upstream", "session-catchup.py");
   fs.appendFileSync(catchup, "# drift\n");
