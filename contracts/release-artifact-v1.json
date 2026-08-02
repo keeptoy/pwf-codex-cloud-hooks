@@ -1,0 +1,49 @@
+{
+  "schema_version": 1,
+  "contract_id": "PWF_RELEASE_ARTIFACT_V1",
+  "archive_root": "pwf-codex-cloud-hooks/",
+  "ordering": "lexicographic_by_utf8_path",
+  "timestamp": "1980-01-01T00:00:00Z",
+  "compression": "deflate",
+  "entries": [
+    { "path": "LICENSE", "state": "present", "origin": "local" },
+    { "path": "README.md", "state": "present", "origin": "local" },
+    { "path": "package.json", "state": "present", "origin": "local" },
+    { "path": "install.js", "state": "present", "origin": "local" },
+    { "path": "upstream-manifest.json", "state": "present", "origin": "local" },
+    { "path": "hooks/hook_adapter.py", "state": "present", "origin": "local" },
+    { "path": "patches/patch_planning_skill.py", "state": "present", "origin": "local" },
+    { "path": "contracts/runtime-bundle-v1.json", "state": "present", "origin": "local_contract" },
+    { "path": "contracts/compatibility-overlays-v1.json", "state": "present", "origin": "local_contract" },
+    { "path": "contracts/adapter-runtime-request-v1.schema.json", "state": "present", "origin": "local_contract" },
+    { "path": "contracts/runtime-result-v1.schema.json", "state": "present", "origin": "local_contract" },
+    { "path": "contracts/release-artifact-v1.json", "state": "present", "origin": "local_contract" },
+    { "path": "THIRD_PARTY_NOTICES.md", "state": "planned", "activation_round": 2, "origin": "local_attribution" },
+    { "path": "tools/import_upstream_runtime.py", "state": "planned", "activation_round": 2, "origin": "local_tool" },
+    { "path": "runtime/upstream/session-catchup.py", "state": "planned", "activation_round": 2, "origin": "upstream_with_managed_overlay" },
+    { "path": "runtime/upstream/resolve-plan-dir.sh", "state": "planned", "activation_round": 2, "origin": "upstream_pristine" },
+    { "path": "runtime/upstream/inject-plan.sh", "state": "planned", "activation_round": 2, "origin": "upstream_pristine" },
+    { "path": "runtime/upstream/ledger-summary.sh", "state": "planned", "activation_round": 2, "origin": "upstream_pristine" }
+  ],
+  "external_release_assets": [
+    {
+      "path": "init-cloud-sandbox-v0.3.0.bash",
+      "reason": "The bootstrap pins and downloads the ZIP checksum and therefore must remain outside that ZIP."
+    }
+  ],
+  "excluded_prefixes": [
+    ".git/",
+    ".planning/",
+    "docs/",
+    "tests/",
+    "planning-with-files-3.8.2/"
+  ],
+  "checksum_workflow": [
+    "freeze all required entries",
+    "import and verify allowlisted upstream files",
+    "build deterministic ZIP from this exact entry list",
+    "inspect entry list and compute ZIP SHA-256",
+    "publish the immutable ZIP",
+    "publish the external bootstrap with that exact SHA-256"
+  ]
+}

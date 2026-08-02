@@ -188,6 +188,9 @@ allowlist of every upstream runtime file that the managed adapter can execute.
 | `install.js` | Managed installer CLI: install, doctor, repair, and uninstall |
 | `hooks/hook_adapter.py` | Current read-only Codex protocol adapter and legacy injection implementation |
 | `patches/patch_planning_skill.py` | Atomic, idempotent, fail-closed `v3.8.2` Cloud compatibility patcher |
+| `contracts/` | Phase 1 Round 1 runtime allowlist, overlay ledger, host protocol schemas, and Release boundary |
+| `docs/phase-1-runtime-contracts.md` | Ownership, dependency, transcript-selection, diagnostic, and round-boundary guide |
+| `tests/contracts.test.js` | Contract/ledger/fixture consistency regression without enabling the future runtime |
 | `upstream-manifest.json` | Pinned upstream release identity and approved Skill-file hashes |
 | `init-cloud-sandbox-v0.3.0.bash` | Development bootstrap for the active modernization iteration |
 | `PROJECT_UNDERSTANDING.md` | Durable current-state model, Cloud evidence, boundaries, and next-step context |

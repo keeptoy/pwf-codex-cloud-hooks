@@ -205,3 +205,28 @@
 - Document assertions passed for version identity, checksum state, active-plan pointer, twelve-test inventory, lifecycle wording, transcript contract, and official-document link.
 - `node --test tests/hook-adapter.test.js tests/skill-patch.test.js`: 6 passed, 0 failed when rerun outside the Windows process-spawn sandbox.
 - `git diff --check`: passed; only expected Git line-ending conversion warnings were emitted.
+
+## Session: 2026-08-02 — Phase 1 Round 1 contracts
+
+### Implemented
+- Added the versioned owned-runtime allowlist and direct dependency graph.
+- Added the four-entry compatibility-overlay ledger with anchor hashes, evidence,
+  ownership, regression references, target disposition, and retirement criteria.
+- Added adapter-to-runtime request and runtime-result JSON Schemas, including
+  bounded output policy and machine-readable diagnostic outcomes.
+- Added the exact future Release ZIP boundary with the checksum-pinning bootstrap
+  explicitly external; Round 2 files remain marked `planned`, not falsely present.
+- Added sanitized request/result contract fixtures and a contract regression test.
+- Documented ownership classes, transcript selection, diagnostics, and round boundaries.
+
+### Verification
+- `npm test`: 13 passed, 0 failed.
+- `python3 -m py_compile hooks/hook_adapter.py`: passed.
+- `node --check install.js`: passed.
+- `bash -n init-cloud-sandbox-v0.3.0.bash`: passed.
+- `git diff --check`: passed.
+
+### Outcome
+- Phase 1 Round 1 is complete without changing installed Hook behavior.
+- Round 2 remains responsible for importer/check implementation, actual upstream
+  runtime artifacts, manifest expansion, and third-party attribution.

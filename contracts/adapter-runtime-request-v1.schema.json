@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keeptoy.github.io/pwf-codex-cloud-hooks/contracts/adapter-runtime-request-v1.schema.json",
+  "title": "planning-with-files adapter to owned runtime request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "runtime",
+    "event",
+    "project",
+    "transcript",
+    "output_budget"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "runtime": {
+      "const": "codex"
+    },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source", "session_id", "turn_id"],
+      "properties": {
+        "name": {
+          "enum": ["SessionStart", "UserPromptSubmit"]
+        },
+        "source": {
+          "type": ["string", "null"],
+          "enum": ["startup", "resume", "clear", "compact", null]
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 128
+        },
+        "turn_id": {
+          "type": ["string", "null"],
+          "minLength": 1,
+          "maxLength": 128
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "plan_state", "plan_scope", "plan_dir"],
+      "properties": {
+        "root": {
+          "$ref": "#/$defs/absolutePath"
+        },
+        "plan_state": {
+          "enum": ["none", "resolved"]
+        },
+        "plan_scope": {
+          "enum": ["none", "scoped", "legacy_root"]
+        },
+        "plan_dir": {
+          "oneOf": [
+            { "$ref": "#/$defs/absolutePath" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "transcript": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "host_path_state",
+        "host_path",
+        "session_store_roots",
+        "allow_scan_fallback"
+      ],
+      "properties": {
+        "host_path_state": {
+          "enum": ["absent", "validated", "rejected"]
+        },
+        "host_path": {
+          "oneOf": [
+            { "$ref": "#/$defs/absolutePath" },
+            { "type": "null" }
+          ]
+        },
+        "session_store_roots": {
+          "type": "array",
+          "maxItems": 3,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/absolutePath"
+          }
+        },
+        "allow_scan_fallback": {
+          "type": "boolean"
+        }
+      }
+    },
+    "output_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "max_report_chars",
+        "max_messages",
+        "max_tools_per_message",
+        "assistant_chars",
+        "user_untruncated_chars",
+        "user_head_chars",
+        "user_tail_chars",
+        "truncation_marker"
+      ],
+      "properties": {
+        "max_report_chars": { "const": 20000 },
+        "max_messages": { "const": 15 },
+        "max_tools_per_message": { "const": 4 },
+        "assistant_chars": { "const": 300 },
+        "user_untruncated_chars": { "const": 1000 },
+        "user_head_chars": { "const": 350 },
+        "user_tail_chars": { "const": 650 },
+        "truncation_marker": { "const": "...[truncated]..." }
+      }
+    }
+  },
+  "$defs": {
+    "absolutePath": {
+      "type": "string",
+      "pattern": "^/",
+      "minLength": 2
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event": {
+            "properties": { "name": { "const": "SessionStart" } },
+            "required": ["name"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "event": {
+            "properties": {
+              "source": { "enum": ["startup", "resume", "clear", "compact"] },
+              "turn_id": { "type": "null" }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "event": {
+            "properties": {
+              "source": { "type": "null" },
+              "turn_id": { "type": "string", "minLength": 1, "maxLength": 128 }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "project": {
+            "properties": { "plan_state": { "const": "none" } },
+            "required": ["plan_state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "project": {
+            "properties": {
+              "plan_scope": { "const": "none" },
+              "plan_dir": { "type": "null" }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "project": {
+            "properties": {
+              "plan_scope": { "enum": ["scoped", "legacy_root"] },
+              "plan_dir": { "$ref": "#/$defs/absolutePath" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "transcript": {
+            "properties": { "host_path_state": { "const": "validated" } },
+            "required": ["host_path_state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "transcript": {
+            "properties": {
+              "host_path": { "$ref": "#/$defs/absolutePath" }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "transcript": {
+            "properties": {
+              "host_path": { "type": "null" }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "transcript": {
+            "properties": { "allow_scan_fallback": { "const": true } },
+            "required": ["allow_scan_fallback"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "transcript": {
+            "properties": {
+              "session_store_roots": { "minItems": 1 }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

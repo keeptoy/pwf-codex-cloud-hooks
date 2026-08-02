@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keeptoy.github.io/pwf-codex-cloud-hooks/contracts/runtime-result-v1.schema.json",
+  "title": "planning-with-files owned runtime result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "outcome",
+    "inject",
+    "report",
+    "warnings",
+    "diagnostic"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "outcome": {
+      "$ref": "#/$defs/outcome"
+    },
+    "inject": {
+      "type": "boolean"
+    },
+    "report": {
+      "type": ["string", "null"],
+      "maxLength": 20000
+    },
+    "warnings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "transcript_path_rejected",
+          "scan_fallback_used",
+          "unknown_transcript_record",
+          "duplicate_record_suppressed",
+          "report_truncated"
+        ]
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_name", "session_id_present", "selected_transcript", "selected_plan_scope"],
+      "properties": {
+        "event_name": {
+          "enum": ["SessionStart", "UserPromptSubmit"]
+        },
+        "session_id_present": {
+          "type": "boolean"
+        },
+        "selected_transcript": {
+          "enum": ["none", "host_path", "session_store_fallback"]
+        },
+        "selected_plan_scope": {
+          "enum": ["none", "scoped", "legacy_root"]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "outcome": {
+      "enum": [
+        "report_emitted",
+        "no_plan",
+        "invalid_request",
+        "transcript_path_rejected",
+        "no_session_store",
+        "no_matching_session",
+        "session_identity_mismatch",
+        "no_planning_update",
+        "no_unsynced_context",
+        "output_budget_exceeded",
+        "timeout",
+        "runtime_error"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "outcome": { "const": "report_emitted" } },
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {
+          "inject": { "const": true },
+          "report": { "type": "string", "minLength": 1, "maxLength": 20000 }
+        }
+      },
+      "else": {
+        "properties": {
+          "inject": { "const": false },
+          "report": { "type": "null" }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "runtime": "codex",
+  "event": {
+    "name": "SessionStart",
+    "source": "resume",
+    "session_id": "019fbd92-7cc2-7813-85d1-54144d4cf649",
+    "turn_id": null
+  },
+  "project": {
+    "root": "/workspace/example",
+    "plan_state": "resolved",
+    "plan_scope": "scoped",
+    "plan_dir": "/workspace/example/.planning/example-plan"
+  },
+  "transcript": {
+    "host_path_state": "validated",
+    "host_path": "/opt/codex/sessions/2026/08/02/rollout-example.jsonl",
+    "session_store_roots": ["/opt/codex/sessions", "/root/.codex/sessions"],
+    "allow_scan_fallback": true
+  },
+  "output_budget": {
+    "max_report_chars": 20000,
+    "max_messages": 15,
+    "max_tools_per_message": 4,
+    "assistant_chars": 300,
+    "user_untruncated_chars": 1000,
+    "user_head_chars": 350,
+    "user_tail_chars": 650,
+    "truncation_marker": "...[truncated]..."
+  }
+}

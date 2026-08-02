@@ -1,0 +1,26 @@
+[
+  {
+    "schema_version": 1,
+    "outcome": "report_emitted",
+    "inject": true,
+    "report": "SESSION CATCHUP DETECTED\nRuntime: codex",
+    "warnings": [],
+    "diagnostic": {"event_name": "SessionStart", "session_id_present": true, "selected_transcript": "host_path", "selected_plan_scope": "scoped"}
+  },
+  {
+    "schema_version": 1,
+    "outcome": "no_plan",
+    "inject": false,
+    "report": null,
+    "warnings": [],
+    "diagnostic": {"event_name": "SessionStart", "session_id_present": true, "selected_transcript": "none", "selected_plan_scope": "none"}
+  },
+  {
+    "schema_version": 1,
+    "outcome": "runtime_error",
+    "inject": false,
+    "report": null,
+    "warnings": [],
+    "diagnostic": {"event_name": "UserPromptSubmit", "session_id_present": true, "selected_transcript": "none", "selected_plan_scope": "legacy_root"}
+  }
+]

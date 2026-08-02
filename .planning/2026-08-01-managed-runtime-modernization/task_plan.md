@@ -24,7 +24,7 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Begin Phase 1 by freezing the Cloud-proven v0.2.2 behavior as compatibility fixtures, defining the owned runtime/compatibility-overlay allowlist, specifying the explicit Codex host contract and diagnostic reason codes, and documenting a non-self-referential release artifact boundary. Do not change installed Hook behavior yet.
+Begin Phase 1 Round 2 by implementing deterministic allowlist import/check and overlay application from the pinned upstream archive. Keep installed Hook behavior unchanged until the imported inventory is independently verified.
 
 ## Current Phase
 Phase 1 — Runtime provenance and compatibility contract
@@ -59,22 +59,22 @@ Phase 1 — Runtime provenance and compatibility contract
 - **Status:** complete
 
 ### Phase 1: Runtime provenance and compatibility contract
-- [ ] Define the minimal upstream runtime allowlist and direct dependency graph.
-- [ ] Define a compatibility-overlay ledger for downstream deltas: reason, upstream anchor, input/output hashes, Cloud fixture, owner, and explicit retirement condition.
-- [ ] Enter the four v0.2.2 deltas in that ledger: explicit Codex runtime, `$CODEX_HOME/sessions`, scoped planning state, and bounded long-wrapper user context.
+- [x] Define the minimal upstream runtime allowlist and direct dependency graph.
+- [x] Define a compatibility-overlay ledger for downstream deltas: reason, upstream anchor, input/output hashes, Cloud fixture, owner, and explicit retirement condition.
+- [x] Enter the four v0.2.2 deltas in that ledger: explicit Codex runtime, `$CODEX_HOME/sessions`, scoped planning state, and bounded long-wrapper user context.
 - [ ] Extend the upstream manifest schema to record archive identity, source paths, per-file SHA-256, executable mode, and license provenance.
 - [ ] Add a deterministic import/check command that extracts only allowlisted files from the pinned archive and never follows a moving branch.
 - [ ] Decide whether imported source files live in the package or are generated for release; document the reproducible-build procedure.
-- [ ] Define the release artifact allowlist and keep the checksum-pinning bootstrap outside the bytes whose checksum it pins, or document an equivalent two-stage publication procedure.
+- [x] Define the release artifact allowlist and keep the checksum-pinning bootstrap outside the bytes whose checksum it pins, or document an equivalent two-stage publication procedure.
 - [ ] Add `THIRD_PARTY_NOTICES.md` or equivalent MIT attribution before distributing substantial upstream code.
 - [ ] Capture golden fixtures for current `SessionStart`, `UserPromptSubmit`, no-plan, scoped-plan, newest-plan, and legacy-root output.
 - [ ] Add Cloud-shaped catch-up fixtures for `.agents`, `/opt/codex/sessions`, absent initialization-stage and present runtime/Hook-stage `CODEX_HOME` plus a missing-variable compatibility case, real SessionStart/UserPromptSubmit stdin schemas, stable `session_id`, distinct `turn_id`, Host-provided `transcript_path`, structured `patch_apply_end`, duplicate transcript record families, and a long wrapper with a tail sentinel.
-- [ ] Define a versioned adapter-to-runtime request contract containing runtime, project root, event/source, session identity, validated transcript path, session-store fallback/override, resolved plan state, and output budget.
-- [ ] Define machine-readable catch-up diagnostic outcomes such as `no_plan`, `no_session_store`, `no_matching_session`, `no_planning_update`, `no_unsynced_context`, `report_emitted`, and `runtime_error`.
+- [x] Define a versioned adapter-to-runtime request contract containing runtime, project root, event/source, session identity, validated transcript path, session-store fallback/override, resolved plan state, and output budget.
+- [x] Define machine-readable catch-up diagnostic outcomes such as `no_plan`, `no_session_store`, `no_matching_session`, `no_planning_update`, `no_unsynced_context`, `report_emitted`, and `runtime_error`.
 - [ ] Extend installed-manifest/runtime inventory checks so missing, changed, and unknown files fail closed.
 - [ ] Test install, doctor, repair, uninstall, and backup restoration with a multi-file runtime.
 - **Exit criteria:** A reviewed runtime bundle can be reproduced from the pinned upstream archive, every downstream delta and executed file is verified, the release boundary is reproducible, and current Hook behavior is unchanged.
-- **Status:** pending
+- **Status:** Round 1 complete; Rounds 2 and 3 pending
 
 ### Phase 2: Owned catch-up runtime and safety foundation
 - [ ] Install catch-up and its allowlisted dependencies beneath the owned managed runtime; stop executing `session-catchup.py` from a mutable global Skill directory.

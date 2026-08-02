@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - 0.3.0
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Run tests
+        run: npm test
+      - name: Check JavaScript syntax
+        run: node --check install.js
+      - name: Check Python syntax
+        run: python3 -m py_compile hooks/hook_adapter.py patches/patch_planning_skill.py
+      - name: Check bootstrap syntax
+        run: bash -n init-cloud-sandbox-v0.3.0.bash
+      - name: Check whitespace
+        run: git diff --check HEAD^
