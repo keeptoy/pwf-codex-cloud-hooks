@@ -6,7 +6,7 @@
 
 ## Phase 1 拆成 3 轮
 
-### 第 1 轮：冻结契约和台账
+### 第 1 轮：冻结契约和台账（已完成）
 
 完成：
 
@@ -24,7 +24,7 @@
 
 验收重点：后续任何人都能回答“这个文件从哪里来、为什么被修改、什么时候可以删除”。
 
-### 第 2 轮：实现可复现的导入与校验
+### 第 2 轮：实现可复现的导入与校验（已完成）
 
 完成：
 
@@ -40,7 +40,7 @@
 
 验收重点：运行包不能再靠人工复制拼装。
 
-### 第 3 轮：Cloud fixtures 与安装生命周期
+### 第 3 轮：Cloud fixtures 与安装生命周期（本地已完成）
 
 完成：
 
@@ -187,4 +187,4 @@ Phase 8 才测试 hard gating。官方当前 Stop 契约中，decision: "block" 
 - Phase 4～8：按功能生成内部 canary/pre-release，不必每个 Phase 都正式发布
 - Phase 9：v0.3.0-rc.1 → v0.3.0
 
-因此下一轮最合理的行动，就是开始 Phase 1 第 1 轮：只做契约、allowlist、overlay 台账和 schema，不碰当前已通过 Cloud 验收的运行逻辑。
+Phase 1 三轮本地工作已经完成。下一步是把确定性候选 ZIP 和外部 Bash 作为 `v0.3.0-alpha.1` GitHub Pre-release 两个独立资产发布，在新 Cloud 沙箱用环境覆盖版本与候选 SHA 做安装、doctor、清单和简化兼容冒烟；通过后再进入 Phase 2，切换 owned catch-up 执行。

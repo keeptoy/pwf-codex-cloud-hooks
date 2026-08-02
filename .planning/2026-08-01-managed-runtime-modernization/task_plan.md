@@ -24,7 +24,7 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Begin Phase 1 by freezing the Cloud-proven v0.2.2 behavior as compatibility fixtures, defining the owned runtime/compatibility-overlay allowlist, specifying the explicit Codex host contract and diagnostic reason codes, and documenting a non-self-referential release artifact boundary. Do not change installed Hook behavior yet.
+Publish the deterministic ZIP and external bootstrap as separate `v0.3.0-alpha.1` pre-release assets, then run a fresh Codex Cloud install/doctor/inventory and simplified v0.2.2 compatibility smoke using environment overrides for the alpha version and ZIP SHA. Do not write the alpha SHA into the final v0.3.0 bootstrap default and do not begin Phase 2 execution switching until this smoke is reviewed.
 
 ## Current Phase
 Phase 1 — Runtime provenance and compatibility contract
@@ -59,22 +59,30 @@ Phase 1 — Runtime provenance and compatibility contract
 - **Status:** complete
 
 ### Phase 1: Runtime provenance and compatibility contract
-- [ ] Define the minimal upstream runtime allowlist and direct dependency graph.
-- [ ] Define a compatibility-overlay ledger for downstream deltas: reason, upstream anchor, input/output hashes, Cloud fixture, owner, and explicit retirement condition.
-- [ ] Enter the four v0.2.2 deltas in that ledger: explicit Codex runtime, `$CODEX_HOME/sessions`, scoped planning state, and bounded long-wrapper user context.
-- [ ] Extend the upstream manifest schema to record archive identity, source paths, per-file SHA-256, executable mode, and license provenance.
-- [ ] Add a deterministic import/check command that extracts only allowlisted files from the pinned archive and never follows a moving branch.
-- [ ] Decide whether imported source files live in the package or are generated for release; document the reproducible-build procedure.
-- [ ] Define the release artifact allowlist and keep the checksum-pinning bootstrap outside the bytes whose checksum it pins, or document an equivalent two-stage publication procedure.
-- [ ] Add `THIRD_PARTY_NOTICES.md` or equivalent MIT attribution before distributing substantial upstream code.
-- [ ] Capture golden fixtures for current `SessionStart`, `UserPromptSubmit`, no-plan, scoped-plan, newest-plan, and legacy-root output.
-- [ ] Add Cloud-shaped catch-up fixtures for `.agents`, `/opt/codex/sessions`, absent initialization-stage and present runtime/Hook-stage `CODEX_HOME` plus a missing-variable compatibility case, real SessionStart/UserPromptSubmit stdin schemas, stable `session_id`, distinct `turn_id`, Host-provided `transcript_path`, structured `patch_apply_end`, duplicate transcript record families, and a long wrapper with a tail sentinel.
-- [ ] Define a versioned adapter-to-runtime request contract containing runtime, project root, event/source, session identity, validated transcript path, session-store fallback/override, resolved plan state, and output budget.
-- [ ] Define machine-readable catch-up diagnostic outcomes such as `no_plan`, `no_session_store`, `no_matching_session`, `no_planning_update`, `no_unsynced_context`, `report_emitted`, and `runtime_error`.
-- [ ] Extend installed-manifest/runtime inventory checks so missing, changed, and unknown files fail closed.
-- [ ] Test install, doctor, repair, uninstall, and backup restoration with a multi-file runtime.
+
+#### Round tracking
+| Round | Scope | Status |
+|---|---|---|
+| 1 | Contract and ledger freeze: allowlist, dependency graph, overlay ledger, adapter/runtime request, diagnostics, artifact boundary | complete |
+| 2 | Reproducible import/check, manifest implementation, overlays, license provenance | complete |
+| 3 | Golden/Cloud fixtures, multi-file installer lifecycle, behavior-compatibility proof, alpha.1 candidate | complete locally; Cloud smoke pending |
+
+- [x] Define the minimal upstream runtime allowlist and direct dependency graph.
+- [x] Define a compatibility-overlay ledger for downstream deltas: reason, upstream anchor, input/output hashes, Cloud fixture, owner, and explicit retirement condition.
+- [x] Enter the four v0.2.2 deltas in that ledger: explicit Codex runtime, `$CODEX_HOME/sessions`, scoped planning state, and bounded long-wrapper user context.
+- [x] Extend the upstream manifest schema to record archive identity, source paths, per-file SHA-256, executable mode, and license provenance.
+- [x] Add a deterministic import/check command that extracts only allowlisted files from the pinned archive and never follows a moving branch.
+- [x] Decide whether imported source files live in the package or are generated for release; Round 2 generates the frozen `runtime/upstream/` package paths before release.
+- [x] Define the release artifact allowlist and keep the checksum-pinning bootstrap outside the bytes whose checksum it pins.
+- [x] Add `THIRD_PARTY_NOTICES.md` or equivalent MIT attribution before distributing substantial upstream code.
+- [x] Capture golden fixtures for current `SessionStart`, `UserPromptSubmit`, no-plan, scoped-plan, newest-plan, and legacy-root output.
+- [x] Add Cloud-shaped catch-up fixtures for `.agents`, `/opt/codex/sessions`, absent initialization-stage and present runtime/Hook-stage `CODEX_HOME` plus a missing-variable compatibility case, real SessionStart/UserPromptSubmit stdin schemas, stable `session_id`, distinct `turn_id`, Host-provided `transcript_path`, structured `patch_apply_end`, duplicate transcript record families, and a long wrapper with a tail sentinel.
+- [x] Define a versioned adapter-to-runtime request contract containing runtime, project root, event/source, session identity, validated transcript path, session-store fallback/override, resolved plan state, and output budget.
+- [x] Define machine-readable catch-up diagnostic outcomes such as `no_plan`, `no_session_store`, `no_matching_session`, `no_planning_update`, `no_unsynced_context`, `report_emitted`, and `runtime_error`.
+- [x] Extend installed-manifest/runtime inventory checks so missing, changed, and unknown files fail closed.
+- [x] Test install, doctor, repair, uninstall, and backup restoration with a multi-file runtime.
 - **Exit criteria:** A reviewed runtime bundle can be reproduced from the pinned upstream archive, every downstream delta and executed file is verified, the release boundary is reproducible, and current Hook behavior is unchanged.
-- **Status:** pending
+- **Status:** complete locally (alpha.1 Cloud smoke pending)
 
 ### Phase 2: Owned catch-up runtime and safety foundation
 - [ ] Install catch-up and its allowlisted dependencies beneath the owned managed runtime; stop executing `session-catchup.py` from a mutable global Skill directory.
@@ -170,7 +178,7 @@ Phase 1 — Runtime provenance and compatibility contract
 | Preserve legacy behavior by default | Existing plans must not be forced into attestation, ledger, or gating without an explicit migration/mode. |
 | Roll out lifecycle events incrementally | Managed Hooks are globally trusted, can coexist and run concurrently with other sources, and are harder for users to disable. |
 | Add hard Stop gating last | It has the greatest recursion, concurrency, and runaway risk and requires real host verification. |
-| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised the current count to twelve. Several cases cover multiple guarantees and several README claims are integration properties rather than separate product features. |
+| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Round 1 to thirteen, Round 2 to sixteen, and Round 3 to twenty-five. Several cases cover multiple guarantees and several README claims are integration properties rather than separate product features. |
 | Treat the v0.2.2 catch-up patch as a temporary compatibility overlay | It is valuable Cloud-proven behavior, but mutating and executing a global Skill conflicts with the owned-runtime trust boundary. |
 | Make the host/runtime contract explicit | `.agents` placement, initialization/runtime environment differences, absent Hook-time `CODEX_THREAD_ID`, and the Host-provided transcript path prove that script-path and setup-shell inference are not stable Cloud interfaces. |
 | Add reason-coded diagnostics without injecting them by default | Silent early returns made black-box failures expensive to localize, while stderr or debug text must not contaminate Hook JSON/context. |
@@ -206,3 +214,14 @@ Phase 1 — Runtime provenance and compatibility contract
 | The local Codex manual helper returned HTTP 403 both sandboxed and escalated | Used the official OpenAI documentation connector to verify the current Hooks contract and recorded the primary-source URL. |
 | The Windows sandbox blocked Node test workers with `spawn EPERM` | Reran the six relevant adapter/compatibility tests outside the process-spawn sandbox; all passed. |
 | The first document assertion searched for a phrase split by a deliberate Markdown line wrap | Changed the assertion to a stable semantic fragment and reran the full document contract successfully. |
+| First Windows interpreter-seam run passed 3/6 installer tests; repeat install/repair reported reconstructed requirements drift | Retained fixtures proved Windows backslash escaping defeated the Linux raw ownership marker. A second path-normalized test-only seam passed 6/6; production and test files were restored and hash-verified. |
+| PowerShell `rg` received a Unix-style wildcard for active planning Markdown | Used explicit file paths/native PowerShell selection; no source result was relied upon from the failed command. |
+| Optional Python `jsonschema` package is not installed | Kept Round 1 dependency-free: JSON parsing, schema structure, hashes, anchors, evidence, and boundary invariants are checked by the built-in Node test. Round 2 may add schema-instance validation without making runtime depend on `jsonschema`. |
+| Final Round 1 hygiene assertion found two intentional Markdown hard-break spaces | Replaced them with blank blockquote lines so the documentation also satisfies the repository's zero-trailing-whitespace rule. |
+| The inherited upstream archive SHA did not match the official tag download | Kept the importer fail-closed, verified Release metadata and alternate endpoints, then bound the contract to the explicit canonical tag URL and its twice-observed SHA; per-file hashes remain independently enforced. |
+| The real archive contained eleven paths ending in the canonical catch-up suffix | Required exactly one archive root plus the complete canonical source path, excluding all IDE and distribution mirrors. |
+| Static `py_compile` created `__pycache__` inside the exact runtime inventory | Confirmed `check` rejected the unknown entry, removed only the verified workspace cache paths, and switched final syntax validation to in-memory `compile()`. |
+| Initial Cloud JSONL fixture produced no catch-up report | Its 4,297 bytes were below upstream's 5,000-byte substantial-session threshold; added an ignored `world_state` padding record without changing message indices or the seven extracted compatibility messages. |
+| A non-escalated inline Python diagnostic could not create its temporary project under the managed Windows Temp sandbox | The preceding file-size evidence already identified the cause; retained tests use the approved Node/Python test execution path instead of retrying the blocked diagnostic. |
+| Final candidate preflight found `runtime/upstream/__pycache__` | It was left by the earlier `importlib` fixture diagnostic; exact inventory correctly blocked packaging. Remove only that verified cache and rerun the preflight before building any candidate. |
+| Final static test-count assertion reported 19 instead of the executed 25 | The line-based count intentionally missed six tests registered from the golden fixture loop. Count 19 direct declarations plus six fixture scenarios, and retain `npm test` 25/25 as execution evidence. |

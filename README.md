@@ -172,8 +172,9 @@ The current package approves:
 - repository: `OthmanAdi/planning-with-files`;
 - release: `v3.8.2`;
 - commit: `b04ffd9c8f9f93919649d197e5d4ec1bfc06fa14`;
+- archive: `https://github.com/OthmanAdi/planning-with-files/archive/refs/tags/v3.8.2.zip`;
 - release archive SHA-256:
-  `aabc0781a5625b493d1291ab9b403babc7934ac6f0dcac5d90000087599ce894`.
+  `7dab03ae283da38d33b9d551c7ec621d1818b9f0f17cf9ced566d4accbfc6dd1`.
 
 `upstream-manifest.json` records both the pristine upstream input hash and the
 managed post-patch hash of `session-catchup.py`. The patcher refuses any third
@@ -188,13 +189,24 @@ allowlist of every upstream runtime file that the managed adapter can execute.
 | `install.js` | Managed installer CLI: install, doctor, repair, and uninstall |
 | `hooks/hook_adapter.py` | Current read-only Codex protocol adapter and legacy injection implementation |
 | `patches/patch_planning_skill.py` | Atomic, idempotent, fail-closed `v3.8.2` Cloud compatibility patcher |
-| `upstream-manifest.json` | Pinned upstream release identity and approved Skill-file hashes |
+| `tools/import_upstream_runtime.py` | Pinned-archive, allowlist-only runtime import and drift check |
+| `tools/build_release.py` | Deterministic exact-allowlist Release ZIP builder and verifier |
+| `runtime/upstream/` | Four verified Phase 2/3 runtime files; packaged now but not yet registered or executed |
+| `THIRD_PARTY_NOTICES.md` | Complete upstream MIT attribution for redistributed runtime code |
+| `upstream-manifest.json` | Manifest v3: archive, contracts, importer, license, source paths, modes, and file hashes |
+| `contracts/` | Versioned runtime allowlist, overlay ledger, adapter/runtime schemas, and Release ZIP boundary |
+| `docs/phase-1-runtime-contracts.md` | Human-readable Phase 1 contract and ownership guide |
 | `init-cloud-sandbox-v0.3.0.bash` | Development bootstrap for the active modernization iteration |
 | `PROJECT_UNDERSTANDING.md` | Durable current-state model, Cloud evidence, boundaries, and next-step context |
 | `黑盒验证.md` | Beginner-oriented Cloud runbook for health, lifecycle, catch-up, repair, and fail-closed tests |
 | `tests/hook-adapter.test.js` | Hook payload and no-plan behavior tests |
 | `tests/installer.test.js` | Managed-policy ownership, drift, repair, backup, and uninstall tests |
 | `tests/skill-patch.test.js` | Compatibility patch, guarded bootstrap, and Cloud-shaped catch-up regressions |
+| `tests/contracts.test.js` | Phase 1 provenance, overlay, protocol, and artifact-boundary contract test |
+| `tests/import-runtime.test.js` | Deterministic import, idempotence, checksum, source-drift, and inventory fail-closed tests |
+| `tests/golden-output.test.js` | Six exact v0.2.2 Hook-output compatibility scenarios |
+| `tests/cloud-fixtures.test.js` | Sanitized Cloud Hook schema, environment-stage, and catch-up JSONL regressions |
+| `tests/release-package.test.js` | Deterministic ZIP inventory, metadata, mode, and bootstrap-separation test |
 | `tests/fixtures/planning-with-files/` | Self-contained pinned Skill fixture; not a second production Skill |
 | `planning-with-files-3.8.2/` | Ignored local upstream reference tree supplied for development; never package it |
 | `.planning/.active_plan` | Pointer to the current Managed Runtime Modernization plan |
@@ -229,7 +241,7 @@ bash -n init-cloud-sandbox-v0.3.0.bash
 git diff --check
 ```
 
-The Node suite currently contains twelve **test cases**, not twelve atomic product
+The Node suite currently contains twenty-five **test cases**, not twenty-five atomic product
 features. Several cases cover multiple related guarantees. Together they cover:
 
 - both current Hook payloads and the no-plan canary;
@@ -244,7 +256,14 @@ features. Several cases cover multiple related guarantees. Together they cover:
 - guarded v0.3.0 checksum and patch-before-installer bootstrap ordering;
 - `.agents` installation, `$CODEX_HOME/sessions`, scoped-plan, resume-adapter,
   and unsynced-sentinel catch-up behavior, including a sentinel after a long
-  Cloud wrapper.
+  Cloud wrapper;
+- Phase 1 runtime provenance, overlay anchors and retirement rules,
+  adapter/runtime schemas, and the external-bootstrap Release boundary;
+- deterministic allowlist import, archive/source hash rejection, exact managed
+  output hashes, idempotence, and changed/unknown runtime rejection;
+- six exact v0.2.2 Hook output goldens and two Cloud-shaped evidence contracts;
+- multi-file install/doctor/repair/backup/uninstall inventory behavior;
+- deterministic 18-entry ZIP construction with fixed metadata and external Bash.
 
 Tests use temporary Codex homes and projects and do not write the live
 `$CODEX_HOME` or `/etc/codex/requirements.toml`.
@@ -322,7 +341,7 @@ narrower:
 - it requires an intact schema-v3 owned manifest;
 - the upstream pin, installation paths, and unowned requirements fingerprint
   must still match;
-- it repairs only the owned adapter or owned managed-Hook definitions;
+- it repairs only the owned adapter/runtime payload or owned managed-Hook definitions;
 - unknown drift returns `REPAIR_BLOCKED_UNKNOWN_DRIFT` and requires Human review.
 
 Upgrade once from `v0.2.0` with normal `install` before using repair. Repair does
@@ -354,16 +373,21 @@ $CODEX_HOME/hooks/planning-with-files/
   |   |-- resolve-plan-dir.sh
   |   |-- inject-plan.sh
   |   |-- session-catchup.py
-  |   |-- attest-plan.sh
-  |   |-- check-complete.sh
-  |   |-- gate-stop.sh
   |   `-- ledger-summary.sh
-  |-- compatibility-overlays.json     # temporary downstream deltas + retirement rules
+  |-- compatibility-overlays-v1.json  # temporary downstream deltas + retirement rules
   |-- installed-manifest.json
   `-- THIRD_PARTY_NOTICES.md
 ```
 
-This is a target, not the current filesystem layout.
+The filesystem tree is now installed by Phase 1, but the four upstream scripts
+remain inactive inventory. Managed Hook commands still execute only the
+v0.2.2-compatible adapter, which still uses the global patched Skill for
+catch-up until Phase 2 explicitly switches execution to the owned copy.
+
+The Phase 1 v1 allowlist contains only those four upstream files. Attestation,
+ledger mutation, phase mutation, completion, and Stop-gating scripts remain
+explicitly deferred until their owning phases; they are not allowed into the
+early runtime artifact.
 
 ### Target responsibilities
 
@@ -386,7 +410,7 @@ The pinned upstream runtime will own planning semantics:
 - injection shape;
 - attestation and nonce framing;
 - smart injection and ledger summaries;
-- compact reminders and completion semantics.
+- compact reminders and completion semantics;
 - catch-up transcript normalization, diagnostic reason codes, and bounded reports.
 
 The Host-provided `transcript_path` is the primary transcript selector. The
@@ -465,7 +489,11 @@ and decisions, and `progress.md` as the chronological implementation log.
 
 `.planning/2026-08-01-managed-runtime-modernization/` is active again. The
 v0.2.2 patch is now an explicit temporary compatibility-overlay milestone:
-Phase 1 records its four Cloud-proven deltas and retirement rules; Phase 2 moves
+All three Phase 1 rounds are complete locally: contracts and overlays are
+frozen, the runtime is reproducibly imported, manifest/license provenance is
+verified, exact inactive installation is fail-closed, Cloud/golden fixtures pass,
+and the alpha.1 ZIP is deterministic. The remaining Phase 1 handoff is the
+external pre-release Cloud install/doctor smoke. Phase 2 moves
 catch-up into the owned verified runtime; Phase 3 removes global Skill discovery
 and bootstrap patching after canonical prompt injection also migrates. New
 lifecycle events remain deferred until this runtime boundary and its diagnostic
@@ -490,10 +518,10 @@ and architectural rationale live in the sibling `findings.md`.
 
 1. Review and merge changes in this repository.
 2. Run the full local and installer test matrix.
-3. Build an immutable archive rooted at `pwf-codex-cloud-hooks/`. It must include
-   `install.js`, `package.json`, `upstream-manifest.json`,
-   `hooks/hook_adapter.py`, and `patches/patch_planning_skill.py`. Do not include
-   the local `planning-with-files-3.8.2/` reference tree.
+3. Build an immutable archive rooted at `pwf-codex-cloud-hooks/` from the exact
+   entry list and deterministic settings in
+   `contracts/release-artifact-v1.json`. Do not use a repository-wide wildcard
+   and do not include the local `planning-with-files-3.8.2/` reference tree.
 4. Inspect the final ZIP contents, then publish that exact archive.
 5. Record the archive SHA-256 in `init-cloud-sandbox-v0.3.0.bash`; do not bypass
    its placeholder guard.
@@ -521,6 +549,6 @@ Never configure Cloud setup to download a moving branch or an unchecksummed
 
 ## License
 
-This repository is MIT licensed. Before distributing substantial upstream
-runtime code, Phase 1 requires preservation of the upstream MIT copyright and
-permission notice in `THIRD_PARTY_NOTICES.md` or an equivalent reviewed notice.
+This repository is MIT licensed. Redistributed upstream runtime code retains
+the complete upstream MIT copyright and permission notice in
+`THIRD_PARTY_NOTICES.md`.

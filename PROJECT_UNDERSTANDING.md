@@ -438,9 +438,11 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 - Phase 0.5：吸收 v0.2.2 Cloud 实证；
 - Phase 0.6：初始化 v0.3.0 迭代身份。
 
-当前阶段：Phase 1，尚未开始行为变更。
+当前阶段：Phase 1 三轮本地实现均已完成，仍未切换 Hook 执行行为。第 3 轮已经补齐
+fixtures、多文件 installer 生命周期、兼容性 golden 和确定性 alpha.1 候选构建；下一步
+是发布两个独立 pre-release 资产并做新 Cloud 沙箱安装/doctor 冒烟。
 
-下一轮应只完成契约和台账：
+第 1 轮已完成：
 
 - owned runtime allowlist；
 - 直接依赖图；
@@ -448,9 +450,19 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 - adapter -> runtime versioned request schema；
 - diagnostic reason codes；
 - Release ZIP 文件边界；
-- upstream/import/manifest schema 和契约测试。
+- runtime allowlist、overlay、Host request/result、artifact schema 和契约测试。
 
-这一轮不得改变已经通过 v0.2.2 Cloud 验收的 Hook 行为。
+机器契约位于 `contracts/`，人类可读说明位于
+`docs/phase-1-runtime-contracts.md`。第 2 轮已经严格消费这些契约，生成
+`runtime/upstream/` 四文件 allowlist、manifest v3、导入/漂移校验和完整 MIT notice；
+没有扩大 allowlist，也没有提前启用 deferred runtime。
+
+Phase 1 三轮均不得改变已经通过 v0.2.2 Cloud 验收的 Hook 行为。
+
+第 3 轮 installer 会把四个上游脚本作为 inactive owned inventory 安装和校验，同时安装
+overlay ledger 与 MIT notice；Managed Hook 命令仍只执行 `hook_adapter.py`。当前测试共
+25 个用例，包含六个精确 v0.2.2 输出 golden、真实 Cloud 形态 JSONL、七文件 payload
+生命周期和 18-entry 确定性 Release ZIP。
 
 ## 14. 本仓库可能退役的条件
 

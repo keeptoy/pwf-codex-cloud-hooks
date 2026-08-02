@@ -1,0 +1,93 @@
+{
+  "schema_version": 1,
+  "ledger_id": "PWF_COMPATIBILITY_OVERLAYS_V1",
+  "combined_legacy_patch_id": "PWF_CODEX_CLOUD_COMPAT_PATCH",
+  "target_source_path": "skills/planning-with-files/scripts/session-catchup.py",
+  "target_package_path": "runtime/upstream/session-catchup.py",
+  "pristine_sha256": "6476fd9024d0cbb9bfb850119fd0beff7fb7cfab9c6683ce10e4cc8d830ce6de",
+  "managed_sha256": "fc765590dc32b3949027de97e33dad6a049daf148719ba1822598a6c146461e2",
+  "application_order": [
+    "PWF_CLOUD_SESSION_STORE_V1",
+    "PWF_CLOUD_RUNTIME_EXPLICIT_V1",
+    "PWF_SCOPED_PLANNING_STATE_V1",
+    "PWF_BOUNDED_WRAPPER_CONTEXT_V1"
+  ],
+  "overlays": [
+    {
+      "id": "PWF_CLOUD_SESSION_STORE_V1",
+      "owner": "pwf-codex-cloud-hooks",
+      "status": "required_for_v0.2.2_compatibility",
+      "anchor": {
+        "symbol": "get_codex_sessions",
+        "patcher_constant": "SESSION_DIR_ORIGINAL",
+        "pristine_anchor_sha256": "951b789d75b45321e0c722dcd7522a3ef3a35cdcb029a151dccd9e362fa23f6b"
+      },
+      "reason": "Codex Cloud stores rollout JSONL beneath the active Codex home while HOME may point elsewhere.",
+      "behavior": "Resolve stores in order: explicit CODEX_SESSIONS_DIR, explicit CODEX_HOME/sessions, then user-home .codex/sessions.",
+      "cloud_evidence": [
+        ".planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/findings.md",
+        ".planning/2026-08-01-managed-runtime-modernization/evidence/v0.2.2-session-catchup-success.md"
+      ],
+      "regression_test": "tests/skill-patch.test.js#patched catch-up handles .agents, CODEX_HOME sessions, and scoped plans",
+      "planned_disposition": "replace_with_validated_host_transcript_and_explicit_store_fallback",
+      "retirement_condition": "The owned runtime prefers a validated Host transcript_path, accepts explicit ordered fallback roots, passes the v0.2.2 golden fixture without environment-derived store guessing, and an upstream release provides equivalent portable selection or the local host contract fully owns it."
+    },
+    {
+      "id": "PWF_CLOUD_RUNTIME_EXPLICIT_V1",
+      "owner": "pwf-codex-cloud-hooks",
+      "status": "required_for_v0.2.2_compatibility",
+      "anchor": {
+        "symbol": "get_session_candidates",
+        "patcher_constant": "RUNTIME_ORIGINAL",
+        "pristine_anchor_sha256": "3498426d5d4bdc32f4cbacd8dc1e0e2fcfa04833e0aa4c4df30b67fc82dfad84"
+      },
+      "reason": "The canonical Agent Skills location under .agents does not identify the Codex host through script-path inference.",
+      "behavior": "Allow the managed adapter to select Codex explicitly while retaining upstream path inference as a compatibility fallback.",
+      "cloud_evidence": [
+        ".planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/findings.md",
+        ".planning/2026-08-01-managed-runtime-modernization/evidence/v0.2.2-session-catchup-success.md"
+      ],
+      "regression_test": "tests/skill-patch.test.js#patched catch-up handles .agents, CODEX_HOME sessions, and scoped plans",
+      "planned_disposition": "replace_with_versioned_adapter_runtime_request",
+      "retirement_condition": "Runtime identity is a required validated request field, no owned executable infers Codex from its installation path, and the .agents Cloud fixture passes without PWF_RUNTIME or an equivalent source patch."
+    },
+    {
+      "id": "PWF_SCOPED_PLANNING_STATE_V1",
+      "owner": "pwf-codex-cloud-hooks",
+      "status": "required_for_v0.2.2_compatibility",
+      "anchor": {
+        "symbol": "main planning-state guard",
+        "patcher_constant": "PLANNING_GUARD_ORIGINAL",
+        "pristine_anchor_sha256": "c32826231c6253ee14e77fd31f4956b5c33ba6430231a1497c629b2ac9ad84ff"
+      },
+      "reason": "The current adapter recognizes scoped .planning plans while pristine catch-up returns early for scoped-only projects.",
+      "behavior": "Treat a non-hidden scoped directory containing task_plan.md as planning state in addition to legacy root planning files.",
+      "cloud_evidence": [
+        ".planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/findings.md",
+        ".planning/2026-08-01-managed-runtime-modernization/evidence/v0.2.2-session-catchup-success.md"
+      ],
+      "regression_test": "tests/skill-patch.test.js#patched catch-up handles .agents, CODEX_HOME sessions, and scoped plans",
+      "planned_disposition": "replace_with_shared_canonical_plan_resolver",
+      "retirement_condition": "Catch-up and prompt injection use the same contained PLAN_ID/active/newest/legacy resolver, and scoped-only plus legacy-root golden fixtures pass without a catch-up-only existence patch."
+    },
+    {
+      "id": "PWF_BOUNDED_WRAPPER_CONTEXT_V1",
+      "owner": "pwf-codex-cloud-hooks",
+      "status": "required_for_v0.2.2_compatibility",
+      "anchor": {
+        "symbol": "main user-message rendering",
+        "patcher_constant": "USER_CONTEXT_ORIGINAL",
+        "pristine_anchor_sha256": "92181f877530690b2a4121af01bca39d638948d50d933034f87274015c6fa7af"
+      },
+      "reason": "Cloud can prepend a long PR/feedback wrapper and move the actual user instruction or sentinel beyond a head-only slice.",
+      "behavior": "For user content over 1000 characters, preserve the first 350 and last 650 characters separated by the literal ...[truncated]... marker.",
+      "cloud_evidence": [
+        ".planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/findings.md",
+        ".planning/2026-08-01-managed-runtime-modernization/evidence/v0.2.2-session-catchup-success.md"
+      ],
+      "regression_test": "tests/skill-patch.test.js#patched catch-up handles .agents, CODEX_HOME sessions, and scoped plans",
+      "planned_disposition": "absorb_into_owned_bounded_report_renderer",
+      "retirement_condition": "The owned or upstream renderer enforces per-message and total-report budgets, preserves a trailing sentinel in the long-wrapper golden fixture, and documents any intentional count/output change."
+    }
+  ]
+}

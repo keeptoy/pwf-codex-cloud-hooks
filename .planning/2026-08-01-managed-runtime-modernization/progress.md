@@ -205,3 +205,130 @@
 - Document assertions passed for version identity, checksum state, active-plan pointer, twelve-test inventory, lifecycle wording, transcript contract, and official-document link.
 - `node --test tests/hook-adapter.test.js tests/skill-patch.test.js`: 6 passed, 0 failed when rerun outside the Windows process-spawn sandbox.
 - `git diff --check`: passed; only expected Git line-ending conversion warnings were emitted.
+
+## Session: 2026-08-02 — Windows equivalence review for the remaining installer tests
+
+### Scope and Initial Finding
+- Reviewed all six `tests/installer.test.js` cases and their platform dependencies after confirming local Windows Python is available to the test design.
+- The six cases are already cross-platform Node assertions and already select `python` on Windows for the compatibility patch setup.
+- Their actual Windows blocker is the production installer's intentional Cloud contract: non-dry-run install requires `/usr/bin/python3` and emits absolute `/usr/bin/python3` Managed Hook commands.
+- Reimplementing the six cases as standalone Python tests would not exercise the real Node installer, TOML merge, manifest, doctor, repair, uninstall, and backup code and therefore would not be equivalent evidence.
+
+### Next Check
+- Prefer running the unchanged six tests in WSL/Linux if available.
+- If WSL is unavailable, use a temporary test-only copy/fixture that parameterizes only the managed interpreter contract while preserving the same installer code paths and assertions; do not change the production `/usr/bin/python3` default merely to make Windows tests green.
+
+### Environment Result
+- Local interpreter: Python 3.13.5 at `D:\Program Files\Python\Python313\python.exe`.
+- WSL has no installed distribution, so the unchanged Linux execution path is unavailable locally.
+- Selected a reversible test-only environment seam in the existing installer/tests, with pre-change SHA-256 recorded for both files and mandatory hash verification after restoration.
+
+### First Windows-Equivalence Run
+- Temporarily substituted only the managed Python interpreter constant, passed the real Python 3.13.5 executable, and ran the unchanged six installer cases outside the process-spawn sandbox.
+- Result: 3 passed and 3 failed. Dry-run, incompatible `managed_dir` fail-closed, and byte-for-byte backup restoration passed.
+- The failures occurred on repeat install/repair health checks with requirements/manifest reconstruction drift, not while invoking Python.
+- Immediately restored `install.js`; its SHA-256 returned to `656B36D17661FC945FBCF920C4623CFF9E95FFC38FCC2DDB5C2F10B052DC303E`. `tests/installer.test.js` remained at `4185A34FAA304E1FE525395339721E127253C532EB9DC73C2504BDD3691B91BA`.
+- Production and test source therefore contain no temporary interpreter seam. Next step is to diagnose Windows path/TOML canonicalization from the retained failed-test temp fixtures before deciding whether a stronger equivalent harness is possible.
+
+### Root Cause and Final Windows-Equivalence Result
+- Retained fixtures showed TOML escaping Windows backslashes in managed commands. The production Linux ownership marker searches the raw TOML for an unescaped platform path segment, so the first narrow seam could not remove an existing Windows-form managed block and duplicated it on repeat install.
+- A second reversible seam normalized only the test interpreter and Hook command path representation while leaving the six installer assertions and all installer state transitions intact.
+- Final result: all 6 installer cases passed (6 passed, 0 failed), covering dry-run, managed-dir conflict, merge/idempotence/doctor/uninstall, owned repair, unknown-drift fail-closed, and byte-for-byte backup restore.
+- Restored `install.js` again and verified its original SHA-256. `tests/installer.test.js` was never edited and also matches its original SHA-256; neither file appears in `git status`.
+- This is valid Windows host-equivalence evidence for installer logic, but not evidence for Linux mode bits, real `/usr/bin/python3`, or Cloud execution. Those remain covered by Linux/Cloud release verification.
+- Removed exactly the six `pwf-hooks-test-*` directories created by the two current runs after validating their resolved paths were inside the system Temp directory. Older unrelated temp fixtures were preserved.
+- Combined regression evidence is now 12/12 at the assertion level: 6 adapter/compatibility cases passed unchanged, and 6 installer cases passed through the reversible Windows-equivalence seam.
+
+## Session: 2026-08-02 — Phase 1 Round 1 started
+
+### Scope
+- Re-read `work_plan.md` and the active modernization plan after restoring session context.
+- Confirmed Phase 1 remains a three-round phase and started Round 1 only.
+- Round 1 deliverables: owned-runtime allowlist, direct dependency graph, four-delta compatibility-overlay ledger, versioned adapter/runtime request and diagnostic contracts, and Release ZIP/source-ownership boundary.
+- Round 2 remains responsible for reproducible import/check, manifest implementation, overlay application, and license artifacts.
+- Round 3 remains responsible for golden/Cloud fixtures, multi-file installation lifecycle tests, behavior compatibility, and the alpha.1 candidate.
+
+### Guardrails
+- No production Hook behavior, installer registration, global Skill patching, or bootstrap checksum changes in Round 1.
+- Preserve the existing uncommitted planning-only updates and do not rewrite archived v0.2.2 evidence as current implementation state.
+
+### History Review — Initial Pass
+- Confirmed the active branch and remote are both `0.3.0`; recent history cleanly separates the published v0.2.2 commits from four v0.3.0 baseline/context commits.
+- Confirmed the archived v0.2.2 plan is complete through release, Cloud A—F acceptance, scoped-plan migration, long-wrapper preservation, and single-patch simplification.
+- Confirmed the current evidence file preserves the exact successful resume report needed to anchor the Round 1 overlay ledger and later Round 3 golden fixture.
+- A combined archive read exceeded terminal output limits; continue with bounded per-file reads before freezing contracts.
+
+### History Review — Completed
+- Read the complete archived v0.2.2 task plan, findings, progress log, and final sanitized success evidence using bounded per-file reads.
+- Historical contract is unambiguous: pristine Skill input SHA-256 `6476fd9024d0cbb9bfb850119fd0beff7fb7cfab9c6683ce10e4cc8d830ce6de`, current patched output SHA-256 `fc765590dc32b3949027de97e33dad6a049daf148719ba1822598a6c146461e2`, and one disposable-sandbox patch ID `PWF_CODEX_CLOUD_COMPAT_PATCH`.
+- The four ledger deltas must remain atomic audit entries even though v0.2.2 implemented them in one physical patch: explicit Codex runtime, `$CODEX_HOME/sessions`, scoped planning-state guard, and bounded head/tail wrapper rendering.
+- The final raw PASS anchors compatibility to `source=resume`, `Runtime: codex`, scoped planning update message 25, unsynced count 7, visible middle truncation, preserved tail sentinel, and simultaneous Planning context.
+- Historical test/package counts and pre-release hashes remain dated evidence; the published rollback artifact is the final v0.2.2 ZIP SHA already recorded elsewhere.
+
+### Upstream Review — Instructions and Scope
+- Located and read the complete upstream `planning-with-files-3.8.2/AGENTS.md`; its commit/release rules apply to the supplied upstream tree, which remains read-only reference input in this repository.
+- The upstream source contains many IDE/distribution mirrors. Round 1 must select canonical `skills/planning-with-files/` sources only and must not import duplicate `.codex`, `.agents`, `.cursor`, or top-level distribution copies.
+- A broad dependency search exceeded terminal output limits and is not being used as contract evidence. Continue with exact candidate scripts and direct-reference inspection.
+
+### Upstream Review — Candidate Contracts
+- Read the exact patcher, current upstream manifest, current adapter, relevant catch-up functions/rendering, resolver/inject headers, inject-to-ledger edge, ledger summary header, and upstream MIT license.
+- Computed candidate source hashes and the exact pristine hash of each of the four transformation anchors.
+- Confirmed current adapter ignores Host `session_id`, `turn_id`, and `transcript_path`; Round 1 schemas describe the future versioned boundary only and must not be wired into production in this round.
+- Confirmed the current catch-up whole report has no total output cap; the Round 1 target budget must add one while preserving all v0.2.2 per-message compatibility constants.
+
+### Round 1 Contract Artifacts — Initial Write
+- Added `contracts/runtime-bundle-v1.json` with the canonical upstream identity, four-file staged allowlist, direct/host dependency graph, hashes, modes, installed paths, and explicit deferred candidates.
+- Added `contracts/compatibility-overlays-v1.json` with four logical v0.2.2 ledger entries, exact anchor hashes, common input/output hashes, evidence, tests, planned disposition, and retirement conditions.
+- Added versioned JSON Schemas for adapter-to-runtime requests and runtime results/diagnostics. Raw prompt text is deliberately absent; Host transcript selection state and all fallback roots are explicit.
+- Frozen compatibility output constants at 15 messages, 4 tools, 300 assistant characters, 1000-character user threshold, 350/650 head-tail preservation, and a new 20,000-character whole-report ceiling.
+- Added `contracts/release-artifact-v1.json` with an exact deterministic ZIP entry list, Round 2 generated entries, exclusions, and the external-bootstrap checksum workflow.
+
+### Initial Contract Verification
+- All five contract JSON files parse successfully.
+- `tests/contracts.test.js` passes and verifies upstream identity, the staged dependency graph, fixture hashes, the four patch-anchor hashes, overlay evidence/retirement fields, request/result schema invariants, and the external-bootstrap artifact boundary.
+- `node --check tests/contracts.test.js` and `git diff --check` pass.
+
+### Documentation and Plan Synchronization
+- Updated README repository map, test count, target runtime tree, active Phase 1 status, and Release workflow to point at the frozen contracts.
+- Updated `PROJECT_UNDERSTANDING.md` and `work_plan.md` to mark Round 1 complete and Round 2 next.
+- Updated the active plan checklist, round table, status, and Next Step without marking the overall Phase 1 complete.
+- The optional Python `jsonschema` library is absent; the repository remains dependency-free and uses the built-in Node contract test for Round 1 structural/provenance enforcement.
+- The first final hygiene assertion caught two Markdown hard-break spaces in the new guide; replaced them with blank blockquote lines before final verification.
+
+### Round 1 Final Verification and Outcome
+- `node --test tests/contracts.test.js tests/hook-adapter.test.js tests/skill-patch.test.js`: 7 passed, 0 failed. This includes the new contract case plus all unchanged adapter and Cloud compatibility cases.
+- The six installer cases already passed through the reversible Windows host-equivalence seam recorded in the preceding session; production files remain unchanged. The repository now contains 13 tracked Node test cases in total.
+- Final assertions passed for JSON parsing, Node syntax, exact test count, v0.3.0 identity, zero production-file diffs, README/project/plan synchronization, zero trailing whitespace in new untracked files, and `git diff --check`.
+- Phase 1 Round 1 is complete. Phase 1 remains in progress; Round 2 is next and must implement the importer/manifest/license work without registering or executing the owned runtime.
+# Phase 1 Round 2 implementation (2026-08-02)
+
+- Resumed from the completed Round 1 contracts and began the reproducible import/check, managed runtime staging, manifest provenance, and MIT attribution work.
+- Guardrail remains unchanged: Round 2 may package and verify the frozen runtime, but must not register or execute it from production Hooks.
+- Added the import/check implementation, full upstream MIT notice, license hash contract, exact overlay-order validation, and three importer regressions.
+- Importer regressions pass: deterministic/idempotent allowlist import, archive and pristine-source drift rejection, and changed/unknown destination rejection.
+- Replaced the unsupported inherited archive hash with an explicit official tag URL plus the twice-observed archive SHA after confirming the upstream Release has no separate asset. Commit and API zipball downloads were deliberately not treated as equivalent bytes.
+- Imported the official archive into `runtime/upstream/`: three pristine scripts retain their upstream hashes and `session-catchup.py` matches the frozen managed-overlay hash.
+- Extended `upstream-manifest.json` to schema 3 with contract/importer/license provenance and per-file source, package, mode, pristine, and managed identity. Marked every Round 2 Release entry present.
+- Tightened canonical archive selection after the real ZIP exposed eleven mirrored catch-up copies; tightened destination validation to reject symlink components and unknown directories as well as files.
+- Final Round 2 verification: 10/10 related Node cases passed, all four Python sources compile without filesystem output, importer `check` is healthy, Node syntax and `git diff --check` pass. The six existing installer cases remain the previously recorded Windows host-equivalence evidence; Round 3 owns the new multi-file lifecycle matrix.
+- Production Hook adapter, installer, bootstrap, and global-Skill patcher behavior remain unchanged; the imported runtime is packaged but not registered or executed.
+- Added narrow LF attributes for every text file whose byte hash participates in provenance, preventing Windows checkout normalization from invalidating the manifest.
+- Phase 1 Round 2 is complete. Phase 1 remains in progress; Round 3 is next.
+# Phase 1 Round 3 implementation (2026-08-02)
+
+- Resumed from the verified Round 2 runtime and began the fixture, multi-file installer lifecycle, compatibility, and alpha.1-boundary work.
+- Round 3 guardrail: the installer may own and verify inactive runtime files, but current Hook commands must continue to execute `hook_adapter.py`, and that adapter must retain the v0.2.2-compatible behavior until Phase 2.
+- Extended the installer to atomically copy and manifest seven owned payload files: adapter, four inactive upstream runtime files, overlay ledger, and MIT notice. Recursive doctor/repair inventory now verifies every file/hash and POSIX mode and blocks unknown files, directories, symlinks, and manifest inventory drift.
+- Added a copied-package Windows test seam that changes only the managed interpreter constant in the temporary package. All six existing install/dry-run/doctor/repair/backup/uninstall cases pass with multi-file assertions.
+- Added six exact v0.2.2 adapter golden scenarios covering both events, no plan, active scoped selection, newest scoped fallback, and legacy root. All six pass without allowing a global Skill or catch-up store into the isolated test environment.
+- Added a sanitized Cloud observation fixture for initialization/agent/Hook environment stages and real event-specific stdin keys, plus a substantial Cloud-shaped JSONL retaining `session_meta`, structured `patch_apply_end`, response/event duplicate families, four tool records, long wrapper, and tail sentinel.
+- Cloud fixture verification passes with both observed Hook-time `CODEX_HOME` resolution and the missing-variable compatibility path using an explicit session-store override. It preserves update message #25, seven extracted messages, bounded wrapper tail, and single logical assistant/user renderings.
+- Added a deterministic Release builder/checker with exact 18-entry ordering, 1980 timestamp, deflate settings, POSIX modes, byte-for-byte source verification, and explicit external-bootstrap exclusion. The reproducibility test builds two identical ZIPs and passes.
+- Full `npm test` regression passes 25/25 with no failures, covering contracts, import, current adapter, golden output, Cloud fixtures, multi-file lifecycle, Release packaging, and the legacy compatibility patch path.
+- Built and verified the final local `dist/pwf-codex-cloud-hooks-v0.3.0-alpha.1.zip` after runtime-root symlink hardening: 18 entries, 59,097 bytes, SHA-256 `94fe21837d26bbe07d23cdf88b89133c12e6f431eafd8c412ece96204f6a5027`. External `init-cloud-sandbox-v0.3.0.bash` SHA-256 is `5fda25beb397affe8e47b2e27e5bec7fa15180dbfb3d57feb9f6e508876e306f`.
+- Added `docs/v0.3.0-alpha.1-cloud-smoke.md` with the two-asset publication contract, checksum-verified fresh setup command, exact installed-inventory probe, and simplified compatibility smoke. The document and planning log are excluded from the ZIP, so recording the candidate hash is non-self-referential.
+- Local Bash is unavailable; no new Bash syntax PASS is claimed. Candidate ZIP check, Node syntax, Python compilation, runtime inventory, and `git diff --check` pass.
+- Final installer audit now rejects symlinked `hooks/` or runtime roots before recursive traversal and covers unknown empty directories. The complete suite was rerun after this hardening and remains 25/25 PASS; the candidate was then rebuilt and the smoke document updated to the final SHA above.
+- Post-interruption recovery audit confirmed that the working tree, deterministic candidate, runbook SHA pins, exact four-file source runtime, and planning state all remain consistent. Candidate and external bootstrap hashes were recomputed from disk and match the recorded values; `git diff --check` remains clean.
+- The complete suite was rerun after recovery outside the Windows worker sandbox because the first attempt hit the known `spawn EPERM` restriction: 25 passed, 0 failed. Release check reports 18 exact entries/59,097 bytes, importer check is healthy, and the production adapter, compatibility patcher, and bootstrap remain unchanged from the branch baseline.
+- Phase 1 is complete locally across all three rounds. The only remaining Phase 1 acceptance step is external: publish the ZIP and bootstrap as separate `v0.3.0-alpha.1` pre-release assets and run the documented fresh Codex Cloud smoke. No asset, commit, tag, or Hook execution switch was made locally.

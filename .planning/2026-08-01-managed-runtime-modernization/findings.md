@@ -2,7 +2,7 @@
 
 ## Requirements
 - Confirm whether repository behavior and README claims are synchronized.
-- Explain the meaning of the current twelve tests, while preserving the historical nine-test audit snapshot and without equating test cases to product features.
+- Explain the meaning of the current twenty-five tests, while preserving historical nine-, twelve-, thirteen-, and sixteen-test snapshots and without equating test cases to product features.
 - Persist the agreed modernization design so it survives context compaction, clear, resume, and later sessions.
 - Keep future work staged, auditable, reversible, and compatible with the current Cloud deployment.
 - Incorporate the v0.2.2 Cloud catch-up investigation as design evidence rather than leaving its patch as an isolated release workaround.
@@ -53,22 +53,35 @@ Current release/iteration boundary as of 2026-08-02:
 
 ## Current Test Interpretation
 
-The suite now has twelve Node test cases. Cases 1–9 are the original audit inventory; cases 10–12 were added with the v0.2.2 Cloud compatibility work:
+The suite now has twenty-five Node test cases. Cases 1–9 are the original audit inventory, cases 10–12 were added with the v0.2.2 Cloud compatibility work, case 13 froze Phase 1 Round 1, cases 14–16 implement the Round 2 importer boundary, and cases 17–25 close Round 3:
 
 1. `SessionStart` emits scoped plan context and a source canary.
 2. `UserPromptSubmit` emits plan/progress context and a canary.
 3. A project without planning files emits only the event canary.
 4. Installer dry-run is read-only and reports exactly two events.
 5. An incompatible existing `managed_dir` fails closed.
-6. Managed install preserves unrelated config, is idempotent, passes doctor, and uninstalls only owned state.
-7. Repair restores an owned adapter or managed-definition drift.
-8. Repair refuses unowned requirements, manifest ownership, and unknown runtime drift.
+6. Managed install preserves unrelated config, installs the exact inactive multi-file runtime, is idempotent, passes doctor, and uninstalls only owned state.
+7. Repair restores owned adapter, nested runtime-file, mode, or managed-definition drift.
+8. Repair refuses unowned requirements, manifest inventory, and unknown runtime drift; normal install also refuses unknown runtime entries.
 9. Installation backups can restore all pre-existing managed files byte-for-byte.
 10. The compatibility patch is deterministic, idempotent, hash-checked, and fails closed on unknown Skill content.
 11. The v0.3.0 bootstrap applies the compatibility patch before installation and refuses an unpinned Release checksum.
 12. Patched catch-up covers `.agents` Skill placement, `$CODEX_HOME/sessions`, scoped plans, resume injection, bounded long-wrapper output, and preservation of the tail sentinel.
+13. The Phase 1 contract test verifies runtime provenance/dependencies, overlay anchors and retirement rules, request/result schemas, and the external-bootstrap Release artifact boundary.
+14. Runtime import is canonical-path allowlisted, deterministic, idempotent, hash-verified, and checkable.
+15. Runtime import rejects wrong archive identity and pristine-source drift before producing output.
+16. Runtime check and re-import reject changed files, unknown files, and unknown directories instead of overwriting drift.
+17. SessionStart without a plan matches the exact v0.2.2 canary output.
+18. UserPromptSubmit without a plan matches the exact v0.2.2 canary output.
+19. SessionStart with an active scoped plan matches the exact v0.2.2 output.
+20. UserPromptSubmit with an active scoped plan matches the exact v0.2.2 output.
+21. Newest-scoped fallback selection matches the exact v0.2.2 output.
+22. Legacy-root fallback selection matches the exact v0.2.2 output.
+23. Sanitized Cloud observations freeze lifecycle-specific environment and Hook stdin schemas.
+24. Cloud-shaped catch-up preserves structured update #25, seven messages, duplicate-family handling, bounded wrapper tail, and the sentinel.
+25. The Release ZIP is deterministic, contains exactly 18 allowlisted entries with fixed metadata/modes, and excludes the external bootstrap.
 
-These are twelve test cases, not twelve atomic features. Cases 6–8 and 10–12 each cover several behaviors, while some product claims share one test or are verified by static inspection rather than a standalone test. Historical progress entries reporting nine passing tests remain dated audit evidence, not the current suite count.
+These are twenty-five test cases, not twenty-five atomic features. Cases 6–8, 10–16, and 23–25 each cover several behaviors, while some product claims share one test or are verified by static inspection rather than a standalone test. Historical progress entries reporting nine, twelve, thirteen, or sixteen passing tests remain dated audit evidence, not the current suite count.
 
 ## Architecture Decision
 
@@ -183,6 +196,52 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Verified against the current official Codex Hooks documentation that the event/source and output contracts used by the roadmap are accurate. The same documentation warns that transcript JSONL is not a stable interface, so the owned reader must parse defensively instead of freezing the probe sample as a permanent schema.
 - Confirmed version/release boundaries remain coherent: package and development bootstrap are v0.3.0, the bootstrap checksum is intentionally all zero until packaging, and v0.2.2 plus its recorded SHA remains the published rollback baseline.
 - Phase 1 remains pending; this regression changed documentation and planning context only, not installed Hook behavior.
+
+## Windows Installer-Test Equivalence
+
+- The remaining six cases are `tests/installer.test.js`, not missing Python tests. Their setup already invokes `python` on Windows to apply the Skill compatibility patch.
+- Non-dry-run cases stop on Windows because `install.js` intentionally verifies `/usr/bin/python3` and writes that absolute interpreter into system-managed Hook commands for the Linux Codex Cloud target.
+- Six separately rewritten Python scripts would test a second implementation rather than the production Node installer and could produce false confidence.
+- The strongest local equivalent is the unchanged suite under WSL/Linux. A secondary Windows option is a temporary, non-production interpreter seam that keeps all installer logic and existing assertions intact; any result must be labeled host-equivalence evidence rather than proof of Linux permissions or `/usr/bin/python3` availability.
+- This workstation has Python 3.13.5 but no installed WSL distribution. The selected local check temporarily substitutes only the managed-interpreter constant and passes the real Windows Python path to the existing six Node cases, then restores and hash-verifies both source files.
+- The first narrow seam exposed a Windows-only raw-TOML ownership mismatch: JSON/TOML escaping doubled backslashes, so a Linux-style raw substring check did not recognize and remove existing managed blocks on repeat install. This is outside the declared Linux Cloud production target.
+- With test-only normalization of the interpreter and command-path representation, the unchanged six assertions all passed. Production `install.js` and `tests/installer.test.js` were restored to their exact pre-test SHA-256 values, so no cross-platform seam entered the product.
+
+## Phase 1 Round 1 Contract Findings
+
+- Canonical upstream sources must come from `planning-with-files-3.8.2/skills/planning-with-files/`; the supplied tree contains many IDE mirrors and a different top-level distribution script that must not enter the owned bundle.
+- `session-catchup.py` is Python-standard-library-only and has no direct file dependency. Its pristine hash is already pinned and all four v0.2.2 transformations target this one file.
+- `resolve-plan-dir.sh` is a standalone canonical scoped-plan resolver. It is a Phase 2 candidate even though upstream catch-up does not currently invoke it, because the modernization requires catch-up and prompt injection to share containment/resolution semantics.
+- `inject-plan.sh` intentionally keeps resolution logic inline and has one conditional direct file dependency on sibling `ledger-summary.sh` for autonomous/gated modes. Phase 3 legacy behavior can execute without that sibling, but importing the script without documenting the conditional edge would produce an incomplete dependency graph.
+- A minimal staged v1 allowlist should therefore distinguish active Phase 2 files (`session-catchup.py`, `resolve-plan-dir.sh`), Phase 3 files (`inject-plan.sh`, conditional `ledger-summary.sh`), and explicitly deferred Phase 4+ candidates. Deferred scripts are not allowed into the Phase 1/2 artifact merely because the eventual README diagram names them.
+- The current physical patch bundles four logical deltas. Round 1 will ledger them separately with a common pristine/output file hash plus distinct anchor identity, rationale, Cloud evidence, owner, and retirement condition.
+- Exact pristine candidate hashes are: `session-catchup.py` `6476fd...e6de`, `resolve-plan-dir.sh` `38a1c5...e9bd`, `inject-plan.sh` `72c790...0364`, and `ledger-summary.sh` `d4fe62...f3b9`. Full hashes belong in the machine contract.
+- Exact SHA-256 values of the four pristine transformation anchors are: session directory `951b789d...f6b`, runtime selection `3498426d...ad84`, planning guard `c3282623...84ff`, and user rendering `92181f87...7af`.
+- v0.2.2 report compatibility constants are last 15 messages, at most 4 tool names, assistant text capped at 300 characters, and long user text over 1000 characters rendered as head 350 plus the literal middle marker plus tail 650. The target contract also needs a whole-report cap because upstream currently has none.
+- Canonical `inject-plan.sh` is fail-open and self-contained for legacy mode, but conditionally calls `ledger-summary.sh` for autonomous/gated mode. `ledger-summary.sh` itself documents canonical plan resolution and must be checked for further direct dependencies before it can be admitted.
+- Upstream MIT attribution is `Copyright (c) 2026 Ahmad Adi`; Round 2 must preserve the complete license text when substantial source files enter the Release artifact.
+
+## Phase 1 Round 2 Import Findings
+
+- Reproducibility requires the bundle's `overlay_ids` order to equal the compatibility ledger's application order, not merely contain the same set. Round 2 corrected the Round 1 ordering ambiguity before importing any files.
+- The upstream archive license is now an allowlisted, hash-verified provenance input even though it is not copied into `runtime/upstream/`; the full MIT text is distributed in `THIRD_PARTY_NOTICES.md`.
+- The import boundary reads only the four allowlisted sources plus `LICENSE`, rejects unsafe ZIP paths and symlinks, requires one archive root, verifies archive/pristine/anchor/managed hashes, and refuses any missing, changed, or unknown destination file.
+- Existing destination drift is never overwritten. An exact existing runtime is an idempotent no-op; a new runtime is created through a sibling staging directory and renamed only after all bytes are prepared.
+- Windows cannot reliably preserve POSIX executable mode metadata in the working tree, so content and inventory checks remain exact there while `0755` mode is additionally enforced on POSIX hosts and in the eventual deterministic Release ZIP.
+- The inherited archive SHA `aabc0781...ce894` had no URL or generation evidence and is not produced by the official v3.8.2 tag endpoint, commit endpoint, or Release API zipball. The Release has no independent assets. The contract now binds the exact canonical tag URL and its twice-observed `7dab03...6dd1` SHA; canonical per-file hashes remain an independent second layer.
+- GitHub's tag archive contains many adapter mirrors. Import lookup must require exactly `one archive root + canonical source_path`; suffix matching alone found eleven `session-catchup.py` copies and was correctly rejected before the locator was tightened.
+- Destination inventory includes directories as well as files, and path validation retains symlink evidence instead of resolving the requested destination before inspection.
+- Byte hashes of text contracts are only cross-checkout reproducible when line endings are part of the repository contract. A narrow `.gitattributes` now forces LF for hashed contracts, runtime sources, importer, notice, manifest, patcher anchors, and pristine script fixtures.
+
+## Phase 1 Round 3 Initial Findings
+
+- At the start of Round 3 the installer owned only `hook_adapter.py` plus the generated manifest; it now owns the four inactive `upstream/` files, compatibility ledger, and third-party notice as an exact installed inventory without changing managed Hook commands.
+- The installed manifest can record every source-relative installed file hash and mode, but must not hash itself. Doctor may allow the generated manifest as a special inventory entry while fail-closing on every other unknown file, directory, or symlink.
+- Repair should restore every missing, changed, or mode-drifted owned runtime file only when the manifest, upstream identity, and unowned requirements remain trustworthy. Unknown runtime entries remain blockers.
+- Linux production keeps `/usr/bin/python3`. Windows lifecycle equivalence should use a copied test package with only that constant substituted, while stable forward-slash command serialization can remain production code because it is byte-identical on Linux and removes TOML ownership ambiguity on Windows.
+- The current catch-up parser recognizes planning mutation only from structured `event_msg.payload.type=patch_apply_end`; Codex conversation extraction reads `response_item` messages/tool calls and deliberately ignores `event_msg` conversation duplicates. A Cloud fixture should retain both families to freeze the observed shape while expecting the current seven-record compatibility count, not prematurely introduce Phase 2 deduplication.
+- The current adapter plan precedence is active scoped plan, newest scoped plan by directory mtime, then legacy root. Golden fixtures can freeze all three plus no-plan and both event envelopes without invoking the staged runtime.
+- Release packaging already contains all runtime sources and contracts. Round 3 installer inventory should install the overlay ledger and notice alongside the adapter/upstream directory; request/result/bundle artifact contracts remain package audit inputs rather than runtime-executed files.
 
 ## Resources
 - Local README and installer implementation.

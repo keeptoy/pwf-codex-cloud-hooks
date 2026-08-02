@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "fixture_id": "PWF_CODEX_CLOUD_OBSERVATIONS_V1",
+  "observed_date": "2026-08-02",
+  "platform": {
+    "uid": 0,
+    "gid": 0,
+    "home": "/root",
+    "codex_cli": "0.144.0-alpha.4",
+    "codex_home": "/opt/codex",
+    "session_store": "/opt/codex/sessions"
+  },
+  "environment_stages": {
+    "sandbox_initialization": {
+      "CODEX_HOME": { "present": false }
+    },
+    "agent_after_start": {
+      "CODEX_HOME": { "present": true, "value": "/opt/codex" }
+    },
+    "managed_hook": {
+      "CODEX_HOME": { "present": true, "value": "/opt/codex" },
+      "CODEX_THREAD_ID": { "present": false },
+      "CODEX_SESSIONS_DIR": { "present": false }
+    }
+  },
+  "session": {
+    "session_id": "11111111-1111-4111-8111-111111111111",
+    "session_source": "vscode",
+    "transcript_path": "/opt/codex/sessions/2026/08/02/rollout-cloud-fixture.jsonl",
+    "session_meta_id_matches_session_id": true,
+    "record_families": ["session_meta", "turn_context", "event_msg", "response_item"],
+    "event_payload_types": ["patch_apply_end", "agent_message", "user_message"],
+    "duplicate_message_families": ["response_item", "event_msg"]
+  },
+  "hook_events": [
+    {
+      "event": "SessionStart",
+      "source": "startup",
+      "session_id": "11111111-1111-4111-8111-111111111111",
+      "stdin_keys": ["cwd", "hook_event_name", "model", "permission_mode", "session_id", "source", "transcript_path"]
+    },
+    {
+      "event": "SessionStart",
+      "source": "resume",
+      "session_id": "11111111-1111-4111-8111-111111111111",
+      "stdin_keys": ["cwd", "hook_event_name", "model", "permission_mode", "session_id", "source", "transcript_path"]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "session_id": "11111111-1111-4111-8111-111111111111",
+      "turn_id": "22222222-2222-4222-8222-222222222222",
+      "stdin_keys": ["cwd", "hook_event_name", "model", "permission_mode", "prompt", "session_id", "transcript_path", "turn_id"]
+    },
+    {
+      "event": "UserPromptSubmit",
+      "session_id": "11111111-1111-4111-8111-111111111111",
+      "turn_id": "33333333-3333-4333-8333-333333333333",
+      "stdin_keys": ["cwd", "hook_event_name", "model", "permission_mode", "prompt", "session_id", "transcript_path", "turn_id"]
+    }
+  ]
+}

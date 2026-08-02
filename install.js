@@ -10,12 +10,14 @@ const ROOT = __dirname;
 const VERSION = require("./package.json").version;
 const UPSTREAM = require("./upstream-manifest.json");
 const OWNER = "pwf-codex-cloud-hooks";
-const OWNED_SEGMENT = `${path.sep}hooks${path.sep}planning-with-files${path.sep}hook_adapter.py`;
+const MANAGED_PYTHON = "/usr/bin/python3";
+const OWNED_SEGMENT = "/hooks/planning-with-files/hook_adapter.py";
 const EVENTS = ["SessionStart", "UserPromptSubmit"];
 const MANIFEST_SCHEMA = 3;
 
 function sha256(value) { return crypto.createHash("sha256").update(value).digest("hex"); }
 function fileHash(file) { return sha256(fs.readFileSync(file)); }
+function commandPath(value) { return String(value).split(path.sep).join("/"); }
 function canonical(value) {
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
   if (value && typeof value === "object") return `{${Object.keys(value).sort().map(k => `${JSON.stringify(k)}:${canonical(value[k])}`).join(",")}}`;
@@ -47,6 +49,57 @@ function pathsFor(codexHome, requirementsPath = "/etc/codex/requirements.toml") 
     lock: path.join(home, ".pwf-codex-cloud-hooks.lock"),
     backups: path.join(home, "backups", "planning-with-files-hooks"),
   };
+}
+function sourceRuntimeFiles() {
+  const managed = UPSTREAM.managed_runtime;
+  if (!managed || managed.schema_version !== 1 || !Array.isArray(managed.files)) throw new Error("BLOCKED_PACKAGE_DRIFT: managed runtime manifest missing");
+  const files = [{
+    id: "adapter",
+    relative: "hook_adapter.py",
+    source: path.join(ROOT, "hooks", "hook_adapter.py"),
+    expected: fileHash(path.join(ROOT, "hooks", "hook_adapter.py")),
+    mode: 0o755,
+  }];
+  for (const item of managed.files) {
+    const relative = path.posix.relative("runtime", item.package_path);
+    if (!relative || relative.startsWith("../") || path.posix.isAbsolute(relative)) throw new Error(`BLOCKED_PACKAGE_DRIFT: invalid runtime package path ${item.package_path}`);
+    files.push({
+      id: item.id,
+      relative,
+      source: path.join(ROOT, ...item.package_path.split("/")),
+      expected: item.managed_sha256,
+      mode: Number.parseInt(item.mode, 8),
+    });
+  }
+  files.push({
+    id: "compatibility_overlays",
+    relative: "compatibility-overlays-v1.json",
+    source: path.join(ROOT, managed.contracts.compatibility_overlays.path),
+    expected: managed.contracts.compatibility_overlays.sha256,
+    mode: 0o644,
+  });
+  files.push({
+    id: "third_party_notices",
+    relative: "THIRD_PARTY_NOTICES.md",
+    source: path.join(ROOT, managed.license_provenance.notice_path),
+    expected: managed.license_provenance.notice_sha256,
+    mode: 0o644,
+  });
+  const seen = new Set();
+  for (const file of files) {
+    const normalized = file.relative.split(path.sep).join("/");
+    if (seen.has(normalized) || normalized.startsWith("../") || path.posix.isAbsolute(normalized)) throw new Error(`BLOCKED_PACKAGE_DRIFT: duplicate or unsafe runtime path ${file.relative}`);
+    if (!fs.existsSync(file.source) || fileHash(file.source) !== file.expected) throw new Error(`BLOCKED_PACKAGE_DRIFT: ${file.id}`);
+    file.relative = normalized;
+    seen.add(normalized);
+  }
+  return files;
+}
+function runtimeInventory() {
+  return sourceRuntimeFiles().map(file => ({ id: file.id, path: file.relative, sha256: file.expected, mode: file.mode.toString(8).padStart(4, "0") }));
+}
+function writeRuntimeFiles(paths) {
+  for (const file of sourceRuntimeFiles()) atomicWrite(path.join(paths.runtime, ...file.relative.split("/")), fs.readFileSync(file.source), file.mode);
 }
 function resolveSkill(explicit, codexHome) {
   const candidates = explicit ? [path.resolve(explicit)] : [
@@ -124,8 +177,8 @@ function managedRequirements(text, paths) {
   const existingManagedDir = tableStringValue(result, "hooks", "managed_dir");
   if (existingManagedDir && !pathContains(existingManagedDir, paths.adapter)) throw new Error(`existing hooks.managed_dir does not contain adapter: ${existingManagedDir}`);
   result = setTableKey(result, "features", "hooks", "true");
-  if (!existingManagedDir) result = setTableKey(result, "hooks", "managed_dir", JSON.stringify(paths.runtime));
-  const command = event => `/usr/bin/python3 ${quoteCommand(paths.adapter)} ${event}`;
+  if (!existingManagedDir) result = setTableKey(result, "hooks", "managed_dir", JSON.stringify(commandPath(paths.runtime)));
+  const command = event => `${MANAGED_PYTHON} ${quoteCommand(commandPath(paths.adapter))} ${event}`;
   const blocks = [
     `[[hooks.SessionStart]]\nmatcher = "startup|resume|clear|compact"\n\n[[hooks.SessionStart.hooks]]\ntype = "command"\ncommand = ${JSON.stringify(command("SessionStart"))}\ntimeout = 30\nstatusMessage = "Loading planning context"`,
     `[[hooks.UserPromptSubmit]]\n\n[[hooks.UserPromptSubmit.hooks]]\ntype = "command"\ncommand = ${JSON.stringify(command("UserPromptSubmit"))}\ntimeout = 30\nstatusMessage = "Refreshing planning context"`,
@@ -204,6 +257,7 @@ function buildManifest(paths, skill, requirements) {
     upstream: UPSTREAM,
     skill_root: skill,
     adapter_sha256: fileHash(path.join(ROOT, "hooks", "hook_adapter.py")),
+    runtime_files: runtimeInventory(),
     requirements_file: paths.requirements,
     requirements_sha256: sha256(requirements),
     unowned_requirements_sha256: sha256(removeOwnedRequirements(requirements)),
@@ -234,6 +288,7 @@ function inspectInstallation(paths, skill) {
     if (manifest.requirements_file !== paths.requirements) add("managed requirements path drift");
     if (canonical(manifest.events) !== canonical(EVENTS)) add("manifest events mismatch");
     if (manifest.adapter_sha256 !== sourceAdapterHash) add("manifest adapter hash mismatch");
+    if (canonical(manifest.runtime_files) !== canonical(runtimeInventory())) add("manifest runtime inventory mismatch");
   }
 
   if (!requirementsExists) add("managed requirements missing");
@@ -247,30 +302,98 @@ function inspectInstallation(paths, skill) {
     const managedDir = tableStringValue(requirements, "hooks", "managed_dir");
     if (!managedDir || !pathContains(managedDir, paths.adapter)) add("hooks.managed_dir does not contain adapter");
     for (const event of EVENTS) {
-      const command = `/usr/bin/python3 ${quoteCommand(paths.adapter)} ${event}`;
+      const command = `${MANAGED_PYTHON} ${quoteCommand(commandPath(paths.adapter))} ${event}`;
       if (requirements.split(`command = ${JSON.stringify(command)}`).length - 1 !== 1) add(`managed ${event} handler count is not 1`, Boolean(manifest));
     }
   }
 
-  if (!adapterExists) add("adapter missing", Boolean(manifest));
-  else if (fileHash(paths.adapter) !== sourceAdapterHash) add("adapter hash drift", Boolean(manifest));
-  if (fs.existsSync(paths.runtime)) {
-    const unknown = fs.readdirSync(paths.runtime).filter(name => !new Set([path.basename(paths.adapter), path.basename(paths.manifest)]).has(name));
-    if (unknown.length) add(`unknown runtime files: ${unknown.sort().join(", ")}`);
+  const expectedFiles = new Map(sourceRuntimeFiles().map(file => [file.relative, file]));
+  const expectedDirectories = new Set();
+  for (const relative of expectedFiles.keys()) {
+    let parent = path.posix.dirname(relative);
+    while (parent !== ".") { expectedDirectories.add(parent); parent = path.posix.dirname(parent); }
+  }
+  const actualFiles = new Set(), actualDirectories = new Set(), unsafe = [];
+  for (const component of [path.join(paths.home, "hooks"), paths.runtime]) {
+    try {
+      if (fs.lstatSync(component).isSymbolicLink()) unsafe.push(path.relative(paths.runtime, component) || ".");
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
+  }
+  function walk(directory, prefix = "") {
+    if (!fs.existsSync(directory)) return;
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+      const target = path.join(directory, entry.name);
+      const info = fs.lstatSync(target);
+      if (info.isSymbolicLink()) unsafe.push(relative);
+      else if (info.isDirectory()) { actualDirectories.add(relative); walk(target, relative); }
+      else if (info.isFile()) actualFiles.add(relative);
+      else unsafe.push(relative);
+    }
+  }
+  if (!unsafe.length) walk(paths.runtime);
+  const allowedFiles = new Set([...expectedFiles.keys(), path.basename(paths.manifest)]);
+  const unknown = [
+    ...unsafe,
+    ...[...actualFiles].filter(item => !allowedFiles.has(item)),
+    ...[...actualDirectories].filter(item => !expectedDirectories.has(item)),
+  ].sort();
+  if (unknown.length) add(`unknown runtime entries: ${unknown.join(", ")}`);
+  for (const [relative, expected] of expectedFiles) {
+    const target = path.join(paths.runtime, ...relative.split("/"));
+    if (!actualFiles.has(relative)) add(`${expected.id} missing`, Boolean(manifest));
+    else {
+      if (fileHash(target) !== expected.expected) add(`${expected.id} hash drift`, Boolean(manifest));
+      if (process.platform !== "win32" && (fs.statSync(target).mode & 0o777) !== expected.mode) add(`${expected.id} mode drift`, Boolean(manifest));
+    }
   }
   return { errors, blockers, manifest, requirements, healthy: errors.length === 0, repairable: errors.length > 0 && blockers.length === 0 };
 }
+function assertSafeRuntimeForInstall(paths) {
+  if (!fs.existsSync(paths.runtime)) return;
+  for (const component of [path.join(paths.home, "hooks"), paths.runtime]) {
+    if (fs.lstatSync(component).isSymbolicLink()) throw new Error(`BLOCKED_UNKNOWN_RUNTIME: symlinked path ${component}`);
+  }
+  const entries = [];
+  function walk(directory, prefix = "") {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+      const target = path.join(directory, entry.name);
+      const info = fs.lstatSync(target);
+      if (info.isSymbolicLink() || (!info.isDirectory() && !info.isFile())) throw new Error(`BLOCKED_UNKNOWN_RUNTIME: unsafe entry ${relative}`);
+      entries.push({ relative, directory: info.isDirectory() });
+      if (info.isDirectory()) walk(target, relative);
+    }
+  }
+  walk(paths.runtime);
+  if (!entries.length) return;
+  const { manifest, error } = readManifest(paths);
+  if (error) throw new Error(`BLOCKED_UNKNOWN_RUNTIME: ${error}`);
+  if (manifest.schema_version >= MANIFEST_SCHEMA && manifest.owner !== OWNER) throw new Error("BLOCKED_UNKNOWN_RUNTIME: manifest owner mismatch");
+  const allowedFiles = new Set(sourceRuntimeFiles().map(file => file.relative));
+  allowedFiles.add(path.basename(paths.manifest));
+  const allowedDirectories = new Set();
+  for (const relative of allowedFiles) {
+    let parent = path.posix.dirname(relative);
+    while (parent !== ".") { allowedDirectories.add(parent); parent = path.posix.dirname(parent); }
+  }
+  const unknown = entries.filter(entry => entry.directory ? !allowedDirectories.has(entry.relative) : !allowedFiles.has(entry.relative)).map(entry => entry.relative).sort();
+  if (unknown.length) throw new Error(`BLOCKED_UNKNOWN_RUNTIME: ${unknown.join(", ")}`);
+}
 function install(options) {
   const paths = pathsFor(options.codexHome, options.managedRequirements), skill = resolveSkill(options.skillRoot, paths.home);
-  if (!fs.existsSync("/usr/bin/python3")) throw new Error("managed Hook interpreter not found: /usr/bin/python3");
+  if (!fs.existsSync(MANAGED_PYTHON)) throw new Error(`managed Hook interpreter not found: ${MANAGED_PYTHON}`);
   if (options.repair) return repair({ ...options, paths, skill });
   const currentRequirements = fs.existsSync(paths.requirements) ? fs.readFileSync(paths.requirements, "utf8") : "";
   const proposedRequirements = managedRequirements(currentRequirements, paths);
   if (options.dryRun) return { action: "dry-run", codex_home: paths.home, skill_root: skill, requirements_file: paths.requirements, events: EVENTS, changed: proposedRequirements !== currentRequirements };
+  assertSafeRuntimeForInstall(paths);
   const release = acquire(paths); try {
     const backupDir = backup(paths);
     fs.mkdirSync(paths.runtime, { recursive: true, mode: 0o700 });
-    fs.copyFileSync(path.join(ROOT, "hooks", "hook_adapter.py"), paths.adapter); fs.chmodSync(paths.adapter, 0o755);
+    writeRuntimeFiles(paths);
     atomicWrite(paths.requirements, proposedRequirements, 0o644);
     // Remove handlers and trust entries left by the v0.1 non-managed installation.
     const previousManifest = fs.existsSync(paths.manifest) ? parseJson(paths.manifest, {}) : {};
@@ -293,7 +416,7 @@ function repair(options) {
   const release = acquire(paths); try {
     const backupDir = backup(paths);
     fs.mkdirSync(paths.runtime, { recursive: true, mode: 0o700 });
-    fs.copyFileSync(path.join(ROOT, "hooks", "hook_adapter.py"), paths.adapter); fs.chmodSync(paths.adapter, 0o755);
+    writeRuntimeFiles(paths);
     atomicWrite(paths.requirements, repairedRequirements, 0o644);
     const checked = doctor({ codexHome: paths.home, skillRoot: skill, managedRequirements: paths.requirements });
     return { ...checked, action: "repair", changed: true, backup: backupDir };

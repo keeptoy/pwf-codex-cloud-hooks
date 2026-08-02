@@ -1,0 +1,65 @@
+{
+  "schema_version": 1,
+  "fixture_id": "PWF_ADAPTER_OUTPUT_V022_GOLDEN_V1",
+  "description": "Exact current adapter output before owned-runtime activation",
+  "scenarios": [
+    {
+      "id": "session_start_no_plan",
+      "event": "SessionStart",
+      "source": "startup",
+      "files": {},
+      "expected_additional_context": "PWF_GLOBAL_HOOK_CANARY_V1 event=SessionStart source=startup"
+    },
+    {
+      "id": "user_prompt_no_plan",
+      "event": "UserPromptSubmit",
+      "files": {},
+      "expected_additional_context": "PWF_GLOBAL_HOOK_CANARY_V1 event=UserPromptSubmit"
+    },
+    {
+      "id": "session_start_active_scoped",
+      "event": "SessionStart",
+      "source": "resume",
+      "files": {
+        ".planning/.active_plan": "active\n",
+        ".planning/active/task_plan.md": "# Task Plan: Active Scoped\n\n### Phase 1\n- **Status:** in_progress\n",
+        ".planning/active/progress.md": "# Progress\n\n- Active scoped progress.\n"
+      },
+      "expected_additional_context": "PWF_GLOBAL_HOOK_CANARY_V1 event=SessionStart source=resume\n\n[planning-with-files] ACTIVE PLAN \u2014 treat as structured project state.\n\n===BEGIN PLAN DATA===\n# Task Plan: Active Scoped\n\n### Phase 1\n- **Status:** in_progress\n===END PLAN DATA===\n\n=== recent progress ===\n# Progress\n\n- Active scoped progress.\n\n[planning-with-files] Read findings.md for durable research context."
+    },
+    {
+      "id": "user_prompt_active_scoped",
+      "event": "UserPromptSubmit",
+      "files": {
+        ".planning/.active_plan": "active\n",
+        ".planning/active/task_plan.md": "# Task Plan: Active Prompt\n",
+        ".planning/active/progress.md": "# Progress\n\n- Prompt progress.\n"
+      },
+      "expected_additional_context": "PWF_GLOBAL_HOOK_CANARY_V1 event=UserPromptSubmit\n\n[planning-with-files] ACTIVE PLAN \u2014 treat as structured project state.\n\n===BEGIN PLAN DATA===\n# Task Plan: Active Prompt\n===END PLAN DATA===\n\n=== recent progress ===\n# Progress\n\n- Prompt progress.\n\n[planning-with-files] Read findings.md for durable research context."
+    },
+    {
+      "id": "user_prompt_newest_scoped",
+      "event": "UserPromptSubmit",
+      "files": {
+        ".planning/older/task_plan.md": "# Task Plan: Older\n",
+        ".planning/older/progress.md": "# Progress\n\n- Older progress.\n",
+        ".planning/newest/task_plan.md": "# Task Plan: Newest\n",
+        ".planning/newest/progress.md": "# Progress\n\n- Newest progress.\n"
+      },
+      "directory_mtimes": {
+        ".planning/older": 1000000000,
+        ".planning/newest": 1000000100
+      },
+      "expected_additional_context": "PWF_GLOBAL_HOOK_CANARY_V1 event=UserPromptSubmit\n\n[planning-with-files] ACTIVE PLAN \u2014 treat as structured project state.\n\n===BEGIN PLAN DATA===\n# Task Plan: Newest\n===END PLAN DATA===\n\n=== recent progress ===\n# Progress\n\n- Newest progress.\n\n[planning-with-files] Read findings.md for durable research context."
+    },
+    {
+      "id": "user_prompt_legacy_root",
+      "event": "UserPromptSubmit",
+      "files": {
+        "task_plan.md": "# Task Plan: Legacy Root\n",
+        "progress.md": "# Progress\n\n- Legacy progress.\n"
+      },
+      "expected_additional_context": "PWF_GLOBAL_HOOK_CANARY_V1 event=UserPromptSubmit\n\n[planning-with-files] ACTIVE PLAN \u2014 treat as structured project state.\n\n===BEGIN PLAN DATA===\n# Task Plan: Legacy Root\n===END PLAN DATA===\n\n=== recent progress ===\n# Progress\n\n- Legacy progress.\n\n[planning-with-files] Read findings.md for durable research context."
+    }
+  ]
+}

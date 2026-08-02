@@ -1,0 +1,9 @@
+/contracts/*.json text eol=lf
+/runtime/upstream/* text eol=lf
+/tools/*.py text eol=lf
+/THIRD_PARTY_NOTICES.md text eol=lf
+/upstream-manifest.json text eol=lf
+/patches/patch_planning_skill.py text eol=lf
+/tests/fixtures/planning-with-files/scripts/* text eol=lf
+/tests/fixtures/golden/*.json text eol=lf
+/tests/fixtures/cloud/* text eol=lf

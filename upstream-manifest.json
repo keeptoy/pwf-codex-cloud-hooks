@@ -1,9 +1,10 @@
 {
-  "schema_version": 2,
+  "schema_version": 3,
   "upstream": "OthmanAdi/planning-with-files",
   "release": "v3.8.2",
   "commit": "b04ffd9c8f9f93919649d197e5d4ec1bfc06fa14",
-  "release_archive_sha256": "aabc0781a5625b493d1291ab9b403babc7934ac6f0dcac5d90000087599ce894",
+  "release_archive_url": "https://github.com/OthmanAdi/planning-with-files/archive/refs/tags/v3.8.2.zip",
+  "release_archive_sha256": "7dab03ae283da38d33b9d551c7ec621d1818b9f0f17cf9ced566d4accbfc6dd1",
   "skill_version": "3.8.2",
   "required_skill_files": {
     "SKILL.md": "bfcdbbbf883bc0db95f84d095d58021fc1a6b97eeeab23cd373f6261779fb232",
@@ -22,5 +23,80 @@
       "patched_sha256": "fc765590dc32b3949027de97e33dad6a049daf148719ba1822598a6c146461e2",
       "description": "Codex runtime, CODEX_HOME sessions, scoped planning state, and bounded Cloud-wrapped user context"
     }
+  },
+  "managed_runtime": {
+    "schema_version": 1,
+    "package_root": "runtime/upstream",
+    "contracts": {
+      "runtime_bundle": {
+        "path": "contracts/runtime-bundle-v1.json",
+        "sha256": "dad2af54ca335cc4124795defe2aef78ed6da8b6c6a66a8d417f1e86669f16b3"
+      },
+      "compatibility_overlays": {
+        "path": "contracts/compatibility-overlays-v1.json",
+        "sha256": "8267ea08270c4d46d24ef6ca793678fffa43340c108e1a5122da8382076bca43"
+      },
+      "adapter_runtime_request": {
+        "path": "contracts/adapter-runtime-request-v1.schema.json",
+        "sha256": "866c2763b89e40bb41b4dae77103bae3ad29b49937c1c494a227527bfbca81f2"
+      },
+      "runtime_result": {
+        "path": "contracts/runtime-result-v1.schema.json",
+        "sha256": "ff8d116f41bc4536fcb7b919e52f8f12b5bd5b8cae42e6dfb0d7acb80a613dfb"
+      },
+      "release_artifact": {
+        "path": "contracts/release-artifact-v1.json",
+        "sha256": "82bcf1dd37e5ee9d97390e27393d242fe98ee2196e90e703a436a79b048dc44d"
+      }
+    },
+    "importer": {
+      "path": "tools/import_upstream_runtime.py",
+      "sha256": "6ba5543d65a7fbf4f8359c64f1ca9b75f0c6c82d3f44b474a3004c20b370af5d"
+    },
+    "license_provenance": {
+      "spdx": "MIT",
+      "upstream_path": "LICENSE",
+      "upstream_sha256": "4f2e5ecfaa4e0833621cfe54c0bdc2f60f086c0925540d7bdc713517eafb3c84",
+      "notice_path": "THIRD_PARTY_NOTICES.md",
+      "notice_sha256": "ba31b6620593dd80561e6586908ffb8e5af07a2a069510bce04c00c49a27c53c"
+    },
+    "files": [
+      {
+        "id": "session_catchup",
+        "source_path": "skills/planning-with-files/scripts/session-catchup.py",
+        "package_path": "runtime/upstream/session-catchup.py",
+        "mode": "0755",
+        "origin": "upstream_with_managed_overlay",
+        "pristine_sha256": "6476fd9024d0cbb9bfb850119fd0beff7fb7cfab9c6683ce10e4cc8d830ce6de",
+        "managed_sha256": "fc765590dc32b3949027de97e33dad6a049daf148719ba1822598a6c146461e2"
+      },
+      {
+        "id": "resolve_plan_dir",
+        "source_path": "skills/planning-with-files/scripts/resolve-plan-dir.sh",
+        "package_path": "runtime/upstream/resolve-plan-dir.sh",
+        "mode": "0755",
+        "origin": "upstream_pristine",
+        "pristine_sha256": "38a1c5effb35f9506e2e371ccabb6be6e4f4170acc18f1811f08d634f5f0e9bd",
+        "managed_sha256": "38a1c5effb35f9506e2e371ccabb6be6e4f4170acc18f1811f08d634f5f0e9bd"
+      },
+      {
+        "id": "inject_plan",
+        "source_path": "skills/planning-with-files/scripts/inject-plan.sh",
+        "package_path": "runtime/upstream/inject-plan.sh",
+        "mode": "0755",
+        "origin": "upstream_pristine",
+        "pristine_sha256": "72c7904ec9a03f994d349ac1b9b3cfe484b417e738b25c0545d9ae11a2cc0364",
+        "managed_sha256": "72c7904ec9a03f994d349ac1b9b3cfe484b417e738b25c0545d9ae11a2cc0364"
+      },
+      {
+        "id": "ledger_summary",
+        "source_path": "skills/planning-with-files/scripts/ledger-summary.sh",
+        "package_path": "runtime/upstream/ledger-summary.sh",
+        "mode": "0755",
+        "origin": "upstream_pristine",
+        "pristine_sha256": "d4fe626a6bed95ce00a05bc4ffb2dbf70990f9a16e116607c0a21ad0679cf3b9",
+        "managed_sha256": "d4fe626a6bed95ce00a05bc4ffb2dbf70990f9a16e116607c0a21ad0679cf3b9"
+      }
+    ]
   }
 }

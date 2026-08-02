@@ -7,15 +7,39 @@ const { spawnSync } = require("node:child_process");
 const { after, before, test } = require("node:test");
 
 const root = path.resolve(__dirname, "..");
-const cli = path.join(root, "install.js");
+let cli;
 const pristineSkill = path.join(root, "tests", "fixtures", "planning-with-files");
 const patcher = path.join(root, "patches", "patch_planning_skill.py");
 const upstreamManifest = path.join(root, "upstream-manifest.json");
 const python = process.env.PYTHON || (process.platform === "win32" ? "python" : "python3");
 let skillWorkspace;
 let skill;
+let cliWorkspace;
+
+const expectedRuntimeFiles = [
+  "THIRD_PARTY_NOTICES.md",
+  "compatibility-overlays-v1.json",
+  "hook_adapter.py",
+  "installed-manifest.json",
+  "upstream/inject-plan.sh",
+  "upstream/ledger-summary.sh",
+  "upstream/resolve-plan-dir.sh",
+  "upstream/session-catchup.py",
+];
 
 before(() => {
+  const executable = spawnSync(python, ["-c", "import sys; print(sys.executable)"], { encoding: "utf8" });
+  assert.equal(executable.status, 0, executable.stderr);
+  cliWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "pwf-installer-package-"));
+  for (const entry of ["install.js", "package.json", "upstream-manifest.json", "THIRD_PARTY_NOTICES.md", "hooks", "runtime", "contracts"]) {
+    fs.cpSync(path.join(root, entry), path.join(cliWorkspace, entry), { recursive: true });
+  }
+  cli = path.join(cliWorkspace, "install.js");
+  const source = fs.readFileSync(cli, "utf8");
+  const replacement = `const MANAGED_PYTHON = ${JSON.stringify(executable.stdout.trim().replace(/\\/g, "/"))};`;
+  assert.equal((source.match(/const MANAGED_PYTHON = "\/usr\/bin\/python3";/g) || []).length, 1);
+  fs.writeFileSync(cli, source.replace('const MANAGED_PYTHON = "/usr/bin/python3";', replacement));
+
   skillWorkspace = fs.mkdtempSync(path.join(os.tmpdir(), "pwf-patched-skill-"));
   skill = path.join(skillWorkspace, "planning-with-files");
   fs.cpSync(pristineSkill, skill, { recursive: true });
@@ -25,6 +49,7 @@ before(() => {
 
 after(() => {
   if (skillWorkspace) fs.rmSync(skillWorkspace, { recursive: true, force: true });
+  if (cliWorkspace) fs.rmSync(cliWorkspace, { recursive: true, force: true });
 });
 function run(home, ...args) {
   const requirements = path.join(home, "etc", "codex", "requirements.toml");
@@ -48,6 +73,18 @@ function assertSnapshot(expected) {
     else assert.deepEqual(fs.readFileSync(file), content, file);
   }
 }
+function runtimeFiles(home) {
+  const runtime = path.join(home, "hooks", "planning-with-files"), result = [];
+  function walk(directory, prefix = "") {
+    for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+      const relative = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) walk(path.join(directory, entry.name), relative);
+      else result.push(relative);
+    }
+  }
+  walk(runtime);
+  return result.sort();
+}
 
 test("dry-run is read-only and reports two handlers", () => {
   const home = fixture(), requirements = path.join(home, "etc", "codex", "requirements.toml"), beforeRequirements = fs.readFileSync(requirements, "utf8");
@@ -68,6 +105,9 @@ test("managed install fails closed when an existing managed_dir excludes the ada
 test("managed install is merge-preserving, idempotent, diagnosable and uninstallable", () => {
   const home = fixture();
   let result = run(home, "install"); assert.equal(result.status, 0, result.stderr); assert.equal(result.json.action, "install"); assert.equal(result.json.healthy, true);
+  assert.deepEqual(runtimeFiles(home), expectedRuntimeFiles);
+  const installedManifest = JSON.parse(fs.readFileSync(path.join(home, "hooks", "planning-with-files", "installed-manifest.json"), "utf8"));
+  assert.deepEqual(installedManifest.runtime_files.map(item => item.path).sort(), expectedRuntimeFiles.filter(item => item !== "installed-manifest.json").sort());
   const requirementsPath = path.join(home, "etc", "codex", "requirements.toml");
   let requirements = fs.readFileSync(requirementsPath, "utf8");
   assert.match(requirements, /enforce_residency = "us"/); assert.match(requirements, /browser_use = false/); assert.match(requirements, /command = "\\\/usr\\\/bin\\\/keep"|command = "\/usr\/bin\/keep"/);
@@ -88,6 +128,15 @@ test("repair fixes only owned adapter and managed definition drift", () => {
   fs.appendFileSync(adapter, "# drift\n");
   result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, true); assert.match(result.json.errors.join(" "), /adapter hash drift/);
   result = run(home, "install", "--repair"); assert.equal(result.status, 0, result.stderr); assert.equal(result.json.action, "repair");
+
+  const catchup = path.join(home, "hooks", "planning-with-files", "upstream", "session-catchup.py");
+  fs.appendFileSync(catchup, "# drift\n");
+  result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, true); assert.match(result.json.errors.join(" "), /session_catchup hash drift/);
+  result = run(home, "install", "--repair"); assert.equal(result.status, 0, result.stderr);
+
+  fs.rmSync(catchup);
+  result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, true); assert.match(result.json.errors.join(" "), /session_catchup missing/);
+  result = run(home, "install", "--repair"); assert.equal(result.status, 0, result.stderr);
 
   fs.rmSync(adapter);
   result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, true); assert.match(result.json.errors.join(" "), /adapter missing/);
@@ -111,12 +160,15 @@ test("repair fails closed for unowned requirements, manifest, and runtime drift"
 
   fs.writeFileSync(requirements, installedRequirements);
   result = run(home, "doctor"); assert.equal(result.status, 0, result.stderr);
-  const changedManifest = JSON.parse(fs.readFileSync(manifest, "utf8")); changedManifest.owner = "unknown"; fs.writeFileSync(manifest, JSON.stringify(changedManifest));
-  result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, false); assert.match(result.json.blockers.join(" "), /manifest owner mismatch/);
+  const changedManifest = JSON.parse(fs.readFileSync(manifest, "utf8")); changedManifest.runtime_files[0].sha256 = "0".repeat(64); fs.writeFileSync(manifest, JSON.stringify(changedManifest));
+  result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, false); assert.match(result.json.blockers.join(" "), /manifest runtime inventory mismatch/);
   result = run(home, "install", "--repair"); assert.equal(result.status, 1); assert.match(result.stderr, /REPAIR_BLOCKED_UNKNOWN_DRIFT/);
 
   result = run(home, "install"); assert.equal(result.status, 0, result.stderr); fs.writeFileSync(path.join(runtime, "unknown.sh"), "exit 0\n");
-  result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, false); assert.match(result.json.blockers.join(" "), /unknown runtime files/);
+  result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, false); assert.match(result.json.blockers.join(" "), /unknown runtime entries/);
+  result = run(home, "install"); assert.equal(result.status, 1); assert.match(result.stderr, /BLOCKED_UNKNOWN_RUNTIME/);
+  fs.rmSync(path.join(runtime, "unknown.sh")); fs.mkdirSync(path.join(runtime, "unknown-directory"));
+  result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, false); assert.match(result.json.blockers.join(" "), /unknown-directory/);
   fs.rmSync(home, { recursive: true, force: true });
 });
 
