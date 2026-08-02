@@ -326,3 +326,33 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Cross-user execution exposed a real deployment requirement: owned runtime directories cannot remain `0700`. Runtime directories are now `0755`, executable code is `0755`, data/notice files are `0644`, and the private installed manifest stays `0600`. Project and session-store traversal/readability remain explicit platform prerequisites for a distinct Hook identity.
 - The local suite now registers 45 tests. Windows passes 42 and skips three Linux-only checks: installed POSIX directory/file modes, real root/root owned activation, and a root-installed/nobody-Hook synthetic split. Those skipped checks are mandatory in the alpha.2 Cloud gate rather than being claimed through Windows equivalence.
 - Round 4 trusted identities before ZIP sealing are: adapter `8f4ecf2582b22ebf10a297516b2fdd30e4b927f16ffad69d90a3f71701d1754a`, owned runtime `bb3a18b8144e63b17c33db4cccf81425f135647948e6f20f4c44c3e42ba71f85`, runtime bundle `6b7176fdfaaa142da51dbcba5823a77e7f4e5810f43f7bbb1f143c7d7cebaffd`, and release artifact contract `4f33e03a2d6fea85afbbaed707b305c8001d7025e67a0565440c71400d192923`.
+
+## Alpha.2 Cloud Infrastructure/Permission Evidence (2026-08-02)
+
+- The maintainer reported successful Cloud initialization and supplied the installed-adapter execution output from a new container.
+- Both the root/root invocation and the synthetic `nobody` Hook-user invocation emitted `SESSION CATCHUP DETECTED`, selected `rollout-owned-acceptance`, identified `Runtime: codex`, found the structured `task_plan.md` update at message #1, and preserved `PWF_ALPHA2_OWNED_TAIL_SENTINEL` as the sole unsynced user message.
+- Both owned catch-up outputs also injected the same canonical active plan and recent progress, proving the child and local adapter consumed the same resolved scoped plan.
+- The UserPromptSubmit probe emitted its canary and active plan but no catch-up report. This proves the Phase 2 dispatch boundary: SessionStart launches the owned child; UserPromptSubmit remains local until Phase 3.
+- The explicit summary markers were all PASS: `ROOT_ROOT_OWNED_CATCHUP`, `SYNTHETIC_CROSS_USER`, and `USERPROMPT_LOCAL_ONLY`.
+- Four identical SessionStart JSON lines in the captured console do not demonstrate four child executions. The acceptance script runs two adapter invocations (root and nobody) and pipes each single-line JSON result through two successful `grep` commands; each result is therefore printed twice.
+- This closes the Linux-only permission and real-owned-runtime gaps that skipped on Windows. It does not by itself prove automatic Host lifecycle injection, because the acceptance script invokes the installed adapter directly. Fresh-task startup/UserPrompt observation, a real resumed session catch-up, and post-resume doctor remain the final Phase 2 gate.
+
+## Alpha.2 Cloud Initialization/Inventory Evidence (2026-08-02)
+
+- The complete initialization console is now preserved rather than inferred from a success statement. It ended with `Codex Cloud setup completed successfully` and the bootstrap's filesystem, Managed Hook policy, Codex feature, doctor, and adapter protocol checks all passed.
+- Observed platform identity remained `Codex home: /opt/codex` with `codex-cli 0.144.0-alpha.4`. This is current-image evidence, not a permanent platform-path promise.
+- The global Skill was explicitly reported as `pristine upstream v3.8.2` at `/root/.agents/skills/planning-with-files`, confirming the bootstrap no longer mutates the user/global catch-up file.
+- The published 65,989-byte alpha.2 ZIP downloaded from the immutable `v0.3.0-alpha.2` asset and matched SHA-256 `61f2001f3dd3934d79144d5f1be09385a55936aba9f7481ad5e2177a486059db`.
+- Post-install doctor returned `healthy=true`, `repairable=false`, schema-managed events exactly `SessionStart` and `UserPromptSubmit`, with empty `errors` and `blockers`.
+- The independent inventory probe returned `manifest_schema=3`, `runtime_files=8`, `inventory_exact=true`, `global_skill_pristine=true`, and `adapter_commands_only=true`.
+- These outputs close the alpha.2 release download/SHA, bootstrap, managed-policy, doctor, pristine-Skill, and exact-inventory gates. Only automatic runtime lifecycle injection/resume evidence and the final post-resume doctor remain.
+
+## Alpha.2 Final Lifecycle Runbook Design
+
+- The remaining test is not a full repeat of the historical A–F matrix. Initialization evidence already covers A; the real lifecycle must still repeat B, combine C with the D baseline, strengthen D with an actual 1,000+ character message, and add a final post-resume doctor.
+- Destructive E/F are not Phase 2 exit criteria because their installer ownership/fail-closed behavior did not change and remains covered by automated and previous acceptance. Root/root, nobody-Hook, manual Host transcript, exact inventory, pristine Skill, and adapter-only policy are also already accepted and should not be repeated.
+- The executable sequence is P2-A startup/UserPrompt canaries; P2-B structured scoped baseline via `apply_patch`; P2-C automatic UserPrompt Planning context; P2-D long unsynced message, same-task resume, automatic owned catch-up and tail preservation; P2-E post-resume doctor.
+- The fixed long user message is 1,800+ characters and places `PWF_ALPHA2_REAL_RESUME_TAIL_6D91` on the final line. PASS requires `...[truncated]...` and the tail sentinel inside `UNSYNCED CONTEXT`, proving real bounded head/tail behavior instead of relying on Cloud to happen to add a long wrapper.
+- Exact `Unsynced messages` count is deliberately not frozen. P2-C and P2-D create legitimate messages after the last planning update; the contract is a real integer at least one plus preservation of the unique tail marker.
+- The P2-C/P2-D verification prompts deliberately do not repeat the literal plan or tail sentinel. They refer to the prior step's unique marker by role, so merely seeing the current validation prompt cannot satisfy the observation; the literal value must come from automatically injected plan/catch-up content.
+- `clear`/`compact`, additional lifecycle Hooks, attestation, malformed/timeout/symlink safety cases, and Windows production remain automated or future-phase scope rather than expanding this final black box.

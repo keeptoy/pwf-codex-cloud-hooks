@@ -444,8 +444,11 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 第 1–3 轮完成 owned runtime、plan/session safety、transcript normalization、diagnostics
 与 supervisor failure semantics；第 4 轮已在本地激活 SessionStart owned catch-up，停止
 global Skill mutation，补上 Linux 权限门槛，并进入 18-entry alpha.2 Release 边界。
-Managed Hook 命令仍只注册 adapter，UserPromptSubmit 仍本地实现。下一步是发布并执行
-alpha.2 fresh-Cloud hard acceptance；通过前 alpha.1 仍是回滚点。
+Managed Hook 命令仍只注册 adapter，UserPromptSubmit 仍本地实现。alpha.2 已在新 Cloud
+容器通过 ZIP SHA、bootstrap、doctor、schema-3 八文件精确 inventory、pristine Skill、
+adapter-only policy、实际 owned root/root、synthetic nobody Hook 用户、Host fixture
+transcript、尾部 sentinel 和 UserPrompt local-only 门槛。下一步只剩自动 lifecycle startup/UserPrompt 注入、
+真实 resume catch-up 与 resume 后 doctor；通过前 alpha.1 仍是回滚点。
 
 Release 封板存在明确依赖顺序：先确定版本并冻结 ZIP 内容，构建并计算 ZIP SHA-256；
 再把版本、包名和 ZIP SHA 写入 ZIP 外部 Bash，计算封板后的 Bash SHA-256；最后发布并

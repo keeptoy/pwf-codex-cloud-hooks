@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Freeze and seal the deterministic `v0.3.0-alpha.2` ZIP/bootstrap pair, publish both immutable assets, then run the fresh Codex Cloud hard-acceptance script. Require real root/root owned catch-up, synthetic cross-user readability, pristine global Skill, exact inventory/doctor, Host transcript selection, tail sentinel, local-only UserPromptSubmit, and post-resume health before closing Phase 2. Keep alpha.1 as rollback.
+Complete the remaining real lifecycle gate in a fresh Codex Cloud task: prove automatic startup/UserPrompt canary injection without manually invoking the adapter, create a structured planning update plus unique long-wrapper tail sentinel, resume the same task, capture the automatically injected owned catch-up report, and rerun doctor after resume. Retain the initialization probe JSON if available. Close Phase 2 only after those observations pass; keep alpha.1 as rollback.
 
 ## Current Phase
-Phase 2 Round 4 locally complete; alpha.2 Cloud hard acceptance pending
+Phase 2 Round 4 initialization/inventory/permission Cloud gates PASS; real lifecycle/resume gate pending
 
 ## Phases
 
@@ -92,7 +92,7 @@ Phase 2 Round 4 locally complete; alpha.2 Cloud hard acceptance pending
 | 1 | Structured owned-runtime entrypoint, request/result validation, Host transcript preference and explicit fallback; remain inactive | complete |
 | 2 | Shared canonical plan resolution, containment, opt-out, and backward-compatible session attachment/isolation | complete |
 | 3 | Codex JSONL normalization/deduplication, bounded rendering, diagnostic surface, malformed-input/timeout/failure semantics | complete |
-| 4 | Adapter activation, pristine global Skill, installer/manifest/permission matrix, alpha.2 packaging and Cloud hard acceptance | local implementation complete; Cloud pending |
+| 4 | Adapter activation, pristine global Skill, installer/manifest/permission matrix, alpha.2 packaging and Cloud hard acceptance | initialization/inventory/permission Cloud PASS; lifecycle pending |
 
 - [x] Install catch-up and its allowlisted dependencies beneath the owned managed runtime; stop executing `session-catchup.py` from a mutable global Skill directory.
 - [x] Apply any still-required compatibility overlay only to the owned imported copy, leaving the global upstream Skill pristine.
@@ -105,10 +105,10 @@ Phase 2 Round 4 locally complete; alpha.2 Cloud hard acceptance pending
 - [x] Add backward-compatible session isolation using `session_id` and `.planning/sessions/<id>.attached`.
 - [x] Define malformed stdin, missing files, invalid UTF-8, timeout, and child-process failure behavior.
 - [x] Keep the Codex loop fail-open for advisory runtime failures while failing closed for unsafe context injection.
-- [ ] Test the observed root/root Cloud identity and a synthetic install-user/Hook-user split with explicit readability and session-store expectations.
+- [x] Test the observed root/root Cloud identity and a synthetic install-user/Hook-user split with explicit readability and session-store expectations.
 - [x] Add Linux Cloud tests and document Windows as unsupported unless a separate managed Windows runtime is designed.
 - **Exit criteria:** Catch-up executes only owned verified files, current Cloud behavior remains compatible, diagnostic skips are explainable, opted-out/unattached sessions stay silent, and external-path plan content is never injected.
-- **Status:** Round 4 locally complete; Cloud exit criteria pending
+- **Status:** ZIP SHA, bootstrap setup, doctor, exact inventory, pristine Skill, adapter-only policy, root/root, cross-user, owned selection, sentinel, and UserPrompt boundary PASS in Cloud; automatic lifecycle/resume and post-resume doctor pending
 
 ### Phase 3: Canonical user-prompt injection
 - [ ] Reduce the local Python adapter to Codex payload parsing, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.

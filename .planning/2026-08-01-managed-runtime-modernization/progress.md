@@ -414,3 +414,29 @@
 - Added `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md` with immutable-asset verification, exact eight-payload/nine-installed-file inventory, pristine global Skill proof, root/root actual owned execution, synthetic nobody-Hook execution, UserPrompt local-only proof, and fresh-task resume/tail-sentinel acceptance.
 - Final local verification after sealing: full suite 45 registered / 42 PASS / 3 explicit Linux-only SKIP / 0 FAIL; deterministic Release check PASS; importer exact check PASS; Python in-memory compilation PASS; Node syntax PASS; `git diff --check` has no errors; ZIP and external Bash hashes match the acceptance runbook.
 - Round 4 local work is complete. Phase 2 remains open only for publication and fresh Codex Cloud hard acceptance; alpha.1 remains the rollback point and no tag, asset, commit, or external deployment was created from this workspace.
+
+## Phase 2 alpha.2 Cloud partial acceptance (2026-08-02)
+
+- Maintainer reported successful initialization in a new Cloud container and ran the installed-runtime root/root plus synthetic cross-user acceptance fixture.
+- Root/root owned catch-up PASS: real installed adapter/child selected the Host fixture transcript, detected the structured plan update, preserved the tail sentinel, and injected the resolved active plan.
+- Synthetic install-user/Hook-user split PASS with the same owned report and planning context, closing the Windows-skipped traversal/readability gate.
+- UserPrompt local-only PASS: canary and plan were present, while `SESSION CATCHUP DETECTED` was absent.
+- Interpreted the four printed SessionStart JSON lines correctly as two invocations printed twice by two `grep` assertions per output, not unexpected quadruple Hook execution.
+- Updated the Phase 2 permission checklist to complete. Remaining acceptance is the actual automatic fresh-task lifecycle/resume path and post-resume doctor evidence.
+
+## Phase 2 alpha.2 Cloud initialization acceptance (2026-08-02)
+
+- Received the complete initialization console. Bootstrap reported successful Cloud setup with `/opt/codex`, Codex CLI `0.144.0-alpha.4`, pristine upstream Skill v3.8.2, managed requirements, owned Hook runtime, adapter, and installed manifest paths.
+- Published alpha.2 ZIP download completed at 65,989 bytes and SHA-256 verification returned `OK` for the sealed `61f200...59db` identity.
+- Independent doctor returned healthy/non-repairable with no errors or blockers and exactly the two intended managed events.
+- Independent manifest probe passed schema 3, eight exact runtime payloads, pristine global Skill, and adapter-only Hook commands.
+- Initialization/inventory acceptance is complete. No code or artifact bytes changed; the remaining Phase 2 work is the automatic fresh-task lifecycle/resume black box and post-resume doctor.
+
+## Phase 2 final lifecycle runbook clarification (2026-08-02)
+
+- Replaced the short Section 3 summary with copy/paste P2-A through P2-E instructions, exact prompts, ordered task/resume operations, raw-evidence requirements, and per-step PASS criteria.
+- Added a comparison table against `黑盒验证.md` A–F: initialization A is already covered except post-resume doctor; B/C/D remain; destructive E/F are not repeated for this Phase 2 activation gate.
+- Added an explicit 1,793+ character unsynced user prompt with a unique final-line sentinel, plus required truncation-marker and tail-marker observations after resume.
+- Added a warning in the main A–F manual so alpha.2 operators do not run the obsolete patched-global-Skill SHA expectation.
+- Removed literal plan/tail sentinel values from the later no-tools verification prompts, so the current prompt cannot itself satisfy the observation; only injected context can reveal them.
+- No runtime, Release ZIP, bootstrap, or trusted hash changed. Markdown fences are balanced, the real long prompt is 1,825 characters, and `git diff --check` passes with line-ending warnings only.
