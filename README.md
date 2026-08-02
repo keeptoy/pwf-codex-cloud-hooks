@@ -190,9 +190,11 @@ allowlist of every upstream runtime file that the managed adapter can execute.
 | `patches/patch_planning_skill.py` | Atomic, idempotent, fail-closed `v3.8.2` Cloud compatibility patcher |
 | `upstream-manifest.json` | Pinned upstream release identity and approved Skill-file hashes |
 | `init-cloud-sandbox-v0.3.0.bash` | Development bootstrap for the active modernization iteration |
+| `PROJECT_UNDERSTANDING.md` | Durable current-state model, Cloud evidence, boundaries, and next-step context |
 | `黑盒验证.md` | Beginner-oriented Cloud runbook for health, lifecycle, catch-up, repair, and fail-closed tests |
 | `tests/hook-adapter.test.js` | Hook payload and no-plan behavior tests |
 | `tests/installer.test.js` | Managed-policy ownership, drift, repair, backup, and uninstall tests |
+| `tests/skill-patch.test.js` | Compatibility patch, guarded bootstrap, and Cloud-shaped catch-up regressions |
 | `tests/fixtures/planning-with-files/` | Self-contained pinned Skill fixture; not a second production Skill |
 | `planning-with-files-3.8.2/` | Ignored local upstream reference tree supplied for development; never package it |
 | `.planning/.active_plan` | Pointer to the current Managed Runtime Modernization plan |
@@ -368,8 +370,10 @@ This is a target, not the current filesystem layout.
 `hook_adapter.py` will be intentionally thin and limited to:
 
 - stdin JSON and event validation;
-- `cwd` and `session_id` extraction;
-- explicit Codex runtime, session-store, event/source, and output-budget request fields;
+- `cwd`, `session_id`, event-scoped `turn_id`, and validated Host
+  `transcript_path` extraction;
+- explicit Codex runtime, transcript/session-store fallback, event/source,
+  project-root, and output-budget request fields;
 - supervised subprocess execution and timeout handling;
 - stdout/stderr isolation;
 - Codex `additionalContext`, `systemMessage`, and decision JSON;
@@ -384,6 +388,12 @@ The pinned upstream runtime will own planning semantics:
 - smart injection and ledger summaries;
 - compact reminders and completion semantics.
 - catch-up transcript normalization, diagnostic reason codes, and bounded reports.
+
+The Host-provided `transcript_path` is the primary transcript selector. The
+owned runtime must canonicalize and validate it before reading, then use
+session-store enumeration only as a compatibility fallback. Codex transcript
+JSONL is not a stable public interface, so parsing must be shape/version
+defensive and fail safely when records are unknown.
 
 `install.js` will continue to own deployment and governance:
 
@@ -411,8 +421,11 @@ The pinned upstream runtime will own planning semantics:
 - keep managed commands beneath `managed_dir`;
 - fail closed on runtime integrity and unsafe context injection;
 - keep advisory runtime failures non-fatal to the Codex loop;
-- make Runtime identity and session location explicit rather than inferring them
-  from a Skill path or transient setup environment;
+- make Runtime identity and the validated Host transcript path explicit rather
+  than inferring them from a Skill path or transient setup environment; retain
+  session-store scanning only as a compatibility fallback;
+- treat transcript JSONL record shapes as changeable Host data, not a stable
+  schema owned by this repository;
 - keep injected catch-up output bounded while exposing detailed skip/failure
   reasons only through a non-injecting diagnostic surface;
 - add hard Stop gating last and only behind an explicit mode.

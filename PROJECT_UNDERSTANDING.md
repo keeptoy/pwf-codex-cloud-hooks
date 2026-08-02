@@ -286,6 +286,10 @@ UserPromptSubmit：
 
 `transcript_path` 虽由 Host 明确提供，runtime 仍必须做绝对路径、文件类型、允许的
 session root containment 和 session identity 一致性校验，不能无条件信任字符串。
+同时，官方 Hooks 契约明确说明 transcript JSONL 格式不是稳定接口；当前探针取得的
+`session_meta`、`patch_apply_end`、`response_item` 和 `event_msg` 只能作为带版本/日期
+的兼容 fixture，runtime 必须对未知记录和字段变化做防御性处理，不能把样本结构当作
+永久平台 schema。
 
 ### Resume 黑盒失败证据
 
@@ -303,14 +307,31 @@ session root containment 和 session identity 一致性校验，不能无条件�
 
 ### v0.2.2 最终基线
 
-历史 planning 记录表明，应用最终补丁后完整 A-F Cloud 验收通过，包括：
+维护者已补充应用最终补丁后的原始脱敏 Cloud 输出。完整证据保存在：
 
-- startup 和 resume canary；
+```text
+.planning/2026-08-01-managed-runtime-modernization/evidence/v0.2.2-session-catchup-success.md
+```
+
+该次真实 resume 明确观察到：
+
+- `SessionStart source=resume`；
+- `SESSION CATCHUP DETECTED`；
+- previous session 为 `rollout-2026-08-01T13-45-21-019fbd92-7cc2-7813-85d1-54144d4cf649`；
 - `Runtime: codex`；
-- scoped planning update；
-- positive unsynced count；
-- 长 wrapper 尾部 sentinel；
+- scoped `task_plan.md` 更新位于 message 25；
+- `Unsynced messages: 7`；
+- 长 PR wrapper 中间出现有界 `...[truncated]...`；
+- wrapper 尾部 `PWF_CATCHUP_UNSYNCED_SENTINEL_82C4` 仍位于 `UNSYNCED CONTEXT`；
 - Planning context；
+
+因此 `session-catchup.py` 的 `.agents` runtime、`/opt/codex/sessions`、scoped plan 与
+head/tail 长 wrapper 四项 Cloud 兼容链路均有成功原始证据。`Unsynced messages: 7` 是
+v0.2.2 报告的观测计数，不代表底层 JSONL 已归一化成 7 条去重逻辑消息。
+
+完整 A-F 验收还包括：
+
+- startup canary；
 - owned repair；
 - unknown runtime drift fail-closed；
 - 最终 `doctor healthy=true`。
@@ -459,10 +480,9 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 
 ## 16. 仍待补充或验证
 
-1. 最终 head/tail 补丁通过后的完整脱敏黑盒输出，可作为 Phase 1 golden output。
-2. 可选增强证据：验证 Hook stdin `transcript_path` 指向的 JSONL，其 `session_meta.id` /
+1. 可选增强证据：验证 Hook stdin `transcript_path` 指向的 JSONL，其 `session_meta.id` /
    `session_meta.session_id` 与 stdin `session_id` 一致；这不阻塞 Phase 1 契约编写。
 
 Cloud 环境变量继续作为 non-authoritative input。`session_id` 和 `transcript_path` 已有
 真实 Hook 证据，可以进入 versioned host contract；runtime 对字段缺失、错误类型和越界
-路径仍须定义兼容失败行为。
+路径仍须定义兼容失败行为。当前已无阻塞 Phase 1 第一轮的外部信息缺口。

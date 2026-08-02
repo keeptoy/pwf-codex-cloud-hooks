@@ -128,7 +128,7 @@ Phase 1 不强制重新做完整 Session catch-up 黑盒，因为它尚未切换
 
 ### Phase 5：实现前后各测一次
 
-官方当前契约中，SessionStart 的来源包含 startup、resume、clear、compact；自动 compact 后的 SessionStart context 还可能直接进入同一轮的后续模型请求。因此不能只靠本地模拟判断时序。OpenAI Hooks 文档
+官方当前契约中，SessionStart 的来源包含 startup、resume、clear、compact；自动 compact 后的 SessionStart context 还可能直接进入同一轮的后续模型请求。因此不能只靠本地模拟判断时序。[OpenAI Codex Hooks 文档](https://learn.chatgpt.com/docs/hooks)
 
 先用 observation-only canary 确认 Cloud 实际事件，再实现 PreCompact/PostCompact，之后验证：
 
@@ -139,11 +139,11 @@ Phase 1 不强制重新做完整 Session catch-up 黑盒，因为它尚未切换
 - 没有重复 planning context
 - 没有丢失最后进度
 
-另外，PreCompact/PostCompact 的普通 stdout 会被忽略，需要按正式 JSON 输出契约实现，这也是必须真实验证的原因。OpenAI Hooks 文档
+另外，PreCompact/PostCompact 的普通 stdout 会被忽略，需要按正式 JSON 输出契约实现，这也是必须真实验证的原因。[OpenAI Codex Hooks 文档](https://learn.chatgpt.com/docs/hooks)
 
 ### Phase 6：每种 Hook 单独测
 
-不要一次开启全部 Tool Hooks。官方说明多个匹配的 command hooks 会并发启动；而且工具 Hook 不是完整安全边界，PostToolUse 发生时工具副作用已经产生。OpenAI Hooks 文档
+不要一次开启全部 Tool Hooks。官方说明多个匹配的 command hooks 会并发启动；而且工具 Hook 不是完整安全边界，PostToolUse 发生时工具副作用已经产生。[OpenAI Codex Hooks 文档](https://learn.chatgpt.com/docs/hooks)
 
 顺序建议：
 

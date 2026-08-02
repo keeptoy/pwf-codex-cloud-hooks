@@ -2,7 +2,7 @@
 
 ## Requirements
 - Confirm whether repository behavior and README claims are synchronized.
-- Explain the meaning of the current nine tests without equating test cases to product features.
+- Explain the meaning of the current twelve tests, while preserving the historical nine-test audit snapshot and without equating test cases to product features.
 - Persist the agreed modernization design so it survives context compaction, clear, resume, and later sessions.
 - Keep future work staged, auditable, reversible, and compatible with the current Cloud deployment.
 - Incorporate the v0.2.2 Cloud catch-up investigation as design evidence rather than leaving its patch as an isolated release workaround.
@@ -51,9 +51,9 @@ Current release/iteration boundary as of 2026-08-02:
 - The current adapter is a deliberately simplified legacy-style implementation and does not yet provide opt-out, session isolation, canonical containment, attestation, nonce, smart injection, or ledger behavior.
 - The Cloud bootstrap is Debian/Ubuntu amd64-oriented and the README describes a Codex Cloud target rather than cross-platform installation.
 
-## Test Interpretation
+## Current Test Interpretation
 
-The suite has nine Node test cases:
+The suite now has twelve Node test cases. Cases 1–9 are the original audit inventory; cases 10–12 were added with the v0.2.2 Cloud compatibility work:
 
 1. `SessionStart` emits scoped plan context and a source canary.
 2. `UserPromptSubmit` emits plan/progress context and a canary.
@@ -64,8 +64,11 @@ The suite has nine Node test cases:
 7. Repair restores an owned adapter or managed-definition drift.
 8. Repair refuses unowned requirements, manifest ownership, and unknown runtime drift.
 9. Installation backups can restore all pre-existing managed files byte-for-byte.
+10. The compatibility patch is deterministic, idempotent, hash-checked, and fails closed on unknown Skill content.
+11. The v0.3.0 bootstrap applies the compatibility patch before installation and refuses an unpinned Release checksum.
+12. Patched catch-up covers `.agents` Skill placement, `$CODEX_HOME/sessions`, scoped plans, resume injection, bounded long-wrapper output, and preservation of the tail sentinel.
 
-These are nine test cases, not nine atomic features. Cases 6–8 each cover several behaviors, while some product claims share one test or are verified by static inspection rather than a standalone test.
+These are twelve test cases, not twelve atomic features. Cases 6–8 and 10–12 each cover several behaviors, while some product claims share one test or are verified by static inspection rather than a standalone test. Historical progress entries reporting nine passing tests remain dated audit evidence, not the current suite count.
 
 ## Architecture Decision
 
@@ -123,6 +126,8 @@ Use a hybrid managed-runtime bundle:
 - Real Cloud transcripts can contain parallel `response_item` and `event_msg` representations, tool records, developer/user wrappers, and repeated logical content. A transcript reader needs explicit normalization policy rather than assuming one record family equals one logical message.
 - The original report retained only the first 300 characters of each user message. Cloud prepended a long PR-feedback wrapper, placing the actual instruction and sentinel at the end. Bounded head/tail rendering fixed the loss without allowing unbounded context injection.
 - The final resume black box observed `SESSION CATCHUP DETECTED`, `Runtime: codex`, the scoped planning update, a positive unsynced count, the long-wrapper tail sentinel, and Planning context. The compatibility behavior is therefore a proven baseline fixture, not a speculative requirement.
+- The maintainer later supplied the final sanitized raw success output. It records previous rollout `rollout-2026-08-01T13-45-21-019fbd92-7cc2-7813-85d1-54144d4cf649`, planning update message 25, unsynced count 7, visible bounded middle truncation, and tail sentinel `PWF_CATCHUP_UNSYNCED_SENTINEL_82C4`. The exact evidence is preserved in `evidence/v0.2.2-session-catchup-success.md`.
+- The count 7 is a golden v0.2.2 output value, not proof that seven deduplicated logical messages exist beneath the report. Phase 2 normalization must document any intentional count change.
 - The observed install and Hook users were both root. That sample rules out a user mismatch only for that environment; it does not prove a general cross-user deployment contract.
 
 ### No-init cold-sandbox baseline (2026-08-02)
@@ -149,7 +154,7 @@ Use a hybrid managed-runtime bundle:
 - The Host supplies `transcript_path` directly on both enabled events. The owned catch-up runtime should validate and prefer this path, using session-store enumeration only as a compatibility fallback.
 - A supplied transcript path must still be checked for absolute/canonical containment beneath an allowed session root, regular-file type, expected rollout shape, and matching `session_meta` identity before reading content.
 - `prompt` is available only to UserPromptSubmit and is sensitive. Normal diagnostics and fixtures should record its type/length at most, never its body.
-- Current evidence supersedes the earlier current-state shorthand “Hook-time CODEX_HOME is missing.” The durable requirement is to support both observed presence and a missing-variable compatibility fixture.
+- Current evidence supersedes an earlier shorthand that described the Hook environment as lacking `CODEX_HOME`. The durable requirement is to support both observed presence and a missing-variable compatibility fixture.
 
 ### What this changes in the modernization architecture
 - The original managed-runtime direction remains correct and is strengthened by the evidence. Today the owned adapter still discovers and executes `session-catchup.py` from the mutable global Skill. Install/doctor hash validation helps, but it does not make that file part of the owned runtime inventory at execution time.
@@ -168,6 +173,16 @@ Use a hybrid managed-runtime bundle:
 5. **Then expand lifecycle:** attestation/smart modes, compact, selective tool Hooks, advisory Stop, and finally optional hard gating.
 
 This sequence keeps the original roadmap's safety posture but moves the Cloud-proven trust-boundary and observability work ahead of new features.
+
+## Documentation Consistency Regression (2026-08-02)
+
+- Reconciled the current twelve-test inventory with the historical nine-test Phase 0 audit; archived v0.2.2 records remain historical evidence.
+- Made the `CODEX_HOME` contract lifecycle-specific: absent during the observed initialization stage, present as `/opt/codex` in the observed post-start agent and Hook stages, but never a permanent-path guarantee.
+- Distinguished the current v0.2.2-inherited scan-and-patched-Skill catch-up implementation from the Phase 2 target, which validates Host `transcript_path` first and scans session stores only as a compatibility fallback.
+- Added `turn_id`, validated `transcript_path`, project root, and transcript fallback to the target adapter/runtime contract.
+- Verified against the current official Codex Hooks documentation that the event/source and output contracts used by the roadmap are accurate. The same documentation warns that transcript JSONL is not a stable interface, so the owned reader must parse defensively instead of freezing the probe sample as a permanent schema.
+- Confirmed version/release boundaries remain coherent: package and development bootstrap are v0.3.0, the bootstrap checksum is intentionally all zero until packaging, and v0.2.2 plus its recorded SHA remains the published rollback baseline.
+- Phase 1 remains pending; this regression changed documentation and planning context only, not installed Hook behavior.
 
 ## Resources
 - Local README and installer implementation.

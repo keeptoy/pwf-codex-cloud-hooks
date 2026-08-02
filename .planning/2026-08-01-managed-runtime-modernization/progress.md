@@ -46,7 +46,7 @@
 
 ### Actions Taken
 - Reworked README around a context-free What/Why/How path for a new maintainer.
-- Clearly separated the current `0.2.1` runtime from the approved future architecture.
+- Clearly separated the then-current `0.2.1` runtime from the approved future architecture.
 - Added current behavior, absent-feature, architecture, ownership, repository-map, installation, operations, repair, handoff, release, and safety sections.
 - Embedded the exact managed runtime bundle direction and linked it to the durable planning artifacts.
 - Preserved Phase 1 as the next implementation step and stated that it must not change installed Hook behavior.
@@ -99,7 +99,7 @@
 - Reconciled the maintainer's Cloud deployment facts with the v0.2.2 black-box failure and diagnostic evidence.
 - Created `PROJECT_UNDERSTANDING.md` as the durable project mental model for future resume, clear, and compaction recovery.
 - Recorded the confirmed two-asset Release boundary: the initialization Bash remains outside the ZIP that it downloads and verifies.
-- Recorded `/opt/codex` as the current default/verified Cloud root while treating Hook-time `CODEX_HOME` as non-authoritative.
+- Recorded `/opt/codex` as the current default/verified Cloud root while retaining an explicit fallback rather than treating the Hook environment as a permanent platform guarantee.
 - Kept Phase 1 and its Next Step unchanged; no runtime behavior or implementation code changed.
 
 ### Verification
@@ -115,7 +115,7 @@
 
 ### Evidence Received
 - Ran the agreed probe in a new empty GitHub repository with no sandbox initialization script.
-- Confirmed the default agent environment has `CODEX_HOME=/opt/codex`, an existing `/opt/codex/sessions`, and no `CODEX_SESSIONS_DIR` override.
+- Confirmed the post-start default agent environment has `CODEX_HOME=/opt/codex`, an existing `/opt/codex/sessions`, and no `CODEX_SESSIONS_DIR` override.
 - Confirmed `/etc/codex/requirements.toml`, `/root/.codex`, and `/root/.agents` are absent before this repository or the upstream Skill is installed.
 - Captured the dated platform sample: root user, Ubuntu 24.04.4, Codex CLI `0.144.0-alpha.4`, and stable enabled Hooks.
 - Confirmed `CODEX_THREAD_ID`, `session_meta.id`, and `session_meta.session_id` identify the same session in this sample.
@@ -158,3 +158,50 @@
 - The platform makes the variable available between sandbox initialization and Codex Runtime startup; it is not a persistent export from this repository's bootstrap.
 - The bootstrap's `${CODEX_HOME:-/opt/codex}` remains necessary as an installation-stage default, while adapter/runtime fallback remains necessary for portability and future image changes.
 - Phase 1 remains pending; this was evidence and documentation refinement only.
+
+## Session: 2026-08-02 — final v0.2.2 catch-up success output recovered
+
+### Evidence Received
+- Received the maintainer's historical sanitized raw output from the successful v0.2.2 Cloud resume regression.
+- Confirmed `SessionStart source=resume`, `SESSION CATCHUP DETECTED`, `Runtime: codex`, previous rollout selection, scoped planning update at message 25, and `Unsynced messages: 7`.
+- Confirmed the long PR wrapper was visibly bounded with `...[truncated]...` while its tail sentinel `PWF_CATCHUP_UNSYNCED_SENTINEL_82C4` remained inside `UNSYNCED CONTEXT`.
+- Confirmed Planning context was observed in the same response.
+
+### Actions Taken
+- Preserved the sanitized raw output and interpretation in `evidence/v0.2.2-session-catchup-success.md` for later conversion into a Phase 1 golden fixture.
+- Updated `PROJECT_UNDERSTANDING.md` and findings so the final success is based on direct evidence rather than only historical planning summaries.
+- Removed the successful head/tail black-box output from the outstanding-information list.
+
+### Outcome
+- The v0.2.2 session-catchup Cloud compatibility baseline is fully evidenced.
+- No external information now blocks Phase 1 Round 1.
+- Phase 1 remains pending because contracts, ledgers, fixtures, and implementation artifacts have not yet been created.
+
+## Session: 2026-08-02 — documentation consistency regression
+
+### Scope
+- Cross-check README, Cloud black-box runbook, work plan, project understanding, active planning files, package metadata, bootstrap identity, and current implementation contracts.
+- Reconcile lifecycle-stage `CODEX_HOME`, real Hook stdin, transcript selection, v0.2.2 success/failure evidence, v0.3.0 release state, and Phase 1 status.
+- Treat archived v0.2.2 planning records as historical evidence rather than current-state documentation.
+
+### Initial State
+- Package and active development identity are `0.3.0`; published rollback baseline remains `v0.2.2`.
+- Active plan is `2026-08-01-managed-runtime-modernization`, with Phase 1 pending.
+- Current uncommitted changes are documentation/evidence only; production Hook behavior has not changed.
+
+### Findings and Corrections
+- Corrected the current test inventory from the historical nine-case audit count to twelve cases; retained dated nine-case progress entries as history.
+- Added `turn_id`, validated Host `transcript_path`, project root, and session-store fallback to the target adapter/runtime contract.
+- Distinguished the current v0.2.2-inherited patched-Skill/session-scan chain from the Phase 2 owned-runtime transcript-path-first target in the Cloud runbook.
+- Clarified in both onboarding and runbook that `CODEX_HOME` was absent at initialization but present as `/opt/codex` after Codex startup and in observed Hooks; neither the variable nor the path is a permanent platform guarantee.
+- Verified current SessionStart, compaction, concurrent-Hook, and output contract statements against the official Codex Hooks documentation.
+- Added the official warning that transcript JSONL is not a stable interface and must be parsed defensively.
+- Added `PROJECT_UNDERSTANDING.md` and the compatibility regression test file to the README repository map.
+
+### Verification
+- Package and bootstrap development identity remain `0.3.0`; bootstrap Release SHA remains the guarded 64-zero placeholder.
+- Published baseline remains `v0.2.2` with recorded Release ZIP SHA-256 `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84`.
+- Active plan remains Phase 1 pending; no implementation or Hook registration was changed.
+- Document assertions passed for version identity, checksum state, active-plan pointer, twelve-test inventory, lifecycle wording, transcript contract, and official-document link.
+- `node --test tests/hook-adapter.test.js tests/skill-patch.test.js`: 6 passed, 0 failed when rerun outside the Windows process-spawn sandbox.
+- `git diff --check`: passed; only expected Git line-ending conversion warnings were emitted.

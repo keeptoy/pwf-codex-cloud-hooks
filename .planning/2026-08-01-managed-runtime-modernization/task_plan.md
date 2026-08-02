@@ -19,7 +19,7 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 5. `SessionStart` and `UserPromptSubmit` remain read-only until a separately reviewed phase says otherwise.
 6. Canary output remains available throughout rollout and is removed only after fresh-session verification.
 7. Every phase adds tests before its behavior is enabled in the Cloud setup artifact.
-8. Runtime identity, validated transcript path, session-store fallback, project root, event source, and output limits are explicit host contracts; they are never inferred solely from an installed script path.
+8. Runtime identity, validated Host transcript path, session-store fallback, project root, event source, and output limits are explicit host contracts; they are never inferred solely from an installed script path. Transcript JSONL record shapes are treated as changeable Host data rather than a stable repository-owned schema.
 9. Hook stdout remains valid, bounded Codex JSON. Detailed skip/failure reasons go to a separate diagnostic surface and never corrupt injected context.
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
@@ -33,7 +33,7 @@ Phase 1 — Runtime provenance and compatibility contract
 
 ### Phase 0: Repository audit and roadmap capture
 - [x] Compare README claims with `install.js`, `hook_adapter.py`, the Cloud bootstrap script, and all tests.
-- [x] Run all nine test cases and static syntax checks.
+- [x] Run all then-current nine test cases and static syntax checks; later compatibility work increased the current suite to twelve.
 - [x] Correct stale README staging text and inaccurate test-suite wording.
 - [x] Expand README into a context-free What/Why/How onboarding and handoff guide.
 - [x] Record architectural findings and decisions in persistent planning files.
@@ -42,7 +42,7 @@ Phase 1 — Runtime provenance and compatibility contract
 
 ### Phase 0.5: v0.2.2 Cloud evidence integration
 - [x] Record the `.agents` runtime-misclassification failure and explicit `PWF_RUNTIME=codex` fix.
-- [x] Record `/opt/codex/sessions`, non-authoritative Hook-time `CODEX_HOME`, and adapter installed-path fallback behavior.
+- [x] Record `/opt/codex/sessions`, the initialization/runtime/Hook `CODEX_HOME` stage split, missing-variable portability, and adapter installed-path fallback behavior.
 - [x] Record scoped-plan catch-up parity and structured `patch_apply_end` requirements.
 - [x] Record real Cloud wrapper truncation, bounded head/tail preservation, and the successful resume sentinel regression.
 - [x] Mark the single v0.2.2 compatibility patch as a temporary bridge and modernization input, not a long-term runtime architecture.
@@ -81,7 +81,7 @@ Phase 1 — Runtime provenance and compatibility contract
 - [ ] Apply any still-required compatibility overlay only to the owned imported copy, leaving the global upstream Skill pristine.
 - [ ] Pass runtime/session/transcript/project/event data through the explicit host contract instead of inferring Codex from a script path, scanning before using a valid Host transcript, or relying on setup-shell environment persistence.
 - [ ] Make catch-up and prompt injection share one canonical scoped/root plan resolver so one path cannot see a plan that the other rejects.
-- [ ] Normalize real Codex JSONL record families, deduplicate logically repeated user/assistant messages where safe, preserve structured planning updates, and enforce per-message plus total-report budgets.
+- [ ] Normalize real Codex JSONL record families defensively because transcript format is not a stable Host interface, deduplicate logically repeated user/assistant messages where safe, preserve structured planning updates, and enforce per-message plus total-report budgets.
 - [ ] Add a non-injecting diagnostic command that reports reason codes and selected paths without exposing transcript content by default.
 - [ ] Add `PLANNING_DISABLED=1` as an explicit one-shot opt-out.
 - [ ] Use canonical path containment so scoped-plan symlinks cannot escape the project root.
@@ -170,9 +170,9 @@ Phase 1 — Runtime provenance and compatibility contract
 | Preserve legacy behavior by default | Existing plans must not be forced into attestation, ledger, or gating without an explicit migration/mode. |
 | Roll out lifecycle events incrementally | Managed Hooks are globally trusted, can coexist and run concurrently with other sources, and are harder for users to disable. |
 | Add hard Stop gating last | It has the greatest recursion, concurrency, and runaway risk and requires real host verification. |
-| Treat nine tests as nine test cases, not nine features | Several tests cover multiple guarantees and several README claims are integration properties rather than separate product features. |
+| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised the current count to twelve. Several cases cover multiple guarantees and several README claims are integration properties rather than separate product features. |
 | Treat the v0.2.2 catch-up patch as a temporary compatibility overlay | It is valuable Cloud-proven behavior, but mutating and executing a global Skill conflicts with the owned-runtime trust boundary. |
-| Make the host/runtime contract explicit | `.agents` placement and missing Hook-time environment proved that script-path and setup-shell inference are not stable Cloud interfaces. |
+| Make the host/runtime contract explicit | `.agents` placement, initialization/runtime environment differences, absent Hook-time `CODEX_THREAD_ID`, and the Host-provided transcript path prove that script-path and setup-shell inference are not stable Cloud interfaces. |
 | Add reason-coded diagnostics without injecting them by default | Silent early returns made black-box failures expensive to localize, while stderr or debug text must not contaminate Hook JSON/context. |
 | Preserve bounded head and tail with an overall report budget | Real Cloud wrappers can move the user request to the end; head-only truncation loses meaning, but unbounded transcript injection is unsafe and costly. |
 | Keep final archive construction separate from checksum pinning | Documentation and bootstrap edits change bytes; an explicit artifact boundary prevents stale or self-referential release hashes. |
@@ -203,3 +203,6 @@ Phase 1 — Runtime provenance and compatibility contract
 | Python stdin verification received the Chinese runbook filename as `????.md` on Windows | Keep the successful Node tests, rerun document assertions with native PowerShell `-LiteralPath`, and explicitly inspect each external command exit code. |
 | A combined status command returned exit 1 after `rg` correctly found no stale v0.2.2 current-entry references | Treat `rg` exit 1 as the expected no-match result and verify the rename with explicit file-existence assertions. |
 | PowerShell parsed a concatenated expected SHA line inside an array as separate expression fragments | Build the expected all-zero line in a named scalar before constructing the assertion array. |
+| The local Codex manual helper returned HTTP 403 both sandboxed and escalated | Used the official OpenAI documentation connector to verify the current Hooks contract and recorded the primary-source URL. |
+| The Windows sandbox blocked Node test workers with `spawn EPERM` | Reran the six relevant adapter/compatibility tests outside the process-spawn sandbox; all passed. |
+| The first document assertion searched for a phrase split by a deliberate Markdown line wrap | Changed the assertion to a stable semantic fragment and reran the full document contract successfully. |
