@@ -413,7 +413,7 @@
 - Sealed the external `init-cloud-sandbox-v0.3.0.bash` only after the ZIP hash was final. Its SHA-256 is `9328748023b401df8d4cbf98c48b2885978ba074654c94a09a46cae264c2869d`; the bootstrap remains outside the ZIP, avoiding self-reference.
 - Added `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md` with immutable-asset verification, exact eight-payload/nine-installed-file inventory, pristine global Skill proof, root/root actual owned execution, synthetic nobody-Hook execution, UserPrompt local-only proof, and fresh-task resume/tail-sentinel acceptance.
 - Final local verification after sealing: full suite 45 registered / 42 PASS / 3 explicit Linux-only SKIP / 0 FAIL; deterministic Release check PASS; importer exact check PASS; Python in-memory compilation PASS; Node syntax PASS; `git diff --check` has no errors; ZIP and external Bash hashes match the acceptance runbook.
-- Round 4 local work is complete. Phase 2 remains open only for publication and fresh Codex Cloud hard acceptance; alpha.1 remains the rollback point and no tag, asset, commit, or external deployment was created from this workspace.
+- At the Round 4 local-seal checkpoint, Phase 2 remained open only for publication and fresh Codex Cloud hard acceptance; alpha.1 was still the rollback point and no tag, asset, commit, or external deployment had been created from this workspace.
 
 ## Phase 2 alpha.2 Cloud partial acceptance (2026-08-02)
 
@@ -422,7 +422,7 @@
 - Synthetic install-user/Hook-user split PASS with the same owned report and planning context, closing the Windows-skipped traversal/readability gate.
 - UserPrompt local-only PASS: canary and plan were present, while `SESSION CATCHUP DETECTED` was absent.
 - Interpreted the four printed SessionStart JSON lines correctly as two invocations printed twice by two `grep` assertions per output, not unexpected quadruple Hook execution.
-- Updated the Phase 2 permission checklist to complete. Remaining acceptance is the actual automatic fresh-task lifecycle/resume path and post-resume doctor evidence.
+- Updated the Phase 2 permission checklist to complete. At that checkpoint, the actual automatic fresh-task lifecycle/resume path and post-resume doctor evidence still remained.
 
 ## Phase 2 alpha.2 Cloud initialization acceptance (2026-08-02)
 
@@ -440,3 +440,20 @@
 - Added a warning in the main A–F manual so alpha.2 operators do not run the obsolete patched-global-Skill SHA expectation.
 - Removed literal plan/tail sentinel values from the later no-tools verification prompts, so the current prompt cannot itself satisfy the observation; only injected context can reveal them.
 - No runtime, Release ZIP, bootstrap, or trusted hash changed. Markdown fences are balanced, the real long prompt is 1,825 characters, and `git diff --check` passes with line-ending warnings only.
+
+## Phase 2 P2-D real resume acceptance (2026-08-02)
+
+- Received and reviewed the raw no-tools P2-D Cloud reply. Automatic SessionStart resume injection, the complete owned catch-up report, and scoped Planning context were present together.
+- The report selected real previous session `rollout-2026-08-02T14-03-54-019fc2c9-d3ee-7cb0-b4d4-62bd161f0efe`, identified `Runtime: codex`, found `task_plan.md` at message #37, and reported eight unsynced messages.
+- The long Cloud wrapper contained the required `...[truncated]...` marker while preserving the unique final-line tail marker `PWF_ALPHA2_REAL_RESUME_TAIL_6D91` inside `UNSYNCED CONTEXT`.
+- Planning context and the P2-B task-plan first-line marker were observed. The embedded transcript also preserves `PWF_ALPHA2_BASELINE_CREATED` and the P2-C reply with all five checks `OBSERVED`, corroborating P2-B and P2-C.
+- P2-D is PASS. The exact unsynced count remains observational rather than contractual; the criterion is an integer at least one plus the required content evidence.
+- At the P2-D checkpoint, Phase 2 remained open only for preserved/provided P2-A raw fresh-task startup evidence and the read-only P2-E post-resume doctor. No code, ZIP, bootstrap, or trusted hash changed.
+
+## Phase 2 alpha.2 Cloud acceptance closure (2026-08-02)
+
+- The maintainer confirmed the P2-A raw no-tools automatic fresh-task startup/UserPrompt lifecycle behavior passed.
+- Received the complete P2-E post-resume result: exit `0`, `healthy=true`, `repairable=false`, `managed=true`, events exactly `SessionStart` and `UserPromptSubmit`, with `errors=[]` and `blockers=[]`.
+- P2-E is PASS. Together with the previously recorded P2-B/P2-C/P2-D evidence, all final P2-A through P2-E gates are accepted.
+- Phase 2 and `v0.3.0-alpha.2` Cloud hard acceptance are complete. Alpha.2 becomes the rollback baseline for Phase 3; alpha.1 remains an older retained release asset, not the active modernization baseline.
+- This closure changes documentation and planning state only. No runtime code, ZIP, external bootstrap, release asset, or trusted hash changed.

@@ -4,12 +4,11 @@ System-managed lifecycle Hooks that connect a global
 [`OthmanAdi/planning-with-files`](https://github.com/OthmanAdi/planning-with-files)
 Skill installation to Codex Cloud sessions.
 
-> **Status:** `v0.2.2` is the published stable rollback baseline.
-> `v0.3.0-alpha.1` is the Cloud-validated Phase 1 pre-release for Managed
-> Runtime Modernization; supply-chain, install/inventory, and behavior
-> compatibility through resume all passed. The worktree is preparing
-> `v0.3.0-alpha.2`, which activates the owned SessionStart catch-up runtime;
-> alpha.2 is not accepted until its fresh-Cloud hard acceptance passes.
+> **Status:** `v0.2.2` remains the published stable baseline and
+> `v0.3.0-alpha.1` the retained Phase 1 pre-release. `v0.3.0-alpha.2` activates
+> the owned SessionStart catch-up runtime and has passed its complete
+> fresh-Cloud Phase 2 hard acceptance. Alpha.2 is the rollback baseline for
+> the next Phase 3 canonical UserPrompt-injection work.
 
 ## Start here
 
@@ -513,11 +512,11 @@ doctor, exact inventory, per-file hashes, adapter-only command boundary, and
 compatibility smoke through resume have passed in Cloud. Phase 1 is complete;
 Phase 2 Rounds 1–3 added and hardened the structured owned-catch-up path,
 plan/session policy, transcript normalization, diagnostics, and supervisor
-failure semantics. Round 4 has activated catch-up, retired bootstrap/global
-Skill mutation, and prepared the alpha.2 candidate; fresh-Cloud hard acceptance
-is the remaining gate. Phase 3 migrates canonical prompt injection. New
-lifecycle events remain deferred until this runtime boundary and its diagnostic
-contract are complete.
+failure semantics. Round 4 activated catch-up, retired bootstrap/global Skill
+mutation, and passed the complete alpha.2 fresh-Cloud hard acceptance. Alpha.2
+is now the Phase 3 rollback baseline. Phase 3 migrates canonical prompt
+injection. New lifecycle events remain deferred until this runtime boundary and
+its diagnostic contract are complete.
 
 ### Working rules
 

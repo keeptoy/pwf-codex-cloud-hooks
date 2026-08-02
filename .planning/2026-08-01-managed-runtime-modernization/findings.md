@@ -356,3 +356,20 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Exact `Unsynced messages` count is deliberately not frozen. P2-C and P2-D create legitimate messages after the last planning update; the contract is a real integer at least one plus preservation of the unique tail marker.
 - The P2-C/P2-D verification prompts deliberately do not repeat the literal plan or tail sentinel. They refer to the prior step's unique marker by role, so merely seeing the current validation prompt cannot satisfy the observation; the literal value must come from automatically injected plan/catch-up content.
 - `clear`/`compact`, additional lifecycle Hooks, attestation, malformed/timeout/symlink safety cases, and Windows production remain automated or future-phase scope rather than expanding this final black box.
+
+## Alpha.2 P2-D Cloud Acceptance Evidence (2026-08-02)
+
+- The automatic resume reply emitted `SESSION CATCHUP DETECTED` for real rollout `rollout-2026-08-02T14-03-54-019fc2c9-d3ee-7cb0-b4d4-62bd161f0efe` with `Runtime: codex`.
+- The owned runtime found the structured `task_plan.md` update at message #37 and rendered eight later messages. Eight is valid observed data, not a value to freeze in the contract.
+- `UNSYNCED CONTEXT` retained the required middle `...[truncated]...` marker and the long user's final-line `PWF_ALPHA2_REAL_RESUME_TAIL_6D91`, proving the bounded renderer preserves both head and tail on the real Host lifecycle path.
+- The same automatic injection contained scoped Planning context and the P2-B task-plan first-line marker. The recovered transcript also contained `PWF_ALPHA2_BASELINE_CREATED` and the earlier P2-C five-item `OBSERVED` response, providing corroborating evidence for both preparation steps.
+- Therefore P2-D passes all strengthened criteria: automatic `source=resume`, real previous session, Codex runtime classification, real planning update boundary, nonempty unsynced context, bounded truncation with tail preservation, and coexistence with canonical plan injection.
+- This closed the real resumed-session owned-catch-up gate. At that P2-D checkpoint it did not yet replace the required raw P2-A `source=startup`/UserPrompt evidence or the P2-E post-resume doctor.
+
+## Alpha.2 Final Cloud Acceptance Decision (2026-08-02)
+
+- The maintainer confirmed the P2-A raw no-tools automatic fresh-task startup and UserPrompt lifecycle injection passed.
+- The P2-E post-resume doctor returned exit `0`, `healthy=true`, `repairable=false`, `managed=true`, events `SessionStart` and `UserPromptSubmit`, `errors=[]`, and `blockers=[]`.
+- Doctor therefore proves the resumed lifecycle run did not introduce managed-policy, runtime-inventory, Skill, or event-registration drift detectable by the installer health contract.
+- With infrastructure/inventory, permission/user split, P2-A lifecycle, P2-B baseline, P2-C Planning context, P2-D real owned resume catch-up, and P2-E doctor all PASS, Phase 2 is complete.
+- `v0.3.0-alpha.2` is now the accepted rollback baseline for Phase 3 canonical prompt-injection work. Phase 3 must preserve these accepted SessionStart and lifecycle behaviors while replacing the remaining local UserPrompt implementation.

@@ -447,8 +447,11 @@ global Skill mutation，补上 Linux 权限门槛，并进入 18-entry alpha.2 R
 Managed Hook 命令仍只注册 adapter，UserPromptSubmit 仍本地实现。alpha.2 已在新 Cloud
 容器通过 ZIP SHA、bootstrap、doctor、schema-3 八文件精确 inventory、pristine Skill、
 adapter-only policy、实际 owned root/root、synthetic nobody Hook 用户、Host fixture
-transcript、尾部 sentinel 和 UserPrompt local-only 门槛。下一步只剩自动 lifecycle startup/UserPrompt 注入、
-真实 resume catch-up 与 resume 后 doctor；通过前 alpha.1 仍是回滚点。
+transcript、尾部 sentinel 和 UserPrompt local-only 门槛。真实 P2-D resume 已进一步通过：
+自动 owned catch-up 找到真实 rollout 与 message #37，在长消息中间截断后仍保留尾部唯一标记，
+并与 scoped Planning context 同时注入。P2-A 已由维护者确认通过；P2-E resume 后 doctor
+以退出码 0、healthy=true、repairable=false、空 errors/blockers 通过。Phase 2 至此完整关闭，
+alpha.2 成为 Phase 3 的回滚基线；下一步进入 canonical UserPrompt injection 的第 1 轮分析。
 
 Release 封板存在明确依赖顺序：先确定版本并冻结 ZIP 内容，构建并计算 ZIP SHA-256；
 再把版本、包名和 ZIP SHA 写入 ZIP 外部 Bash，计算封板后的 Bash SHA-256；最后发布并
