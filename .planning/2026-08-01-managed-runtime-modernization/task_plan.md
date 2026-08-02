@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Begin Phase 3 Round 1 by re-reading the canonical user-prompt injection requirements, comparing the active local adapter path with the pinned `upstream/inject-plan.sh` dependency graph, and freezing the migration/golden-output contract before implementation. Treat Cloud-accepted `v0.3.0-alpha.2` as the rollback baseline.
+Begin Phase 3 Round 2 by implementing the inactive `owned-plan.py` request/result boundary, safe private legacy snapshot runner around the pristine resolver/injector, and beta golden/policy/supervision/inventory/provenance tests. Keep adapter dispatch and all alpha.2 Release/bootstrap bytes unchanged until Round 3 activation.
 
 ## Current Phase
-Phase 2 complete with full alpha.2 Cloud acceptance; Phase 3 Round 1 analysis next
+Phase 3 Round 1 contract analysis complete; inactive Round 2 implementation is next and alpha.2 remains the rollback baseline
 
 ## Phases
 
@@ -111,14 +111,24 @@ Phase 2 complete with full alpha.2 Cloud acceptance; Phase 3 Round 1 analysis ne
 - **Status:** complete; all P2-A through P2-E lifecycle gates PASS in Cloud, including post-resume doctor (`healthy=true`, `repairable=false`, empty errors/blockers)
 
 ### Phase 3: Canonical user-prompt injection
-- [ ] Reduce the local Python adapter to Codex payload parsing, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
-- [ ] Dispatch user-prompt plan behavior to the pinned upstream `inject-plan.sh --context=userprompt` implementation.
+
+#### Round tracking
+| Round | Scope | Status |
+|---|---|---|
+| 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
+| 2 | Implement inactive owned prompt entrypoint/dispatch seam and prove golden compatibility | pending |
+| 3 | Activate canonical UserPrompt injection, retire parallel adapter rendering, package, and complete Cloud acceptance | pending |
+
+- [ ] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
+- [ ] Dispatch both lifecycle events through `owned-plan.py`, which must call the verified standalone resolver, finalize one canonical contained project state, and invoke the managed-legacy upstream injector.
+- [ ] Keep the upstream injector pristine: invoke it only inside a private `0700` legacy snapshot containing `0600` task/progress inputs and a scrubbed environment; treat multi-target overlay as a documented fallback rather than the Phase 3 default.
+- [ ] Pass the exact canonical project state returned by `owned-plan.py` to `owned-catchup.py` on SessionStart; do not resolve the plan independently in the adapter or catch-up child.
 - [ ] Preserve current legacy-mode output semantics through golden tests or document and approve each intentional difference.
 - [ ] Normalize diagnostics so upstream stderr cannot corrupt Hook JSON stdout.
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
-- [ ] Remove the install-time pristine Skill discovery dependency once prompt injection also runs exclusively from the owned runtime bundle; the v0.2.2 bootstrap patch step was already retired in Phase 2 Round 4.
+- [ ] Prove prompt injection runs exclusively from the owned runtime bundle and no mutable global Skill script executes; retain the pristine global Skill for model discovery/instructions and deployment governance.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** pending
+- **Status:** Round 1 complete; Round 2 inactive implementation is next
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 - [ ] Import and verify attestation, nonce, smart-injection, and ledger dependencies.
@@ -184,15 +194,30 @@ Phase 2 complete with full alpha.2 Cloud acceptance; Phase 3 Round 1 analysis ne
 | Keep the managed installer and policy layer local | It supplies absolute paths, ownership, backup, doctor, repair, uninstall, and Cloud rollout behavior not provided by upstream workspace installation. |
 | Bundle an allowlisted upstream runtime from a pinned archive | This avoids both a long-lived local fork and runtime dependence on mutable user Skill files. |
 | Keep upstream canonical files unmodified where possible | Local edits make provenance and upstream security-fix adoption harder to audit. Host-specific translation belongs in the adapter. |
+| Keep selected Phase 3 contract filenames stable | The architecture and v1 protocol identities are selected. Staged versus active state belongs in metadata, trusted-graph membership, and regression assertions; a rename/version bump is reserved for incompatible change. |
 | Preserve legacy behavior by default | Existing plans must not be forced into attestation, ledger, or gating without an explicit migration/mode. |
 | Roll out lifecycle events incrementally | Managed Hooks are globally trusted, can coexist and run concurrently with other sources, and are harder for users to disable. |
 | Add hard Stop gating last | It has the greatest recursion, concurrency, and runaway risk and requires real host verification. |
-| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Several cases cover multiple guarantees; three Round 4 Linux-only cases skip on Windows and remain Cloud gates. |
+| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 adds one inactive-contract case for forty-six development cases. Several cases cover multiple guarantees; three Linux-only cases skip on Windows. |
 | Treat the v0.2.2 catch-up patch as a temporary compatibility overlay | It is valuable Cloud-proven behavior, but mutating and executing a global Skill conflicts with the owned-runtime trust boundary. |
 | Make the host/runtime contract explicit | `.agents` placement, initialization/runtime environment differences, absent Hook-time `CODEX_THREAD_ID`, and the Host-provided transcript path prove that script-path and setup-shell inference are not stable Cloud interfaces. |
 | Add reason-coded diagnostics without injecting them by default | Silent early returns made black-box failures expensive to localize, while stderr or debug text must not contaminate Hook JSON/context. |
 | Preserve bounded head and tail with an overall report budget | Real Cloud wrappers can move the user request to the end; head-only truncation loses meaning, but unbounded transcript injection is unsafe and costly. |
 | Keep final archive construction separate from checksum pinning | Documentation and bootstrap edits change bytes; an explicit artifact boundary prevents stale or self-referential release hashes. |
+
+## Errors Encountered
+| Error | Attempt | Resolution |
+|---|---|---|
+| Local Phase 3 upstream-output comparison could not start `sh` from PowerShell PATH | 1 | Located the Git for Windows shell explicitly instead of repeating the PATH lookup. |
+| Git Bash failed inside the managed Windows sandbox with `couldn't create signal pipe, Win32 error 5` | 2 | Retried the read-only comparison outside the sandbox; it completed successfully and confirmed the expected canonical wording/output delta. |
+| `npm test` reported 11 file-level failures because Node test-runner child creation returned `spawn EPERM` inside the managed Windows sandbox | 1 | Re-ran the unchanged suite outside the sandbox; all real tests completed with 42 PASS, 3 expected Linux-only SKIP, and 0 FAIL. |
+| Initial Phase 3 contract test expected the phrase `invoked for both` while the guide says `runs for both` | 1 | Corrected the test to assert the actual stable wording; no contract or design behavior changed. |
+| Second focused contract run expected `not yet part` on one line while the Markdown wraps before `trusted artifact graph` | 2 | Made the assertion newline-aware; schema and runtime boundaries were unchanged. |
+| Snapshot probe used `New-Item -LiteralPath`, unsupported by this PowerShell version | 1 | Switched to an already validated absolute `-Path`; no workspace file was created. |
+| Snapshot probe assumed Git Bash under `C:\Program Files`, but the user installation is on `D:` | 2 | Read the user-provided shortcut target and used `D:\Program Files\Git\bin\bash.exe`; the shortcut itself was not executed or modified. |
+| Initial Bash probe command lost nested `cygpath` quoting and exited 2 before running the injector | 3 | Converted absolute Windows paths to MSYS paths in PowerShell before invoking Bash; direct/snapshot and marker-isolation probes then passed. |
+| Broad read-only Bash location scan reached its 30-second command timeout | 1 | Stopped scanning and used the explicit user-provided Git installation target. |
+| Documentation consistency command used Bash-style `{a,b}` path expansion in PowerShell | 1 | Replaced it with an explicit PowerShell file array before running any checks. |
 
 ## Verification Matrix
 | Area | Required checks |

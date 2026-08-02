@@ -1,0 +1,150 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keeptoy.github.io/pwf-codex-cloud-hooks/contracts/plan-context-result-v1.schema.json",
+  "title": "planning-with-files owned plan-context result v1",
+  "$comment": "Phase 3 selected contract, staged and inactive. It is excluded from the v0.3.0-alpha.2 runtime, installer, Release, and bootstrap graph until Round 2 promotes this same v1 identity atomically.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "outcome", "inject", "context", "project", "warnings", "diagnostic"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "outcome": {
+      "enum": [
+        "context_emitted",
+        "planning_disabled",
+        "session_not_attached",
+        "no_plan",
+        "invalid_request",
+        "plan_state_changed",
+        "plan_unreadable",
+        "output_budget_exceeded",
+        "timeout",
+        "runtime_error"
+      ]
+    },
+    "inject": { "type": "boolean" },
+    "context": { "type": ["string", "null"], "maxLength": 20000 },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "planning_enabled", "session_attachment", "plan_state", "plan_scope", "plan_dir"],
+      "properties": {
+        "root": {
+          "oneOf": [
+            { "$ref": "#/$defs/absolutePath" },
+            { "type": "null" }
+          ]
+        },
+        "planning_enabled": { "type": "boolean" },
+        "session_attachment": { "enum": ["legacy", "attached", "detached"] },
+        "plan_state": { "enum": ["none", "resolved"] },
+        "plan_scope": { "enum": ["none", "scoped", "legacy_root"] },
+        "plan_dir": {
+          "oneOf": [
+            { "$ref": "#/$defs/absolutePath" },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "plan_id_rejected",
+          "active_plan_rejected",
+          "candidate_escape_rejected",
+          "progress_unreadable"
+        ]
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event_name", "plan_id_state", "selected_plan_scope", "selected_plan_dir"],
+      "properties": {
+        "event_name": { "type": ["string", "null"], "enum": ["SessionStart", "UserPromptSubmit", null] },
+        "plan_id_state": { "enum": ["absent", "accepted", "rejected"] },
+        "selected_plan_scope": { "enum": ["none", "scoped", "legacy_root"] },
+        "selected_plan_dir": {
+          "oneOf": [
+            { "$ref": "#/$defs/absolutePath" },
+            { "type": "null" }
+          ]
+        }
+      }
+    }
+  },
+  "$defs": {
+    "absolutePath": {
+      "type": "string",
+      "pattern": "^/",
+      "minLength": 2,
+      "maxLength": 4096
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "outcome": { "const": "context_emitted" } },
+        "required": ["outcome"]
+      },
+      "then": {
+        "properties": {
+          "inject": { "const": true },
+          "context": { "type": "string", "minLength": 1, "maxLength": 20000 },
+          "project": {
+            "properties": {
+              "plan_state": { "const": "resolved" },
+              "plan_scope": { "enum": ["scoped", "legacy_root"] },
+              "plan_dir": { "$ref": "#/$defs/absolutePath" }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "inject": { "const": false },
+          "context": { "type": "null" }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "project": {
+            "properties": { "plan_state": { "const": "none" } },
+            "required": ["plan_state"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "project": {
+            "properties": {
+              "plan_scope": { "const": "none" },
+              "plan_dir": { "type": "null" }
+            }
+          },
+          "diagnostic": {
+            "properties": {
+              "selected_plan_scope": { "const": "none" },
+              "selected_plan_dir": { "type": "null" }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "project": {
+            "properties": {
+              "plan_scope": { "enum": ["scoped", "legacy_root"] },
+              "plan_dir": { "$ref": "#/$defs/absolutePath" }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

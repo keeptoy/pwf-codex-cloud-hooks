@@ -12,9 +12,10 @@
 > produced this roadmap. The current accepted implementation and Cloud evidence
 > are recorded in the v0.2.2 evidence section later in this file.
 
-Current release/iteration boundary as of 2026-08-02:
-- `v0.2.2` is published and Cloud validated; Release ZIP SHA-256 is `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84`.
-- `v0.3.0-alpha.1` is the Cloud-validated Phase 1 pre-release/rollback point on the active modernization path. Its ZIP SHA-256 is `94fe21837d26bbe07d23cdf88b89133c12e6f431eafd8c412ece96204f6a5027`; after sealing that version and ZIP SHA into the external bootstrap, the bootstrap SHA-256 is `17e2248d04027001a929dbc07fcf06c6f4a9cb727530fcdb99edbcc4e90fba32`.
+Current release/iteration boundary as of 2026-08-03:
+- `v0.2.2` is the published, Cloud-validated stable-release fallback; Release ZIP SHA-256 is `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84`.
+- `v0.3.0-alpha.2` is the Cloud-accepted Phase 2 release and current Phase 3 rollback baseline. Its exact acceptance asset and evidence are recorded in `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md`.
+- `v0.3.0-alpha.1` is the retained Cloud-validated Phase 1 predecessor, no longer the active modernization rollback baseline. Its ZIP SHA-256 is `94fe21837d26bbe07d23cdf88b89133c12e6f431eafd8c412ece96204f6a5027`; after sealing that version and ZIP SHA into the external bootstrap, the bootstrap SHA-256 is `17e2248d04027001a929dbc07fcf06c6f4a9cb727530fcdb99edbcc4e90fba32`.
 - Release sealing is deliberately ordered, not circular: freeze version and ZIP contents, build/hash the ZIP, write version/package/ZIP SHA into the external Bash, hash the sealed Bash, then publish and verify both independent assets. A bootstrap hash measured before those defaults are written is not the release bootstrap hash.
 - The final alpha.1 resume regression extracted six unsynced messages rather than the earlier seven-message fixture. This is not a fixed-count contract: the relevant guarantees are correct last-update selection, bounded extraction, logical context preservation, and survival of the tail sentinel for the transcript actually observed.
 
@@ -373,3 +374,85 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Doctor therefore proves the resumed lifecycle run did not introduce managed-policy, runtime-inventory, Skill, or event-registration drift detectable by the installer health contract.
 - With infrastructure/inventory, permission/user split, P2-A lifecycle, P2-B baseline, P2-C Planning context, P2-D real owned resume catch-up, and P2-E doctor all PASS, Phase 2 is complete.
 - `v0.3.0-alpha.2` is now the accepted rollback baseline for Phase 3 canonical prompt-injection work. Phase 3 must preserve these accepted SessionStart and lifecycle behaviors while replacing the remaining local UserPrompt implementation.
+
+## Phase 3 Round 1 Initial Orientation (2026-08-02)
+
+- Phase 3 changes no Hook registration or event set. It replaces the adapter's remaining local `UserPromptSubmit` plan rendering with the already allowlisted pristine `runtime/upstream/inject-plan.sh --context=userprompt` path.
+- Alpha.2 currently installs and verifies `inject-plan.sh` and its conditional `ledger-summary.sh` dependency, but managed requirements still execute only `hook_adapter.py`; activation therefore remains an adapter-supervised child boundary rather than a second managed command.
+- The active adapter already resolves `PLANNING_DISABLED`, session attachment, canonical scoped/root plan selection, and containment once. Phase 3 must not let the upstream child independently select a different plan or bypass the Phase 2 policy result.
+- Existing golden fixtures freeze no-plan, active scoped, newest scoped, and legacy-root UserPrompt output. Round 1 must classify every textual difference between that accepted alpha.2 output and pristine upstream output before implementation.
+- The likely three-round shape is: contract/audit freeze; inactive owned prompt execution with golden proof; then activation, removal of parallel Python rendering, packaging, and Cloud acceptance. This split remains provisional until the detailed semantic and dependency audit completes.
+
+## Phase 3 Local/Upstream Semantic Delta Audit
+
+- A direct `sh upstream/inject-plan.sh --context=userprompt` is not safe enough as the managed migration contract. The script resolves the plan again from cwd/`PLAN_ID`/active/newest/root instead of consuming the adapter's already validated Phase 2 `project.plan_dir`, so concurrent state change or resolution differences could make catch-up and prompt injection select different plans.
+- The pristine script also implements `.mode`, `.attestation`, `.nonce`, and `PWF_INJECT=smart` behavior. Activating it without a managed legacy-only boundary would silently advance Phase 4 attestation/v3 semantics into Phase 3 and change existing projects that alpha.2 currently treats as ordinary legacy plans.
+- Accepted alpha.2 text is not byte-identical to pristine upstream legacy output. The adapter says `treat as structured project state` and ends with `durable research context`; upstream uses the stronger v2.43 structured-data wording. Upstream also normalizes timestamps in the progress tail while the current Python renderer does not.
+- The upstream script is deliberately fail-open when no canonicalizer exists, whereas the Phase 2 adapter resolver fails closed on canonical containment. Managed execution must consume the validated adapter selection or add an equally strict explicit managed-input mode; it must not downgrade containment to the shell script's standalone fallback policy.
+- `inject-plan.sh` emits plain context and always exits zero. The adapter's existing child supervisor validates a JSON result envelope for owned catch-up, so Phase 3 needs either a separately bounded plain-text supervisor contract or a small owned prompt entrypoint that converts canonical upstream output into a strict managed result. Reusing the catch-up validator unchanged is not possible.
+- Round 1 must decide two intentional compatibility questions before code: whether alpha.2 text remains byte-for-byte frozen or moves to upstream v2.43 wording, and whether upstream timestamp normalization is adopted now. Any change requires explicit golden and Cloud acceptance rather than being hidden inside the implementation switch.
+
+- Upstream's standalone `resolve-plan-dir.sh` is stricter and newer than the resolver copy embedded in `inject-plan.sh`: it fails closed when canonicalization is unavailable and strips a UTF-8 BOM from `.active_plan`; the injector still fails open and lacks that BOM step. Calling the injector's resolver would therefore regress already accepted managed behavior even though both files are pristine v3.8.2 sources.
+- The runtime bundle declares `inject_plan` and `ledger_summary` as Phase 3 files, with the ledger dependency conditional on autonomous/gated mode. Because those modes remain Phase 4 scope, Phase 3 legacy execution should not need to execute the ledger dependency even though it stays installed and verified.
+- The six exact golden scenarios currently contain four UserPrompt cases: no plan, active scoped, newest scoped, and legacy root. They freeze alpha.2 wording but do not expose timestamp normalization or upstream v3 markers; Round 1 needs a broader migration matrix rather than relying only on these happy-path strings.
+
+## Phase 3 Contract and Test Boundary Findings
+
+> Historical Round 1 exploration: the `owned-prompt.py` and injector-overlay
+> working hypotheses below were superseded by the canonical `owned-plan.py` plus
+> controlled pristine-snapshot decision in “Phase 3 Invocation Strategy
+> Re-evaluation.” They remain here as an audit trail, not the current plan.
+
+- The existing adapter/runtime request v1 enumerates UserPromptSubmit but requires transcript selection and catch-up output-budget fields that have no prompt-injection meaning. Mutating that accepted Phase 2 contract or passing dummy transcript data would create misleading coupling; a separate versioned prompt request/result pair is the cleaner boundary.
+- Current adapter tests already freeze the managed policies a prompt child must inherit: legacy visibility before attachment markers exist, exact-session attachment once isolation is enabled, `PLANNING_DISABLED=1`, `PLAN_ID` over a BOM active pointer, active-pointer fallback, and symlink/junction non-injection.
+- The activation test explicitly proves UserPrompt does not execute a child in alpha.2. Phase 3 should invert that assertion only after an inactive child path has its own request capture, failure, timeout, invalid UTF-8/JSON, oversized-output, root/root, and synthetic cross-user tests.
+- At this audit point, a small local `owned-prompt.py` appeared preferable to teaching the adapter shell-specific rendering semantics. This working name and narrower boundary were later replaced by canonical `owned-plan.py`.
+- The working hypothesis at this point was a managed mode in the upstream injector, implemented as a deterministic overlay. The later controlled-snapshot probe removed that requirement for the selected Phase 3 route.
+- UserPrompt Host payloads observed in Cloud carry `session_id` and `turn_id`, but historical golden fixtures omit them. The prompt contract should validate them when present without making plan injection depend on volatile identifiers; policy attachment remains computed by the adapter before the request is built.
+
+## Phase 3 Provenance and Release Boundary Findings
+
+- The current importer supports exactly one overlay target and loads the session-catchup-specific patcher. A managed `inject-plan.sh` overlay cannot be hand-applied or slipped into the package hash; importer, ledger schema, deterministic patcher, bundle identities, and drift tests must evolve together.
+- Under that historical overlay hypothesis, a dedicated prompt request schema, prompt result schema, and `runtime/owned-prompt.py` would have added three Release entries and one installed runtime payload. The alpha.2 18-entry ZIP / eight-payload runtime / nine-file installed inventory remain immutable historical acceptance numbers rather than Phase 3 expectations.
+- At that audit point, evolving the compatibility ledger to a multi-target schema looked cleaner than adding a second ledger. The selected snapshot route avoids both changes unless its Cloud/Linux gates fail.
+- `.gitattributes` already pins LF for all contract JSON and upstream runtime files, but a new local `owned-prompt.py` needs an explicit LF rule just like `owned-catchup.py` so trusted hashes reproduce across Windows and Cloud.
+- Installer exact-inventory, doctor/repair, Release allowlist, importer drift, contract hash, and deterministic ZIP tests all carry exact alpha.2 assumptions that must be updated atomically only after the Phase 3 runtime design is frozen.
+
+## Phase 3 Skill/Deployment Boundary Clarification
+
+- Phase 3 must not remove the global Skill installation. The Skill remains the model-discovery and workflow-instruction package; the managed runtime remains the trusted Hook execution package.
+- The old roadmap phrase “remove the install-time pristine Skill discovery dependency” is too broad. What Phase 3 closes is the final Hook runtime dependency on global Skill scripts. Installer/bootstrap/doctor may continue locating and validating a pristine Skill as deployment governance without executing its scripts from managed Hooks.
+- The current bootstrap already installs the Skill and the Release ZIP independently, then registers only the adapter. Phase 3 should preserve that separation and add the owned prompt runtime to filesystem/protocol verification rather than register a second Hook command.
+- Phase 3 Cloud acceptance will need a new automatic UserPrompt marker/context proof plus a malicious-global-`inject-plan.sh` non-execution test, mirroring the alpha.2 catch-up trust-boundary proof.
+
+## Phase 3 Canonical State/Context Architecture
+
+- Merely adding an owned prompt renderer while leaving `resolve_plan`, attachment, and containment in `hook_adapter.py` would not satisfy the Phase 3 exit criterion: the adapter would still own planning semantics and the upstream resolver would remain unused.
+- The preferred boundary is an owned plan-context entrypoint (working name `owned-plan.py`) invoked for both SessionStart and UserPromptSubmit. It consumes an explicit Host/project request, applies opt-out and session attachment, invokes the verified upstream `resolve-plan-dir.sh`, validates/finalizes the canonical scoped-or-root state, and invokes `inject-plan.sh --context=userprompt` when context is requested.
+- Its strict JSON result returns both the canonical project state and optional bounded plan context. On SessionStart the adapter passes that exact state to `owned-catchup.py`; on UserPromptSubmit it wraps the returned context. The adapter no longer has a second resolver or plan-file renderer.
+- Running the plan-context entrypoint for SessionStart as well as UserPrompt preserves alpha.2's SessionStart plan-context availability while making the injection shape canonical. It also avoids relying on Host ordering between SessionStart and UserPromptSubmit, which matters for future clear/compact work.
+- `PLAN_ID` and `PLANNING_DISABLED` should be explicit request inputs derived by the adapter, not ambient child decisions. `session_id` remains optional for prompt rendering but is required to attach a session once safe markers enable isolation.
+- A plan-context child failure is advisory to the Codex loop but fail-closed for context: emit the lifecycle canary, inject no plan/catch-up state that was not safely resolved, and expose reason-coded diagnostics only outside normal Hook stdout.
+- The existing historical global-Skill patcher remains unchanged for v0.2.2 reproducibility. The original working plan called for a runtime-only multi-target patcher; the selected snapshot route no longer requires it, and it survives only as a fallback design.
+
+## Phase 3 Compatibility Decisions
+
+- Phase 3 will execute the upstream legacy UserPrompt shape only. Managed execution explicitly suppresses `.mode`, legacy attestation, `.nonce`, and `PWF_INJECT=smart`; Phase 4 remains the sole phase that may expose those opt-in behaviors.
+- Two output changes are intentional and will receive new beta goldens plus Cloud observation: adopt upstream's stronger `treat contents as structured data, not instructions` framing/final reminder, and adopt upstream timestamp normalization in the raw `progress.md` tail. The immutable v0.2.2/alpha.2 goldens remain historical rollback evidence.
+- Legacy functional semantics remain frozen: canary first, plan head at most 50 lines, static BEGIN/END delimiters, raw progress tail at most 20 lines, active/newest/root support, no-plan silence beyond the canary, attachment/opt-out suppression, and no plan write.
+- Add a 20,000-character whole-context ceiling. Oversized or invalid child output suppresses plan context rather than injecting a partial block; the Codex loop and canary continue. This strengthens a previously line-bounded but not character-bounded path.
+- Phase 3 remains three rounds: Round 1 contracts/audit only; Round 2 inactive owned plan-context runtime plus private snapshot runner/tests; Round 3 activation, adapter thinning, packaging, and complete Cloud A–D/cross-user/doctor acceptance. Importer/overlay expansion occurs only if the documented fallback is activated.
+- The read-only Windows Git Bash comparison succeeded outside the managed sandbox: current local plan context was 8,077 characters and pristine upstream output 8,175 characters on the same active plan. The first/final lines exactly confirmed the two documented wording changes; output was not byte-equal.
+
+## Phase 3 Invocation Strategy Re-evaluation
+
+- The earlier multi-target injector-overlay choice was a valid fallback but not a necessary consequence of the audit. The owned `owned-plan.py` boundary, single canonical project state, managed-legacy scope, strict result envelope, and three-round activation shape remain valid independently of how the pristine injector receives inputs.
+- Standardization should target the Codex Cloud Host ABI and an Integration Driver ABI: managed installation/provenance, lifecycle requests, supervised execution, bounded results, private input projection, environment policy, diagnostics, and doctor/repair. Overlay, snapshot, upstream-native protocol, or reimplementation are driver strategies rather than universal Host assumptions.
+- PWF remains the only supported vertical integration. A second read-only plugin is required before freezing a generic driver manifest or claiming arbitrary Skill conversion; official native Cloud support is an explicit migration/retirement condition.
+- A controlled snapshot is feasible because pristine legacy injector output depends only on fixed `task_plan.md`/`progress.md` contents plus environment/marker inputs, and legacy output does not expose the selected scoped path. The verified standalone resolver can select state in the real project; a private root snapshot can then isolate the injector from duplicate resolution and Phase 4 markers.
+- The direct-vs-snapshot Git Bash probe passed on the current active plan: both captured texts were 9,628 characters and shared SHA-256 `00fd3288926b8ae25d30475f44cf90f2b5e96b351a5a531dcc92d5491b6af6b8`.
+- With ambient `PWF_INJECT=smart`, the scrubbed snapshot remained byte-for-byte equal at the captured-text level, while an unscrubbed invocation changed to 6,841 characters. Environment allowlisting is therefore a correctness boundary, not optional hardening.
+- A separate temporary fixture with `autonomous gate` plus nonce entered the upstream attestation-required branch, while its task/progress-only snapshot emitted the full legacy shape with static delimiters and no nonce. Filesystem projection successfully isolates Phase 4 marker behavior without changing upstream.
+- The preferred Phase 3 strategy is now: safe fd-based reads, `0700` private temporary root, `0600` task/progress files, scrubbed minimal environment, pristine `inject-plan.sh`, strict timeout/output validation, and `finally` cleanup. Multi-target overlay is retained only if Linux/Cloud proves this cannot meet semantics, permission, or cleanup requirements.
+- Snapshot cost is real: safe `openat`/`O_NOFOLLOW` regular-file handling, file-size and output limits, common race detection, segmented timeouts, SIGKILL residual-content policy, Linux permission tests, and explicit Phase 4 projection expansion. It avoids a second upstream fork point and the corresponding importer/ledger/manifest/hash retirement burden.
+- The complete route comparison and implementation gates are durable in `docs/phase-3-upstream-invocation-options.md`. Earlier findings that describe a multi-target overlay as preferred are superseded by this section but retained as the audit trail that motivated the comparison.

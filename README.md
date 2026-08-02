@@ -50,14 +50,14 @@ project-memory format.
 
 ## Current behavior
 
-### Active `v0.3.0-alpha.2` candidate behavior
+### Accepted `v0.3.0-alpha.2` behavior
 
 The worktree preserves the two events proven by `v0.2.2`, but Phase 2 now owns
 the SessionStart catch-up execution boundary:
 
 | Event | Matcher | Current action | Verification state |
 |---|---|---|---|
-| `SessionStart` | `startup\|resume\|clear\|compact` | Validates Host/session/project inputs, supervises the installed `owned-catchup.py`, then injects the active plan and recent progress | automated activation passed; alpha.2 Cloud acceptance pending |
+| `SessionStart` | `startup\|resume\|clear\|compact` | Validates Host/session/project inputs, supervises the installed `owned-catchup.py`, then injects the active plan and recent progress | automated activation and complete alpha.2 Cloud acceptance passed |
 | `UserPromptSubmit` | none | Injects the active plan and recent progress | Cloud-observed |
 
 Both handlers are read-only and emit `PWF_GLOBAL_HOOK_CANARY_V1` as an owned
@@ -193,6 +193,8 @@ owned runtime files beneath managed_dir.
 | `contracts/` | Versioned runtime allowlist, overlay ledger, adapter/runtime schemas, and Release ZIP boundary |
 | `docs/phase-1-runtime-contracts.md` | Human-readable Phase 1 contract and ownership guide |
 | `docs/phase-2-owned-catchup.md` | Active SessionStart owned-runtime boundary and safety policy |
+| `docs/phase-3-canonical-plan-context.md` | Selected Phase 3 prompt-context architecture, staged-contract lifecycle, compatibility decisions, budgets, and round gates |
+| `docs/phase-3-upstream-invocation-options.md` | Overlay/snapshot/other route comparison, empirical evidence, and long-term Host/Driver standardization boundary |
 | `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md` | Alpha.2 SHA, inventory, permission, owned-runtime, and resume acceptance gate |
 | `init-cloud-sandbox-v0.3.0.bash` | Development bootstrap for the active modernization iteration |
 | `PROJECT_UNDERSTANDING.md` | Durable current-state model, Cloud evidence, boundaries, and next-step context |
@@ -206,6 +208,7 @@ owned runtime files beneath managed_dir.
 | `tests/cloud-fixtures.test.js` | Sanitized Cloud Hook schema, environment-stage, and catch-up JSONL regressions |
 | `tests/release-package.test.js` | Deterministic ZIP inventory, metadata, mode, and bootstrap-separation test |
 | `tests/owned-runtime.test.js` | Inactive request/result, Host transcript, fallback, identity, and containment tests |
+| `tests/phase3-contracts.test.js` | Inactive Phase 3 prompt contracts and alpha.2 trusted-graph exclusion test |
 | `tests/fixtures/planning-with-files/` | Self-contained pinned Skill fixture; not a second production Skill |
 | `planning-with-files-3.8.2/` | Ignored local upstream reference tree supplied for development; never package it |
 | `.planning/.active_plan` | Pointer to the current Managed Runtime Modernization plan |
@@ -240,10 +243,12 @@ bash -n init-cloud-sandbox-v0.3.0.bash
 git diff --check
 ```
 
-The Node suite currently registers forty-five **test cases**, not forty-five
-atomic product features. On Windows, forty-two pass and three Linux-only
-permission/runtime cases skip; the alpha.2 Cloud gate must run those Linux
-cases. Several cases cover multiple related guarantees. Together they cover:
+The development Node suite currently registers forty-six **test cases**, not
+forty-six atomic product features. On Windows, forty-three pass and three
+Linux-only permission/runtime cases skip. The sealed alpha.2 snapshot remains
+forty-five registered / forty-two pass / three skip; the additional case covers
+only inactive Phase 3 contracts. Several cases cover multiple related
+guarantees. Together they cover:
 
 - both current Hook payloads and the no-plan canary;
 - read-only dry-run;
@@ -331,7 +336,8 @@ that external bootstrap is sealed with the final ZIP SHA. Release sealing must
 always be ordered: freeze the target version and ZIP contents, build and hash
 the ZIP, write that version/package/SHA into the external bootstrap, hash the
 sealed bootstrap, then publish and verify both assets. The published `v0.2.2`
-release remains the stable rollback baseline.
+release remains the stable-release fallback; the narrower modernization/Phase 3
+rollback baseline is the Cloud-accepted alpha.2 release.
 
 Component commands do not install their dependencies automatically. Use `all`
 for the complete ordered workflow or follow the dependency notes printed by
@@ -395,6 +401,21 @@ that adapter now validates an explicit v1 Host request and supervises the siblin
 `owned-catchup.py`, which imports only the installed verified upstream copy.
 UserPromptSubmit plan injection remains local until Phase 3. The global Skill is
 pristine and is never executed for catch-up.
+
+Phase 3 Round 1 selected and froze a separate managed-legacy prompt request/result
+boundary and a 20,000-character whole-context ceiling. A post-freeze architecture
+review selected a private legacy snapshot around the pristine resolver/injector;
+multi-target overlay remains only a fallback. Those schemas are staged only:
+they are intentionally absent from the alpha.2 runtime bundle, installer
+inventory, Release allowlist, and bootstrap. Round 2 implements the owned path
+without dispatching it; Round 3 activates it and removes the adapter's parallel
+resolver/renderer.
+
+The Phase 3 document, v1 schemas, and contract regression intentionally omit a
+`candidate` filename suffix. Their identities are selected and stable; staged
+versus active status is expressed by schema/document metadata and trusted-graph
+membership. Round 2 promotes those same identities atomically unless the
+contract itself changes incompatibly.
 
 The Phase 1 v1 allowlist contains only those four upstream files. Attestation,
 ledger mutation, phase mutation, completion, and Stop-gating scripts remain
@@ -514,9 +535,14 @@ Phase 2 Rounds 1–3 added and hardened the structured owned-catch-up path,
 plan/session policy, transcript normalization, diagnostics, and supervisor
 failure semantics. Round 4 activated catch-up, retired bootstrap/global Skill
 mutation, and passed the complete alpha.2 fresh-Cloud hard acceptance. Alpha.2
-is now the Phase 3 rollback baseline. Phase 3 migrates canonical prompt
-injection. New lifecycle events remain deferred until this runtime boundary and
-its diagnostic contract are complete.
+is now the Phase 3 rollback baseline. Phase 3 Round 1 has completed the canonical
+prompt-injection audit and frozen the owned-plan contracts, managed-legacy
+compatibility boundary, two intentional output changes, and three-round rollout.
+The selected PWF invocation strategy keeps upstream pristine and runs it against
+a private, scrubbed legacy snapshot; the broader reusable target is a Host/Driver
+ABI, not a claim that every Skill can use the same conversion technique. Round 2
+is the inactive implementation step. New lifecycle events remain deferred until
+this runtime boundary and its diagnostic contract are complete.
 
 ### Working rules
 

@@ -1,10 +1,12 @@
 # Phase 2 Owned Catch-up Runtime
 
-> Round status: Round 4 locally complete; active through the SessionStart adapter supervisor
+> Phase status: complete; active through the SessionStart adapter supervisor
 >
-> Rollback point: Cloud-validated `v0.3.0-alpha.1`
+> Accepted release: `v0.3.0-alpha.2` fresh-Cloud hard acceptance PASS
 >
-> Acceptance state: `v0.3.0-alpha.2` fresh-Cloud hard acceptance pending
+> Current Phase 3 rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
+>
+> Historical predecessor: retained `v0.3.0-alpha.1`, no longer the active baseline
 
 ## Owned-runtime boundary
 
@@ -110,12 +112,14 @@ without making writable state public. Project and session-store directories must
 independently be readable by that Hook identity. Windows is development-test
 equivalence only, not a supported managed target.
 
-## Round 4 acceptance gate
+## Round 4 acceptance result
 
-The local suite registers 45 cases. On Windows, 42 pass and three Linux-only
-runtime/permission cases skip. Alpha.2 is accepted only after a fresh Linux
-Codex Cloud task proves: exact ZIP SHA and inventory, pristine global Skill,
-healthy doctor, real owned catch-up under root/root, synthetic install-user /
-Hook-user readability, Host transcript selection, tail-sentinel preservation,
-UserPrompt remaining local, and healthy doctor after resume. Alpha.1 remains the
-rollback asset until all of those checks pass.
+The sealed alpha.2 acceptance snapshot registers 45 cases. On Windows, 42 pass
+and three Linux-only runtime/permission cases skip. The current development tree
+adds one inactive Phase 3 contract regression and tracks it separately. Fresh
+Linux Codex Cloud acceptance proved the
+exact ZIP SHA and inventory, pristine global Skill, healthy doctor, real owned
+catch-up under root/root, synthetic install-user / Hook-user readability, Host
+transcript selection, tail-sentinel preservation, UserPrompt remaining local,
+automatic P2-A through P2-D lifecycle behavior, and healthy P2-E doctor after
+resume. Phase 2 is complete and alpha.2 is the Phase 3 rollback baseline.

@@ -457,3 +457,45 @@
 - P2-E is PASS. Together with the previously recorded P2-B/P2-C/P2-D evidence, all final P2-A through P2-E gates are accepted.
 - Phase 2 and `v0.3.0-alpha.2` Cloud hard acceptance are complete. Alpha.2 becomes the rollback baseline for Phase 3; alpha.1 remains an older retained release asset, not the active modernization baseline.
 - This closure changes documentation and planning state only. No runtime code, ZIP, external bootstrap, release asset, or trusted hash changed.
+
+## Phase 3 Round 1 analysis start (2026-08-02)
+
+- Recovered the active planning state and confirmed the worktree starts clean on the Cloud-accepted alpha.2 branch.
+- Began the local/upstream UserPrompt audit. Confirmed that `inject-plan.sh` is already pinned, packaged, installed, and hash-verified but is not yet dispatched by the adapter.
+- Marked Phase 3 Round 1 in progress and recorded a provisional three-round implementation/acceptance split. No runtime behavior changed.
+- Completed the first line-by-line adapter/upstream comparison. Identified duplicate resolution, premature v3-mode activation, fail-open containment, text/timestamp compatibility differences, and the plain-text child supervision gap as explicit Round 1 contract decisions.
+- Compared the standalone upstream resolver, runtime-bundle dependency metadata, and exact golden harness. Confirmed the injector's embedded resolver is not equivalent to the stricter BOM-aware managed resolver and identified missing migration fixtures.
+- Audited adapter/activation tests and the existing v1 request/result schemas. Chose a separate prompt protocol plus an owned prompt entrypoint as the working design, subject to overlay/inventory verification in the remainder of Round 1.
+- Audited the overlay ledger, importer, upstream manifest, installer-derived inventory, Release contract, line-ending rules, and exact-count tests. Confirmed that Phase 3 adds a new trusted artifact graph and requires deterministic multi-target overlay support if the upstream script receives a managed-input mode.
+- Audited installer/bootstrap/global-Skill responsibilities and corrected the Phase 3 checklist: retire global-Skill script execution, not the independently installed pristine Skill used for discovery and instructions.
+- Audited the historical patcher/import tests and refined the design from a renderer-only child to one owned plan-context entrypoint. It will return the single canonical project state consumed by both prompt injection and SessionStart catch-up, allowing the adapter's resolver/renderer to be removed.
+- Reviewed upstream Skill promises and existing Phase 1/2 design docs. Froze managed-legacy scope, two explicit canonical wording/timestamp changes, a 20,000-character context ceiling, and the three-round Phase 3 delivery shape.
+- Attempted a local current-vs-upstream output probe. PowerShell lacked `sh`; the explicit Git Bash executable was then blocked by the managed Windows sandbox's signal-pipe permission. Logged both attempts and kept the failure separate from project behavior.
+- Retried that read-only probe outside the sandbox successfully. It empirically confirmed non-equal output and the exact upstream first/final wording that the Phase 3 beta golden will adopt.
+- Baseline `npm test` was initially blocked before test execution by sandbox-wide Node `spawn EPERM`. The approved outside-sandbox rerun completed 45 registered cases with 42 PASS, 3 explicit Linux-only SKIP, and 0 FAIL, confirming a clean alpha.2 behavior baseline for Round 1.
+- Added the Round 1 human contract, staged prompt request/result JSON schemas, and a contract regression that proves their exact managed-legacy/budget boundary while also proving they are not yet part of the alpha.2 trusted runtime or Release graph.
+- Corrected the stale Phase 2 owned-runtime guide to record completed alpha.2 Cloud acceptance and the new Phase 3 rollback baseline.
+- The first focused contract run reached the new test and failed only on a test/document wording mismatch (`invoked` versus `runs`). Updated the assertion to the actual guide wording without changing the contract.
+- The second focused run advanced to the inactive-artifact assertion and exposed only a Markdown line-wrap mismatch. Made that exact assertion newline-aware; no product or contract behavior changed.
+- The third focused Phase 3 contract run passed 1/1, proving both staged schemas, the human contract, fixed budgets/profile, and the explicit exclusion from the alpha.2 runtime/Release graph.
+- The full development regression now registers 46 cases: 43 PASS, 3 explicit Linux-only SKIP, and 0 FAIL. The original alpha.2 snapshot remains 45 registered / 42 PASS / 3 SKIP; the additional test covers only inactive Phase 3 contracts.
+- Phase 3 Round 1 is complete. It changed only staged contracts, documentation, planning state, and their regression; adapter dispatch, runtime bundle, installer inventory, Release ZIP, external bootstrap, and trusted alpha.2 hashes remain unchanged. Round 2 will implement the owned prompt path without activating it.
+- Final Round 1 consistency validation passed: both JSON contracts parse, Markdown fences are balanced, stale current-status wording is absent, `git diff --check` reports no errors, and the outside-sandbox full suite remains 46 registered / 43 PASS / 3 SKIP / 0 FAIL. The sandbox-only retry again hit the already documented Node `spawn EPERM` before test execution.
+
+## Phase 3 invocation-strategy review (2026-08-02)
+
+- Reopened only the upstream invocation mechanism after maintainer review; kept the owned plan-context boundary, managed-legacy profile, staged schemas, budgets, three rounds, and alpha.2 rollback boundary intact.
+- Read the complete pristine resolver/injector control flow and upstream behavior tests. Confirmed there is no existing managed-input switch and that upstream itself validates legacy root fixtures through temporary directories.
+- Compared multi-target managed overlay, controlled pristine snapshot, upstream-native protocol, Host-native IR/reimplementation, OS-level virtual projection, and future official support. Selected the controlled snapshot for Phase 3, retained multi-target overlay as a documented fallback, and recorded upstream/official protocols as long-term retirement paths.
+- Empirically proved current scoped-project and root-snapshot captured output equality (9,628 characters, identical SHA-256), ambient smart-mode suppression after environment scrubbing, and `.mode`/nonce isolation through task/progress-only projection.
+- Added `docs/phase-3-upstream-invocation-options.md` with costs, difficulties, applicability, standardization value, empirical evidence, and implementation gates. Updated the canonical Phase 3 guide, README, project understanding, work plan, task plan, and contract regression to make the pristine snapshot decision authoritative.
+- No adapter/runtime/installer/importer/overlay/Release/bootstrap code or trusted alpha.2 artifact changed. All disposable probe directories were path-checked and removed.
+- Final documentation regression passed outside the Windows sandbox: 46 registered / 43 PASS / 3 explicit Linux-only SKIP / 0 FAIL. The Phase 3 contract case now requires the pristine-snapshot decision, route-comparison record, and Host/Driver boundary while still proving exclusion from the alpha.2 trusted graph.
+
+## Phase 3 status and naming consistency audit (2026-08-03)
+
+- Reconfirmed the selected implementation route: canonical `owned-plan.py` plus a private, scrubbed legacy snapshot around pristine upstream resolver/injector; multi-target overlay remains fallback only.
+- Kept the Phase 3 guide, two v1 schemas, and contract regression filenames stable. They are selected protocol/design identities, not disposable candidates; staged/inactive status is now explicit in the guide, schema `$comment` metadata, trusted-graph exclusions, and tests.
+- Synchronized README, work plan, project understanding, Phase 2 acceptance guide, task plan, and historical findings. Alpha.2 is unambiguously the current Phase 3 rollback baseline; alpha.1 is a retained predecessor; v0.2.2 is the stable-release fallback.
+- No adapter/runtime/installer/importer/overlay/Release/bootstrap file or accepted alpha.2 artifact changed during this audit.
+- Final validation passed outside the Windows sandbox: both staged schemas parse, the focused lifecycle assertions are included in the complete suite, and all 46 cases finish as 43 PASS / 3 explicit Linux-only SKIP / 0 FAIL. `git diff --check` reports no errors; the sandbox-only Node runner still hits the known `spawn EPERM` before executing tests.

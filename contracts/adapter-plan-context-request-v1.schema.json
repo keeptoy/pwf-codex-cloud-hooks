@@ -1,0 +1,117 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://keeptoy.github.io/pwf-codex-cloud-hooks/contracts/adapter-plan-context-request-v1.schema.json",
+  "title": "planning-with-files adapter to owned plan-context request v1",
+  "$comment": "Phase 3 selected contract, staged and inactive. It is excluded from the v0.3.0-alpha.2 runtime, installer, Release, and bootstrap graph until Round 2 promotes this same v1 identity atomically.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "runtime", "event", "project", "policy", "output_budget"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "runtime": { "const": "codex" },
+    "event": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "source", "session_id", "turn_id"],
+      "properties": {
+        "name": { "enum": ["SessionStart", "UserPromptSubmit"] },
+        "source": {
+          "type": ["string", "null"],
+          "enum": ["startup", "resume", "clear", "compact", null]
+        },
+        "session_id": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            { "type": "null" }
+          ]
+        },
+        "turn_id": {
+          "oneOf": [
+            { "type": "string", "minLength": 1, "maxLength": 128 },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "project": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root", "plan_id"],
+      "properties": {
+        "root": { "$ref": "#/$defs/absolutePath" },
+        "plan_id": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9_][A-Za-z0-9._-]*$",
+              "minLength": 1,
+              "maxLength": 128
+            },
+            { "type": "null" }
+          ]
+        }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["planning_enabled", "behavior_profile"],
+      "properties": {
+        "planning_enabled": { "type": "boolean" },
+        "behavior_profile": { "const": "managed_legacy" }
+      }
+    },
+    "output_budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_context_chars", "max_plan_lines", "max_progress_lines"],
+      "properties": {
+        "max_context_chars": { "const": 20000 },
+        "max_plan_lines": { "const": 50 },
+        "max_progress_lines": { "const": 20 }
+      }
+    }
+  },
+  "$defs": {
+    "absolutePath": {
+      "type": "string",
+      "pattern": "^/",
+      "minLength": 2,
+      "maxLength": 4096
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "event": {
+            "properties": { "name": { "const": "SessionStart" } },
+            "required": ["name"]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "event": {
+            "properties": {
+              "source": { "enum": ["startup", "resume", "clear", "compact"] },
+              "turn_id": { "type": "null" }
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "event": {
+            "properties": { "source": { "type": "null" } }
+          }
+        }
+      }
+    }
+  ]
+}
