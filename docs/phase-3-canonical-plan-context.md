@@ -1,6 +1,6 @@
 # Phase 3 Canonical Plan Context
 
-> Phase status: Rounds 1–2 complete; Round 3 inactive implementation in progress
+> Phase status: Rounds 1–3 complete; Round 3 inactive Cloud acceptance PASS
 >
 > Runtime status: exact-v1 owned path implemented, installed, and packaged in the inactive Round 3 trusted graph; not dispatched
 >
@@ -10,7 +10,7 @@
 >
 > Cloud single-link gate: Fresh + Resume PASS; 40/40 stable regular-file observations with `st_nlink=1`
 >
-> Next gate: complete Round 3 Linux/Cloud evidence; no adapter dispatch or beta activation yet
+> Next gate: mandatory Round 4 entry analysis; no adapter dispatch or beta activation yet
 
 ## Purpose
 
@@ -167,8 +167,10 @@ handoff isolation case are feasibility evidence, not production implementation.
 ### Round 3: inactive production owned plan-context runtime
 
 Implementation status: the child, exact schemas, manifest/installer/Release
-inventory, and local safety regressions are present; Linux/Cloud execution is
-the remaining Round 3 acceptance gate. Adapter dispatch remains unchanged.
+inventory, and safety regressions are present. The complete inactive Cloud gate
+passed 63/63 with isolated install, doctor, direct exact-v1, 11-file inventory,
+21-entry ZIP, zero snapshot residue, and adapter no-dispatch. Round 3 is closed;
+adapter dispatch remains unchanged.
 
 - Enforce regular files with `st_nlink == 1` at pre-read, post-read, and
   retained-parent reopen. The Fresh and Resume Cloud gate is closed with 40/40

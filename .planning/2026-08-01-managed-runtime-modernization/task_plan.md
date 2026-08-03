@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Push the evidence-backed test-only correction, run the focused test-37 Linux command, then rerun the complete 63-case inactive Cloud script including isolated install/doctor/direct-runtime/ZIP/clean-workspace stages. Close Round 3 only at 63 PASS / 0 FAIL / 0 SKIP with every later gate PASS. Do not enter Round 4 before that result.
+Pause before Phase 3 Round 4 and perform the mandatory new-round analysis/replanning pass. Re-read the now Cloud-proven inactive owned-plan contract, adapter responsibilities, activation/rollback boundary, beta.1 packaging scope, and required lifecycle black boxes before authorizing any dispatch change.
 
 ## Current Phase
-Phase 3 Round 3 inactive implementation and Windows/trusted-graph verification are complete; Cloud diagnosed the first 62/63 result as a test-only zombie-liveness false positive, the correction is locally green and awaits Linux/full Cloud rerun, no production path is active, and alpha.2 remains the rollback baseline
+Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 has not started, no production path is active, and alpha.2 remains the rollback baseline
 
 ## Phases
 
@@ -117,7 +117,7 @@ Phase 3 Round 3 inactive implementation and Windows/trusted-graph verification a
 |---|---|---|
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
 | 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
-| 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | in progress; local PASS, Cloud diagnosis PASS, test-only fix awaiting complete Cloud rerun |
+| 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | complete; Cloud PASS |
 | 4 | Activate canonical UserPrompt injection, retire parallel adapter rendering, package beta.1, and complete Cloud acceptance | pending |
 
 - [ ] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
@@ -129,7 +129,7 @@ Phase 3 Round 3 inactive implementation and Windows/trusted-graph verification a
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
 - [ ] Prove prompt injection runs exclusively from the owned runtime bundle and no mutable global Skill script executes; retain the pristine global Skill for model discovery/instructions and deployment governance.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Rounds 1–2 complete; Round 3 local verification and Cloud diagnosis PASS; test-only correction awaits focused and complete Linux/Cloud rerun before closure
+- **Status:** Rounds 1–3 complete; Round 3 inactive Cloud acceptance PASS; Round 4 pending mandatory entry analysis
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 
@@ -207,7 +207,7 @@ Phase 3 Round 3 inactive implementation and Windows/trusted-graph verification a
 | Preserve legacy behavior by default | Existing plans must not be forced into attestation, ledger, or gating without an explicit migration/mode. |
 | Roll out lifecycle events incrementally | Managed Hooks are globally trusted, can coexist and run concurrently with other sources, and are harder for users to disable. |
 | Add hard Stop gating last | It has the greatest recursion, concurrency, and runaway risk and requires real host verification. |
-| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 added one inactive-contract case for forty-six; Round 2 added eight feasibility cases plus one parent isolation case for fifty-five; Round 3 adds eight production owned-plan cases for sixty-three. Several cases cover multiple guarantees. Windows runs 46 and honestly skips 17 production-POSIX cases; the prior Cloud/Linux baseline ran all 55, and the eight new cases remain pending there. |
+| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 added one inactive-contract case for forty-six; Round 2 added eight feasibility cases plus one parent isolation case for fifty-five; Round 3 adds eight production owned-plan cases for sixty-three. Several cases cover multiple guarantees. Windows runs 46 and honestly skips 17 production-POSIX cases; the completed Cloud/Linux Round 3 gate runs all 63 with zero skips. |
 | Treat the v0.2.2 catch-up patch as a temporary compatibility overlay | It is valuable Cloud-proven behavior, but mutating and executing a global Skill conflicts with the owned-runtime trust boundary. |
 | Make the host/runtime contract explicit | `.agents` placement, initialization/runtime environment differences, absent Hook-time `CODEX_THREAD_ID`, and the Host-provided transcript path prove that script-path and setup-shell inference are not stable Cloud interfaces. |
 | Add reason-coded diagnostics without injecting them by default | Silent early returns made black-box failures expensive to localize, while stderr or debug text must not contaminate Hook JSON/context. |
@@ -291,3 +291,5 @@ Phase 3 Round 3 inactive implementation and Windows/trusted-graph verification a
 | The first final hash verifier assumed obsolete `path`/`contracts` field names and raised `KeyError` before checking bytes | Inspected the current runtime-bundle/upstream-manifest shapes, changed the read-only verifier to their actual `package_path`/`installed_contracts`/`managed_runtime` fields, and then verified all 13 selected hashes with zero mismatches. |
 | First Phase 3 Round 3 inactive Cloud gate stopped at test 37 with `injector descendant survived process-group timeout` | Keep Round 3 open and all later script stages unclaimed. Run a targeted `/proc` diagnostic to distinguish a live descendant from an unreaped zombie before changing either supervisor or test semantics. |
 | Local `bash -n` for the new Cloud diagnostic was blocked inside the managed Windows sandbox by Git Bash `couldn't create signal pipe, Win32 error 5` | The document structure and embedded Python already compiled successfully; rerun only the extracted Bash syntax check outside the signal-pipe sandbox. |
+| The first Round 3 closure consistency patch failed because a `PROJECT_UNDERSTANDING.md` anchor crossed a different physical line wrap | Keep the already persisted planning closure, split synchronization by file, and patch only exact current paragraphs instead of repeating the combined multi-file patch. |
+| The first narrow `PROJECT_UNDERSTANDING.md` retry still missed the apparent rendered anchor | Stop matching the paragraph visually; inspect the exact UTF-8 line representations and patch the smallest literal lines or surrounding stable headings. |

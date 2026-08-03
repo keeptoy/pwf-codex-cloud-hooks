@@ -426,8 +426,8 @@ The prototype remains outside every production graph. The published alpha.2
 asset and bootstrap also remain unchanged, while the development Round 3 graph
 now installs/packages the exact schemas and `owned-plan.py` without adapter
 dispatch. Its frozen policies include the Fresh + Resume Cloud single-link gate
-(40/40 stable regular-file observations with `st_nlink=1`). Local Windows
-verification is complete; Linux/Cloud execution is the remaining Round 3 gate.
+(40/40 stable regular-file observations with `st_nlink=1`). Local Windows and
+the complete 63/63 inactive Linux/Cloud acceptance now pass, so Round 3 is closed.
 Round 4 activates the path and removes the adapter's parallel resolver/renderer.
 
 The Phase 3 document, v1 schemas, and contract regression intentionally omit a
@@ -562,8 +562,9 @@ changing any trusted runtime or Release artifact. The four Round 3 production
 policies are now frozen, including the single-link policy after matching Fresh
 and Resume Cloud PASS evidence (40/40 observations). Round 3 has now implemented,
 installed, and packaged the inactive exact-v1 path in the development trusted
-graph; the full Windows suite passes and Linux/Cloud execution remains its final
-gate. Phase 3 still has four rounds: Round 4 activates the path, thins the
+graph; the full Windows suite and 63/63 Linux/Cloud inactive acceptance pass.
+Round 3 is closed. Phase 3 still has four rounds: after a mandatory entry analysis,
+Round 4 activates the path, thins the
 adapter, packages beta.1, and performs Cloud acceptance.
 The broader reusable target is a
 Host/Driver ABI, not a claim that every Skill can use the same conversion

@@ -1,10 +1,20 @@
 # Phase 3 Round 3 Inactive Cloud Acceptance
 
-> Status: pending execution against the exact pushed Round 3 commit
+> Status: complete — exact pushed Round 3 commit PASS
 >
 > Scope: Linux/Cloud execution of the inactive owned-plan trusted graph
 >
 > Activation: forbidden; `hook_adapter.py` and live `/opt/codex` Hooks remain unchanged
+
+## Accepted Cloud result
+
+The final fresh Cloud run completed the entire script: 63 tests / 63 PASS / 0 FAIL /
+0 SKIP; isolated install PASS with 11 runtime files; doctor healthy; direct installed
+exact-v1 PASS; adapter dispatch unchanged; zero snapshot leftovers; 21-entry development ZIP
+PASS; workspace clean. `ROUND3_INACTIVE_CLOUD_ACCEPTANCE=PASS`.
+
+Phase 3 Round 3 is closed. This document remains the reproducible acceptance record; it does
+not activate the runtime or authorize Round 4 without its separate entry analysis.
 
 ## 这轮比 alpha.2 黑盒多测什么
 

@@ -238,6 +238,7 @@ exact-v1 schema 一起进入开发版 manifest、installer、11-file installed i
 alpha.2 基线。
 
 Windows 完整回归为 63 registered / 46 PASS / 17 明确 POSIX/Linux SKIP / 0 FAIL。
-Round 3 关闭前还必须按 `docs/phase-3-round-3-cloud-acceptance.md` 在 Linux/Codex Cloud
-执行全部 63 项、隔离安装/doctor、11-file inventory、direct exact-v1、21-entry ZIP 和
-adapter no-dispatch 门槛。该门槛不激活 lifecycle，也不发布 beta.1。
+`docs/phase-3-round-3-cloud-acceptance.md` 的 Linux/Codex Cloud 门槛也已完整通过：63/63、
+隔离安装/doctor、11-file inventory、direct exact-v1、21-entry ZIP、零 snapshot 残留与
+adapter no-dispatch 全部 PASS。Round 3 已关闭；该证据没有激活 lifecycle，也没有发布
+beta.1。

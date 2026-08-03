@@ -543,3 +543,10 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Cloud PID 1 is `tail -f /dev/null`, not an init/subreaper that promptly reaps adopted children. This explains why PID existence persisted without a live executable descendant.
 - The production supervisor met the frozen safety contract: timeout observed, correct process group killed, direct child gone, descendant terminated, no open descendant descriptors. The defect is exclusively the test's PID-existence liveness assertion.
 - Frozen fix boundary: **TEST_ONLY**. Capture the descendant's pre-timeout `/proc` start time and process-group/session membership; after timeout, accept path disappearance, PID reuse, or terminal state `Z`/`X`/`x`, and fail only when the same start time remains in a live state. Do not change runtime, contracts, manifests, installer, or Release hashes.
+
+### Round 3 inactive Cloud acceptance closure
+
+- The corrected exact commit passed the complete Linux/Cloud gate: 63 tests, 63 PASS, 0 FAIL, 0 SKIP. Test 37 passed with the identity/state assertion, confirming the test-only boundary without changing production runtime bytes.
+- Isolated installation PASS with exactly 11 runtime files; doctor reported `healthy=true`; installed `owned-plan.py` direct exact-v1 invocation PASS; adapter and Managed Hook requirements still do not dispatch it.
+- The development ZIP contained exactly 21 entries and passed its contract check. Snapshot leftovers were zero, and the repository remained clean after the full script.
+- Phase 3 Round 3 is therefore **CLOSED / PASS**. This proves the inactive trusted graph only; it does not authorize adapter activation, beta.1 sealing, lifecycle black-box claims, or Round 4 implementation without the required entry analysis.
