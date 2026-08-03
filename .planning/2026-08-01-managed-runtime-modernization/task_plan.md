@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Begin Phase 3 Round 2 by implementing the inactive `owned-plan.py` request/result boundary, safe private legacy snapshot runner around the pristine resolver/injector, and beta golden/policy/supervision/inventory/provenance tests. Keep adapter dispatch and all alpha.2 Release/bootstrap bytes unchanged until Round 3 activation.
+Do not begin Phase 3 Round 2. In the next review turn, read and evaluate the isolated Cloud-produced `snapshot-prototype/` against the frozen owned-plan contracts, snapshot safety gates, and trusted-artifact boundary; then decide whether the prototype changes the Phase 3/4 round count or scope. Keep adapter/runtime/installer/Release/bootstrap bytes unchanged until that replanning decision.
 
 ## Current Phase
-Phase 3 Round 1 contract analysis complete; inactive Round 2 implementation is next and alpha.2 remains the rollback baseline
+Pre-Round-2 prototype-review hold; Phase 3 Round 1 is complete, Round 2 has not started, and alpha.2 remains the rollback baseline
 
 ## Phases
 
@@ -116,7 +116,7 @@ Phase 3 Round 1 contract analysis complete; inactive Round 2 implementation is n
 | Round | Scope | Status |
 |---|---|---|
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
-| 2 | Implement inactive owned prompt entrypoint/dispatch seam and prove golden compatibility | pending |
+| 2 | Implement inactive owned prompt entrypoint/dispatch seam and prove golden compatibility | pending; held for prototype review and round-count replanning |
 | 3 | Activate canonical UserPrompt injection, retire parallel adapter rendering, package, and complete Cloud acceptance | pending |
 
 - [ ] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
@@ -128,7 +128,7 @@ Phase 3 Round 1 contract analysis complete; inactive Round 2 implementation is n
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
 - [ ] Prove prompt injection runs exclusively from the owned runtime bundle and no mutable global Skill script executes; retain the pristine global Skill for model discovery/instructions and deployment governance.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Round 1 complete; Round 2 inactive implementation is next
+- **Status:** Round 1 complete; pre-Round-2 prototype review is next, with no implementation authorized yet
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 - [ ] Import and verify attestation, nonce, smart-injection, and ledger dependencies.
@@ -218,6 +218,7 @@ Phase 3 Round 1 contract analysis complete; inactive Round 2 implementation is n
 | Initial Bash probe command lost nested `cygpath` quoting and exited 2 before running the injector | 3 | Converted absolute Windows paths to MSYS paths in PowerShell before invoking Bash; direct/snapshot and marker-isolation probes then passed. |
 | Broad read-only Bash location scan reached its 30-second command timeout | 1 | Stopped scanning and used the explicit user-provided Git installation target. |
 | Documentation consistency command used Bash-style `{a,b}` path expansion in PowerShell | 1 | Replaced it with an explicit PowerShell file array before running any checks. |
+| Tracked-file size audit used quoted `git ls-files` output as literal Windows paths and failed on the Chinese filename | 1 | Kept the successful file inventory and switched subsequent path handling to unquoted/UTF-8-safe enumeration; no file decision depended on the failed row. |
 
 ## Verification Matrix
 | Area | Required checks |

@@ -464,8 +464,10 @@ Phase 3 选择后者，在私有 legacy 投影中运行 pristine resolver/inject
 只作为 Cloud/Linux 实证失败后的后备。长期标准化对象是 Codex Cloud Host ABI、受管
 runner 和 Integration Driver request/result，不是把快照或 overlay 强制为所有 Skill
 的统一转换方式。PWF 仍是唯一支持的垂直集成，只有第二个只读插件验证后才提取通用
-接口；详细比较见 `docs/phase-3-upstream-invocation-options.md`。下一步进入第 2 轮
-inactive implementation。
+接口；详细比较见 `docs/phase-3-upstream-invocation-options.md`。第 2 轮目前保持 pending：
+下一轮先单独审查 Cloud 产出的 `snapshot-prototype/`，对照已冻结契约判断哪些可复用，
+再决定是否调整 Phase 3/4 的轮数和边界。原型所在分支/commit 使用的 beta.1 字样只是
+实验标签，不代表已经进入第 2 轮，更不代表 beta Release 已成立。
 
 Phase 3 的设计文档、两个 v1 schema 和契约测试不追加“候选”文件名：架构路线已经选定，
 协议身份也应保持稳定；“尚未激活”由文档/schema 元数据和 alpha.2 trusted graph 排除测试

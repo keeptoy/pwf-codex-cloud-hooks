@@ -5,6 +5,8 @@
 > Runtime status: staged only; not implemented, dispatched, installed, or packaged
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
+>
+> Planning gate: Round 2 is paused pending isolated prototype review and Phase 3/4 round-count reassessment
 
 ## Purpose
 

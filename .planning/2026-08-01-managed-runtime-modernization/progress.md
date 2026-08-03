@@ -499,3 +499,12 @@
 - Synchronized README, work plan, project understanding, Phase 2 acceptance guide, task plan, and historical findings. Alpha.2 is unambiguously the current Phase 3 rollback baseline; alpha.1 is a retained predecessor; v0.2.2 is the stable-release fallback.
 - No adapter/runtime/installer/importer/overlay/Release/bootstrap file or accepted alpha.2 artifact changed during this audit.
 - Final validation passed outside the Windows sandbox: both staged schemas parse, the focused lifecycle assertions are included in the complete suite, and all 46 cases finish as 43 PASS / 3 explicit Linux-only SKIP / 0 FAIL. `git diff --check` reports no errors; the sandbox-only Node runner still hits the known `spawn EPERM` before executing tests.
+
+## Pre-Round-2 repository residue audit (2026-08-03)
+
+- Paused the previously recorded Round 2 next step at maintainer direction. The next turn is an isolated review of `snapshot-prototype/` followed by Phase 3/4 round-count replanning; no prototype implementation was read, adopted, or integrated in this audit.
+- Inventoried tracked, untracked, ignored, generated, historical, and planning files. Found no tracked temp/backup/zero-byte residue. The only unambiguous disposable local state is ignored Python bytecode under `patches/__pycache__/`; it was not deleted because this turn was an audit rather than a cleanup authorization.
+- Confirmed the ignored alpha.1/alpha.2 ZIPs match their recorded accepted SHA-256 values and remain useful local evidence. The ignored full v3.8.2 source is the explicitly supplied upstream reference and remains excluded from packaging.
+- Proved the historical v0.2.2 planning/evidence and patcher are still referenced by the overlay ledger and regression tests. Retained and indexed the alpha.1 smoke record; corrected stale pre-Phase-2 wording in the main black-box manual.
+- Confirmed `snapshot-prototype/` is a separate tracked commit with no references from the current runtime manifest, installer, Release contract, or builder. Its duplicated pristine upstream scripts and premature beta.1 branch/commit labels are review inputs, not accepted product state.
+- Final consistency checks found no stale current-state phrases and no prototype reference in the trusted runtime/Release graph. JSON contracts parse, `git diff --check` passes, and the complete outside-sandbox regression remains 46 registered / 43 PASS / 3 explicit Linux-only SKIP / 0 FAIL.

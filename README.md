@@ -195,7 +195,9 @@ owned runtime files beneath managed_dir.
 | `docs/phase-2-owned-catchup.md` | Active SessionStart owned-runtime boundary and safety policy |
 | `docs/phase-3-canonical-plan-context.md` | Selected Phase 3 prompt-context architecture, staged-contract lifecycle, compatibility decisions, budgets, and round gates |
 | `docs/phase-3-upstream-invocation-options.md` | Overlay/snapshot/other route comparison, empirical evidence, and long-term Host/Driver standardization boundary |
+| `docs/v0.3.0-alpha.1-cloud-smoke.md` | Retained Phase 1 pre-release publication and Cloud-smoke acceptance record |
 | `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md` | Alpha.2 SHA, inventory, permission, owned-runtime, and resume acceptance gate |
+| `snapshot-prototype/` | Unreviewed, isolated Cloud-produced snapshot-route prototype reserved for the next architecture review; not current runtime or Release input |
 | `init-cloud-sandbox-v0.3.0.bash` | Development bootstrap for the active modernization iteration |
 | `PROJECT_UNDERSTANDING.md` | Durable current-state model, Cloud evidence, boundaries, and next-step context |
 | `黑盒验证.md` | Beginner-oriented Cloud runbook for health, lifecycle, catch-up, repair, and fail-closed tests |
@@ -541,8 +543,12 @@ compatibility boundary, two intentional output changes, and three-round rollout.
 The selected PWF invocation strategy keeps upstream pristine and runs it against
 a private, scrubbed legacy snapshot; the broader reusable target is a Host/Driver
 ABI, not a claim that every Skill can use the same conversion technique. Round 2
-is the inactive implementation step. New lifecycle events remain deferred until
-this runtime boundary and its diagnostic contract are complete.
+remains pending, but implementation is paused for a separate review of the
+tracked `snapshot-prototype/` and a re-evaluation of the Phase 3/4 round split.
+The prototype commit/branch label is experimental metadata, not a beta release
+or proof that the project has entered Round 2. New lifecycle events remain
+deferred until this review and the runtime boundary/diagnostic contract are
+complete.
 
 ### Working rules
 
