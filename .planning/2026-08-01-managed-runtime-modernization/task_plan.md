@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Run the documented `PWF_CLOUD_ST_NLINK_PROBE_V1` against normal root/scoped planning files in a fresh Codex Cloud sandbox and again after resuming that sandbox. If both runs PASS, close the only compatibility gate on the documented four Round 3 defaults and begin the inactive exact-v1 `owned-plan.py` implementation while keeping adapter dispatch and alpha.2 Release/bootstrap bytes unchanged. Any FAIL returns the single-link policy to maintainer review; INCONCLUSIVE must be rerun with both task and progress files present.
+Begin Phase 3 Round 3's inactive exact-v1 `owned-plan.py` implementation using the four frozen production policies. The Cloud single-link gate is closed after Fresh and Resume both passed (40/40 stable regular-file observations with `st_nlink=1`). Keep adapter dispatch and alpha.2 Release/bootstrap bytes unchanged until Round 4 activation.
 
 ## Current Phase
-Phase 3 Round 2 feasibility review complete; Round 3 production defaults are documented with the fresh/resume Cloud single-link compatibility gate pending, no production path is active, and alpha.2 remains the rollback baseline
+Phase 3 Rounds 1–2 and the Round 3 production-policy/Cloud compatibility gate are complete; inactive Round 3 implementation is next, no production path is active, and alpha.2 remains the rollback baseline
 
 ## Phases
 
@@ -117,7 +117,7 @@ Phase 3 Round 2 feasibility review complete; Round 3 production defaults are doc
 |---|---|---|
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
 | 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
-| 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | pending |
+| 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | policy freeze and Cloud single-link gate complete; implementation pending |
 | 4 | Activate canonical UserPrompt injection, retire parallel adapter rendering, package beta.1, and complete Cloud acceptance | pending |
 
 - [ ] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
@@ -129,7 +129,7 @@ Phase 3 Round 2 feasibility review complete; Round 3 production defaults are doc
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
 - [ ] Prove prompt injection runs exclusively from the owned runtime bundle and no mutable global Skill script executes; retain the pristine global Skill for model discovery/instructions and deployment governance.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Rounds 1–2 complete; Round 3 inactive production implementation is next, but begins with the four explicit policy decisions
+- **Status:** Rounds 1–2 complete; the four Round 3 policies and their Cloud single-link gate are frozen/closed; inactive production implementation is next
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 
@@ -284,3 +284,4 @@ Phase 3 Round 2 feasibility review complete; Round 3 production defaults are doc
 | Initial Round 3 documentation sync used an English `current resolver` anchor where the UTF-8 source said `当前 resolver` | Split the combined patch by file and reapplied the project-understanding update against its exact text. |
 | A timeout inventory used Unix wildcard path arguments under PowerShell, so the second `rg` invocation exited 1 after the first search had already returned useful matches | Re-ran the inventory with `--glob` and explicit directories, then inspected the adapter's exact supervisor lines; no conclusion relies on the failed wildcard invocation. |
 | Two inline `python -c` attempts to extract the README Cloud probe were parsed incorrectly by PowerShell (`<` redirection parsing, then stripped nested quotes) | Switched to a PowerShell here-string piped to Python stdin for read-only validation; the exact embedded probe compiled and executed successfully without workspace writes. |
+| The first README-prompt assertion embedded Chinese headings in a PowerShell-to-Python here-string and the console code page converted them to `???` | Verified the UTF-8 headings directly with `rg`, then reran the structural assertion using stable ASCII anchors; 20 Markdown fences are balanced and both prompts are present. |

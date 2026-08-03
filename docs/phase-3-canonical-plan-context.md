@@ -1,12 +1,14 @@
 # Phase 3 Canonical Plan Context
 
-> Phase status: Rounds 1–2 complete; architecture/contracts frozen and feasibility conditional GO
+> Phase status: Rounds 1–2 complete; Round 3 production policies and Cloud compatibility gate frozen/closed
 >
 > Runtime status: staged only; not implemented, dispatched, installed, or packaged
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
 > Prototype gate: Round 2 feasibility spike reviewed; controlled snapshot is conditional GO
+>
+> Cloud single-link gate: Fresh + Resume PASS; 40/40 stable regular-file observations with `st_nlink=1`
 >
 > Next gate: Round 3 inactive production implementation; no adapter dispatch or beta Release yet
 
@@ -165,6 +167,16 @@ handoff isolation case are feasibility evidence, not production implementation.
 
 ### Round 3: inactive production owned plan-context runtime
 
+- Enforce regular files with `st_nlink == 1` at pre-read, post-read, and
+  retained-parent reopen. The Fresh and Resume Cloud gate is closed with 40/40
+  stable observations across four real scoped planning files.
+- Use the same-EUID trusted `/tmp/pwf-codex-cloud-hooks-<euid>` base and bounded
+  10-minute/32-entry/500-ms stale cleanup.
+- Require the portable fd-rooted `openat` walk; defer optional `openat2`
+  hardening rather than making it a production dependency.
+- Use one 27-second monotonic internal deadline under the Host's 30-second
+  timeout: owned-plan 8 seconds, catch-up 15 seconds, adapter supervision/JSON
+  4 seconds, leaving 3 seconds of Host margin.
 - Add `owned-plan.py` and strict request/result validation.
 - Add a safe private snapshot runner around the pristine resolver/injector.
 - Add resolver, attachment, opt-out, race, output-budget, timeout, malformed

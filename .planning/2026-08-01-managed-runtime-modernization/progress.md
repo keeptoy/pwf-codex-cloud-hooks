@@ -535,3 +535,18 @@
 - Added a self-contained, read-only `PWF_CLOUD_ST_NLINK_PROBE_V1` and exact fresh/resume PASS criteria. The probe does not read planning contents, create files, create links, or mutate planning state.
 - Extracted the exact embedded Python from Markdown, compiled it, and executed it locally as a harness check. It found four scoped task/progress files and reported five stable `st_nlink=1` samples for each with `OVERALL=PASS`; this is syntax/logic evidence only, not a substitute for the required Cloud fresh/resume gate.
 - Final checks passed: no stale Round 2/old-confirmation wording remains in the prototype folder, Markdown fences are balanced, the embedded Cloud probe compiles, `git diff --check` is clean, and the complete Windows suite remains 55 registered / 45 PASS / 10 explicit Linux-only SKIP / 0 FAIL.
+
+## Cloud single-link gate — fresh sandbox evidence (2026-08-03)
+
+- Maintainer supplied the complete output from an actual cold-start Cloud execution of the embedded `PWF_CLOUD_ST_NLINK_PROBE_V1`.
+- Result: Fresh PASS on kernel 6.12.13; workspace and `/tmp` reported `ext2/ext3`; four real scoped task/progress files each produced five stable regular-file samples with `st_nlink=1`, root:root ownership, mode 0644, and no errors. `HAS_TASK_AND_PROGRESS=true`; `OVERALL=PASS`.
+- The probe was read-only and the Cloud repository remained clean. Resume of the same sandbox is still required and is now the sole remaining single-link compatibility gate before Round 3 implementation.
+- Appended reusable Fresh and Resume black-box prompt blocks to the end of `snapshot-prototype/README.md`. They preserve the exact no-mutation/no-content-read rules, require execution of the embedded probe, and distinguish PASS/FAIL/INCONCLUSIVE. Markdown structure and `git diff --check` pass.
+
+## Cloud single-link gate — resume evidence and closure (2026-08-03)
+
+- Maintainer supplied the complete Resume output from the same Cloud sandbox, with the probe run as the first Shell action after resume.
+- Result: Resume PASS on the same kernel/filesystem and the same four scoped task/progress files. Each file again produced five stable regular-file samples with `st_nlink=1`, root:root ownership, mode 0644, and no errors; `HAS_TASK_AND_PROGRESS=true` and `OVERALL=PASS`.
+- Fresh + Resume therefore provide 40/40 matching observations. The Cloud single-link gate is **CLOSED / PASS**, and the four Round 3 production defaults are frozen.
+- Updated the prototype README and authoritative planning/project documents so no current-state text still describes Resume or the policy freeze as pending. The next step is inactive exact-v1 implementation; adapter dispatch and the alpha.2 Release/bootstrap remain unchanged.
+- Post-sync validation passed: no stale pending-gate wording was found, `git diff --check` is clean, and the complete Windows suite reports 55 registered / 45 PASS / 10 explicit POSIX/Linux SKIP / 0 FAIL.

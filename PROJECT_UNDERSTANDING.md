@@ -458,8 +458,13 @@ managed-legacy 行为，`.mode`、attestation、nonce 和 smart injection 继续
 同时明确采用上游更强的 structured-data 提示措辞与时间戳归一化这两项输出变化，并设置
 20,000 字符的完整 context 上限。Phase 3 现按四轮推进：第 1 轮契约冻结已完成；第 2 轮
 已完成独立受控快照 feasibility spike，以 8 个 focused cases 和父仓库 1 个隔离 case
-给出 conditional GO，但没有进入 trusted graph；第 3 轮冻结生产策略并实现/安装但不
-dispatch exact-v1 owned prompt path；第 4 轮才切换 adapter、打包 beta.1 并做 Cloud 验收。
+给出 conditional GO，但没有进入 trusted graph。第 3 轮的四项生产策略现已冻结：
+输入文件在 pre-read、post-read、retained-parent reopen 三处必须为 regular 且
+`st_nlink == 1`；同 EUID trusted `/tmp` base 做有界 stale cleanup；生产基线只要求
+portable fd-rooted `openat` walk；30 秒 Host 上限内采用 27 秒共享 deadline。Fresh 与同一
+sandbox Resume 的 Cloud 探针共 40/40 次观测均为 regular、single-link、identity stable，
+因此最后的 single-link 兼容门槛已关闭。第 3 轮下一步实现/安装但不 dispatch exact-v1
+owned prompt path；第 4 轮才切换 adapter、打包 beta.1 并做 Cloud 验收。
 新增的两个 schema 目前只是 staged contract，不属于 alpha.2 runtime、installer、Release
 或 bootstrap 边界。后续架构复盘进一步比较了多目标 overlay 与不修改上游的受控快照：
 Phase 3 选择后者，在私有 legacy 投影中运行 pristine resolver/injector；多目标 overlay

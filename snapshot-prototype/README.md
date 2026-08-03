@@ -394,4 +394,91 @@ Round 3 single-link gate: PASS / FAIL / INCONCLUSIVE
 关闭该 Cloud gate。任何 `FAIL` 都暂停 single-link 策略并带回完整元数据分析；
 `INCONCLUSIVE` 只表示测试前置文件不足，不能当成通过。
 
+#### Cloud gate 当前状态
+
+- Fresh sandbox（2026-08-03）：**PASS**。Cloud kernel `6.12.13`，workspace 与
+  `/tmp` 均报告 `ext2/ext3`；两个 scoped plan 中共 4 个真实 task/progress 文件，
+  每个文件 5 次采样，合计 20 次均为 regular、`st_nlink=1`、identity stable；文件
+  owner 为 `root:root`、mode `0644`，`HAS_TASK_AND_PROGRESS=true`、`OVERALL=PASS`。
+- Resume same sandbox（2026-08-03）：**PASS**。恢复同一个 sandbox 后首次 Shell 操作
+  再次命中相同 4 个文件；每个文件 5 次采样，合计 20 次仍全部为 regular、
+  `st_nlink=1`、identity stable，kernel/filesystem/owner/mode 与 Fresh 结果一致，
+  `HAS_TASK_AND_PROGRESS=true`、`OVERALL=PASS`。
+- 最终结论：**CLOSED / PASS**。Fresh + Resume 共 40/40 次真实 Cloud 样本满足
+  single-link 策略，因此 Round 3 可以冻结 `st_nlink == 1` 的 pre-read、post-read、
+  retained-parent reopen 三检查点要求；后续异常仍按 fail-closed 处理。
+
 更完整的实验限制、工业来源和生产 gap 见 `FEASIBILITY_REPORT.md`。
+
+## Cloud single-link 黑盒验证流程提示词
+
+下面两段提示词用于重复执行和审计 Cloud single-link gate。Fresh 提示词在全新 Codex
+Cloud sandbox 启动后使用；Resume 提示词必须在恢复同一个 sandbox 后作为第一次
+Shell 操作使用。提示词本身不是测试证据，只有模型实际执行
+`PWF_CLOUD_ST_NLINK_PROBE_V1` 后返回的完整 stdout 才是证据。
+
+### Fresh sandbox 提示词
+
+```text
+这是 Phase 3 Round 3 controlled-snapshot single-link Cloud compatibility gate。
+
+当前方案：
+
+1. 生产 owned-plan 将只接受 contained/no-symlink pathname 下的 regular planning file；
+2. task_plan.md 和 progress.md 在读取前、读取后、重新打开后三次都必须满足 st_nlink == 1；
+3. openat2 不负责解决 hard-link 问题；
+4. 本次测试只验证普通 Codex Cloud workspace 是否兼容 single-link 策略，不测试攻击场景。
+
+请把本次探针作为全新 Cloud sandbox 启动后的第一个 Shell 测试执行。
+
+严格限制：
+
+1. 不修改、创建或删除任何 planning 文件；
+2. 不创建 hard link 或 symlink；
+3. 不读取 task_plan.md 或 progress.md 的正文；
+4. 不根据 README 猜测结果；
+5. 必须实际运行 snapshot-prototype/README.md 中
+   “Round 3 前置 Cloud single-link gate”下面的完整
+   PWF_CLOUD_ST_NLINK_PROBE_V1 Bash 脚本；
+6. 逐字返回脚本的完整 stdout；
+7. 如果不存在正常的 task_plan.md 和 progress.md，必须报告 INCONCLUSIVE，
+   不要自行创建测试文件。
+
+然后严格汇总：
+
+Fresh sandbox: PASS / FAIL / INCONCLUSIVE
+All observed task_plan.md nlink samples are 1: YES / NO
+All observed progress.md nlink samples are 1: YES / NO
+All observed identities are stable: YES / NO
+Workspace filesystem type: 实际值
+Round 3 single-link gate fresh result: PASS / FAIL / INCONCLUSIVE
+```
+
+### Resume 后提示词
+
+```text
+这是 PWF_CLOUD_ST_NLINK_PROBE_V1 的 resume 稳定性复验。
+
+请恢复执行 Fresh 探针的同一个 Cloud sandbox，并把本次复验作为恢复后的第一次 Shell 操作。
+
+严格限制：
+
+1. 不修改、创建或删除任何 planning 文件；
+2. 不创建 hard link 或 symlink；
+3. 不读取 task_plan.md 或 progress.md 的正文；
+4. 必须重新运行 snapshot-prototype/README.md 中
+   “Round 3 前置 Cloud single-link gate”下面完全相同的脚本；
+5. 逐字返回完整 stdout；
+6. 不得使用 Fresh sandbox 的旧输出代替本次执行；
+7. 如果恢复后缺少正常的 task_plan.md 或 progress.md，必须报告 INCONCLUSIVE，
+   不要自行创建测试文件。
+
+然后严格汇总：
+
+Resume same sandbox: PASS / FAIL / INCONCLUSIVE
+All observed task_plan.md nlink samples are 1: YES / NO
+All observed progress.md nlink samples are 1: YES / NO
+All observed identities are stable: YES / NO
+Workspace filesystem type: 实际值
+Round 3 single-link gate resume result: PASS / FAIL / INCONCLUSIVE
+```

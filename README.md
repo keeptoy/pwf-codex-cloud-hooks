@@ -416,9 +416,12 @@ isolated controlled-snapshot feasibility spike around the pristine
 resolver/injector: eight focused Linux/Cloud cases plus one parent isolation
 case support conditional GO, while multi-target overlay remains fallback only.
 The schemas and prototype remain outside the alpha.2 runtime bundle, installer,
-Release allowlist, bootstrap, and adapter dispatch. Round 3 productionizes and
-installs the exact-v1 owned path without dispatching it; Round 4 activates it and
-removes the adapter's parallel resolver/renderer.
+Release allowlist, bootstrap, and adapter dispatch. The Round 3 production
+policies are now frozen: Fresh and Resume Cloud probes produced 40/40 stable
+regular-file observations with `st_nlink=1`, closing the last compatibility
+gate. Round 3 next productionizes and installs the exact-v1 owned path without
+dispatching it; Round 4 activates it and removes the adapter's parallel
+resolver/renderer.
 
 The Phase 3 document, v1 schemas, and contract regression intentionally omit a
 `candidate` filename suffix. Their identities are selected and stable; staged
@@ -548,10 +551,12 @@ is now the Phase 3 rollback baseline. Phase 3 Round 1 completed the canonical
 prompt-injection audit and froze the owned-plan contracts, managed-legacy
 compatibility boundary, and two intentional output changes. Round 2 reviewed the
 self-contained snapshot feasibility handoff and produced conditional GO without
-changing any trusted runtime or Release artifact. Phase 3 now has four rounds:
-Round 3 freezes the four remaining production policies and implements/installs
-the inactive exact-v1 path; Round 4 activates it, thins the adapter, packages
-beta.1, and performs Cloud acceptance. The broader reusable target is a
+changing any trusted runtime or Release artifact. The four Round 3 production
+policies are now frozen, including the single-link policy after matching Fresh
+and Resume Cloud PASS evidence (40/40 observations). Phase 3 still has four
+rounds: Round 3 next implements/installs the inactive exact-v1 path; Round 4
+activates it, thins the adapter, packages beta.1, and performs Cloud acceptance.
+The broader reusable target is a
 Host/Driver ABI, not a claim that every Skill can use the same conversion
 technique. The prototype commit/branch beta.1 wording remains experimental
 metadata, not a beta release. New lifecycle events remain deferred until this

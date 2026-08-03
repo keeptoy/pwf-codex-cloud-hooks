@@ -215,8 +215,14 @@ store 和协议差异，本仓库应优先迁移、缩小或退役，而不是�
 
 - 明确“read-only”指不修改项目、Skill、Managed policy 或 session store；允许受控
   私有临时投影；
-- 冻结输入文件上限、输出 20,000 字符上限和分段 timeout；
-- Linux 使用安全 fd 打开和 containment，拒绝 symlink/device/FIFO；
+- 输入/输出和 timeout 已冻结：完整 context 上限 20,000 字符，30 秒 Host 上限内使用
+  27 秒共享 deadline（owned-plan 8、catch-up 15、adapter 4，保留 3 秒 Host margin）；
+- Linux 路径策略已冻结为 portable fd-rooted `openat` walk，拒绝 symlink/device/FIFO；
+  `openat2` 只作未来可选 hardening；
+- single-link Cloud gate 已由 Fresh + Resume 共 40/40 次 stable regular-file、
+  `st_nlink=1` 观测关闭；生产读取在 pre/post/reopen 三处 fail-closed 检查该条件；
+- stale cleanup 已冻结为同 EUID trusted `/tmp` base 下的 10 分钟/32 entry/500 ms
+  有界扫描；
 - 证明 root/root 与 synthetic cross-user 都能创建、读取和清理自己的投影；
 - 证明项目 `.mode`、nonce、attestation、ledger 和 ambient `PWF_*` 不进入 Phase 3；
 - 证明超时、kill、非零退出、空输出、stderr、无效 UTF-8 和超限输出都 fail-closed；
