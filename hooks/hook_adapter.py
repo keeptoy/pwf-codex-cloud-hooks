@@ -6,9 +6,13 @@ import json
 import os
 from pathlib import Path
 import re
+import signal
 import stat
 import subprocess
 import sys
+import threading
+import time
+from typing import Callable
 
 CANARY = "PWF_GLOBAL_HOOK_CANARY_V1"
 EVENTS = {"SessionStart", "UserPromptSubmit"}
@@ -16,6 +20,20 @@ SESSION_SOURCES = {"startup", "resume", "clear", "compact"}
 SLUG = re.compile(r"^[A-Za-z0-9_][A-Za-z0-9._-]*$")
 SESSION_ID = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$")
 MAX_RUNTIME_STDOUT_BYTES = 100_000
+MAX_RUNTIME_STDERR_BYTES = 100_000
+MAX_RUNTIME_REQUEST_BYTES = 100_000
+ADAPTER_DEADLINE_SECONDS = 27.0
+CATCHUP_SECONDS = 15.0
+FINALIZATION_RESERVE_SECONDS = 1.0
+RUNTIME_FILES = {
+    "catchup": "owned-catchup.py",
+    "plan": "owned-plan.py",
+}
+PLAN_OUTPUT_BUDGET = {
+    "max_context_chars": 20_000,
+    "max_plan_lines": 50,
+    "max_progress_lines": 20,
+}
 OUTPUT_BUDGET = {
     "max_report_chars": 20_000,
     "max_messages": 15,
@@ -41,6 +59,18 @@ RUNTIME_WARNINGS = {
     "transcript_path_rejected", "scan_fallback_used", "unknown_transcript_record",
     "duplicate_record_suppressed", "invalid_utf8_record", "invalid_json_record",
     "record_too_large", "report_truncated",
+}
+PLAN_OUTCOMES = {
+    "context_emitted", "planning_disabled", "session_not_attached", "no_plan",
+    "invalid_request", "plan_state_changed", "plan_unreadable",
+    "output_budget_exceeded", "timeout", "runtime_error",
+}
+PLAN_WARNINGS = {
+    "plan_id_rejected", "active_plan_rejected", "candidate_escape_rejected",
+    "progress_unreadable", "stale_cleanup_skipped", "stale_cleanup_failed",
+}
+PLAN_DIAGNOSTIC_FIELDS = {
+    "event_name", "plan_id_state", "selected_plan_scope", "selected_plan_dir",
 }
 
 
@@ -179,13 +209,21 @@ def _canonical_directory(candidate: Path) -> Path | None:
         return None
 
 
-def owned_runtime_path() -> Path | None:
-    candidate = Path(__file__).resolve().with_name("owned-catchup.py")
+def sibling_runtime_path(identity: str) -> Path | None:
+    name = RUNTIME_FILES.get(identity)
+    if name is None:
+        return None
+    candidate = Path(__file__).resolve().with_name(name)
     try:
         info = candidate.lstat()
         return candidate if stat.S_ISREG(info.st_mode) and not stat.S_ISLNK(info.st_mode) else None
     except OSError:
         return None
+
+
+def owned_runtime_path() -> Path | None:
+    """Backward-compatible name for the active catch-up sibling."""
+    return sibling_runtime_path("catchup")
 
 
 def session_store_roots() -> list[Path]:
@@ -259,7 +297,56 @@ def build_runtime_request(event: str, payload: dict, state: dict) -> dict | None
     }
 
 
-def _valid_runtime_result(value: object) -> bool:
+def build_plan_context_request(event: str, payload: dict, root: Path) -> dict | None:
+    """Build the inactive exact-v1 owned-plan request without dispatching it."""
+    root_value = str(root)
+    if event not in EVENTS or not root.is_absolute() or not (2 <= len(root_value) <= 4096):
+        return None
+    source = payload.get("source") if event == "SessionStart" else None
+    if event == "SessionStart" and source not in SESSION_SOURCES:
+        return None
+    session_id = payload.get("session_id")
+    if session_id is not None and (
+        not isinstance(session_id, str) or SESSION_ID.fullmatch(session_id) is None
+    ):
+        return None
+    if event == "SessionStart":
+        turn_id = None
+    else:
+        turn_id = payload.get("turn_id")
+        if turn_id is not None and (
+            not isinstance(turn_id, str)
+            or not (1 <= len(turn_id) <= 128)
+            or "\x00" in turn_id
+        ):
+            return None
+    plan_id_value = os.environ.get("PLAN_ID")
+    plan_id = (
+        plan_id_value
+        if isinstance(plan_id_value, str)
+        and len(plan_id_value) <= 128
+        and SLUG.fullmatch(plan_id_value)
+        else None
+    )
+    return {
+        "schema_version": 1,
+        "runtime": "codex",
+        "event": {
+            "name": event,
+            "source": source,
+            "session_id": session_id,
+            "turn_id": turn_id,
+        },
+        "project": {"root": root_value, "plan_id": plan_id},
+        "policy": {
+            "planning_enabled": os.environ.get("PLANNING_DISABLED") != "1",
+            "behavior_profile": "managed_legacy",
+        },
+        "output_budget": dict(PLAN_OUTPUT_BUDGET),
+    }
+
+
+def _valid_runtime_result(value: object, _request: dict | None = None) -> bool:
     if not isinstance(value, dict) or set(value) != {
         "schema_version", "outcome", "inject", "report", "warnings", "diagnostic"
     }:
@@ -296,29 +383,310 @@ def _valid_runtime_result(value: object) -> bool:
     return not value["inject"] and report is None
 
 
-def invoke_owned_runtime(
-    runtime: Path, request: dict, *, timeout_seconds: float = 30
-) -> tuple[dict | None, str | None]:
-    """Run the managed child with bounded stdout and a strict result envelope."""
+def _plan_shape_is_valid(root_value: str, plan_value: str, scope: str) -> bool:
+    root = Path(root_value)
+    plan = Path(plan_value)
     try:
-        result = subprocess.run(
+        relative = plan.relative_to(root)
+    except (ValueError, OSError):
+        return False
+    if scope == "legacy_root":
+        return relative == Path(".")
+    return (
+        scope == "scoped"
+        and len(relative.parts) == 2
+        and relative.parts[0] == ".planning"
+        and SLUG.fullmatch(relative.parts[1]) is not None
+    )
+
+
+def _valid_plan_context_result(value: object, request: dict | None = None) -> bool:
+    if request is None or not isinstance(value, dict) or set(value) != {
+        "schema_version", "outcome", "inject", "context", "project", "warnings", "diagnostic"
+    }:
+        return False
+    if value.get("schema_version") != 1 or value.get("outcome") not in PLAN_OUTCOMES:
+        return False
+    if not isinstance(value.get("inject"), bool) or not isinstance(value.get("warnings"), list):
+        return False
+    if not all(isinstance(item, str) and item in PLAN_WARNINGS for item in value["warnings"]):
+        return False
+    if len(value["warnings"]) != len(set(value["warnings"])):
+        return False
+    try:
+        request_event = request["event"]["name"]
+        request_root = request["project"]["root"]
+        request_enabled = request["policy"]["planning_enabled"]
+    except (KeyError, TypeError):
+        return False
+    if request_event not in EVENTS or not isinstance(request_root, str) or not (2 <= len(request_root) <= 4096):
+        return False
+    if not isinstance(request_enabled, bool):
+        return False
+    project = value.get("project")
+    if not isinstance(project, dict) or set(project) != {
+        "root", "planning_enabled", "session_attachment", "plan_state", "plan_scope", "plan_dir"
+    }:
+        return False
+    if project.get("root") != request_root or project.get("planning_enabled") is not request_enabled:
+        return False
+    if project.get("session_attachment") not in {"legacy", "attached", "detached"}:
+        return False
+    if project.get("plan_state") not in {"none", "resolved"}:
+        return False
+    diagnostic = value.get("diagnostic")
+    if not isinstance(diagnostic, dict) or set(diagnostic) != PLAN_DIAGNOSTIC_FIELDS:
+        return False
+    if diagnostic.get("event_name") != request_event:
+        return False
+    if diagnostic.get("plan_id_state") not in {"absent", "accepted", "rejected"}:
+        return False
+    request_plan_id = request.get("project", {}).get("plan_id")
+    expected_plan_id_state = "absent" if request_plan_id is None else "accepted"
+    if diagnostic.get("plan_id_state") != expected_plan_id_state:
+        return False
+    if diagnostic.get("selected_plan_scope") != project.get("plan_scope"):
+        return False
+    if diagnostic.get("selected_plan_dir") != project.get("plan_dir"):
+        return False
+    if project["plan_state"] == "none":
+        if project.get("plan_scope") != "none" or project.get("plan_dir") is not None:
+            return False
+    else:
+        plan_dir = project.get("plan_dir")
+        if not isinstance(plan_dir, str) or len(plan_dir) > 4096:
+            return False
+        if not _plan_shape_is_valid(request_root, plan_dir, project.get("plan_scope")):
+            return False
+    context_value = value.get("context")
+    if value["outcome"] == "context_emitted":
+        if not value["inject"] or not isinstance(context_value, str) or not (0 < len(context_value) <= 20_000):
+            return False
+        if project["plan_state"] != "resolved" or not project["planning_enabled"]:
+            return False
+        if project["session_attachment"] == "detached":
+            return False
+    elif value["inject"] or context_value is not None:
+        return False
+    if value["outcome"] == "planning_disabled" and project["planning_enabled"]:
+        return False
+    if not project["planning_enabled"] and value["outcome"] != "planning_disabled":
+        return False
+    if value["outcome"] == "session_not_attached" and project["session_attachment"] != "detached":
+        return False
+    if project["session_attachment"] == "detached" and value["outcome"] != "session_not_attached":
+        return False
+    if value["outcome"] == "no_plan" and project["plan_state"] != "none":
+        return False
+    return True
+
+
+def _bounded_reader(
+    stream: object,
+    limit: int,
+    output: bytearray,
+    overflow: threading.Event,
+    finished: threading.Event,
+) -> None:
+    try:
+        while True:
+            chunk = stream.read(8192)  # type: ignore[attr-defined]
+            if not chunk:
+                break
+            remaining = limit + 1 - len(output)
+            if remaining > 0:
+                output.extend(chunk[:remaining])
+            if len(output) > limit:
+                overflow.set()
+                break
+    except (OSError, ValueError):
+        pass
+    finally:
+        try:
+            stream.close()  # type: ignore[attr-defined]
+        except (OSError, ValueError):
+            pass
+        finished.set()
+
+
+def _bounded_writer(stream: object, data: bytes, finished: threading.Event) -> None:
+    try:
+        stream.write(data)  # type: ignore[attr-defined]
+        stream.flush()  # type: ignore[attr-defined]
+    except (BrokenPipeError, OSError, ValueError):
+        pass
+    finally:
+        try:
+            stream.close()  # type: ignore[attr-defined]
+        except (OSError, ValueError):
+            pass
+        finished.set()
+
+
+def _kill_process_group(process: subprocess.Popen[bytes]) -> None:
+    if os.name == "posix":
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except (ProcessLookupError, PermissionError, OSError):
+            pass
+    elif process.poll() is None:
+        try:
+            process.kill()
+        except OSError:
+            pass
+    try:
+        process.wait(timeout=0.5)
+    except (subprocess.TimeoutExpired, OSError):
+        if process.poll() is None:
+            try:
+                process.kill()
+                process.wait(timeout=0.5)
+            except (subprocess.TimeoutExpired, OSError):
+                pass
+
+
+def _supervise_bytes(
+    runtime: Path,
+    request_bytes: bytes,
+    *,
+    deadline: float,
+    stdout_limit: int = MAX_RUNTIME_STDOUT_BYTES,
+    stderr_limit: int = MAX_RUNTIME_STDERR_BYTES,
+) -> tuple[bytes | None, str | None]:
+    if len(request_bytes) > MAX_RUNTIME_REQUEST_BYTES or deadline <= time.monotonic():
+        return None, "runtime_error" if len(request_bytes) > MAX_RUNTIME_REQUEST_BYTES else "timeout"
+    popen_options: dict = {}
+    if os.name == "posix":
+        popen_options["start_new_session"] = True
+    elif os.name == "nt":
+        popen_options["creationflags"] = subprocess.CREATE_NEW_PROCESS_GROUP
+    try:
+        process = subprocess.Popen(
             [sys.executable, str(runtime)],
-            input=json.dumps(request, ensure_ascii=True, separators=(",", ":")).encode("utf-8"),
-            capture_output=True,
-            timeout=timeout_seconds,
-            check=False,
+            stdin=subprocess.PIPE,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            bufsize=0,
+            **popen_options,
         )
-    except subprocess.TimeoutExpired:
-        return None, "timeout"
-    except (OSError, TypeError, UnicodeError, ValueError):
+    except (OSError, TypeError, ValueError):
         return None, "runtime_error"
-    if result.returncode != 0 or len(result.stdout) > MAX_RUNTIME_STDOUT_BYTES:
+    if process.stdin is None or process.stdout is None or process.stderr is None:
+        _kill_process_group(process)
         return None, "runtime_error"
+
+    stdout = bytearray()
+    stderr = bytearray()
+    overflow = threading.Event()
+    stdin_done = threading.Event()
+    stdout_done = threading.Event()
+    stderr_done = threading.Event()
+    threads = [
+        threading.Thread(target=_bounded_writer, args=(process.stdin, request_bytes, stdin_done), daemon=True),
+        threading.Thread(
+            target=_bounded_reader,
+            args=(process.stdout, stdout_limit, stdout, overflow, stdout_done),
+            daemon=True,
+        ),
+        threading.Thread(
+            target=_bounded_reader,
+            args=(process.stderr, stderr_limit, stderr, overflow, stderr_done),
+            daemon=True,
+        ),
+    ]
+    for thread in threads:
+        thread.start()
+
+    failure = None
+    while True:
+        if overflow.is_set():
+            failure = "runtime_error"
+            break
+        returncode = process.poll()
+        if returncode is not None:
+            if returncode != 0:
+                failure = "runtime_error"
+                break
+            if stdout_done.is_set() and stderr_done.is_set():
+                break
+        remaining = deadline - time.monotonic()
+        if remaining <= 0:
+            failure = "timeout"
+            break
+        overflow.wait(min(0.01, remaining))
+
+    if failure is not None:
+        _kill_process_group(process)
+    else:
+        try:
+            process.wait(timeout=max(0.0, deadline - time.monotonic()))
+        except (subprocess.TimeoutExpired, OSError):
+            failure = "timeout"
+            _kill_process_group(process)
+    join_deadline = time.monotonic() + 0.5
+    for thread in threads:
+        thread.join(timeout=max(0.0, join_deadline - time.monotonic()))
+    if overflow.is_set():
+        failure = "runtime_error"
+    return (bytes(stdout), None) if failure is None else (None, failure)
+
+
+def _invoke_typed_runtime(
+    runtime: Path,
+    request: dict,
+    validator: Callable[[object, dict | None], bool],
+    *,
+    timeout_seconds: float,
+    deadline: float | None = None,
+) -> tuple[dict | None, str | None]:
     try:
-        value = json.loads(result.stdout.decode("utf-8"))
+        request_bytes = json.dumps(request, ensure_ascii=True, separators=(",", ":")).encode("utf-8")
+    except (TypeError, UnicodeError, ValueError):
+        return None, "runtime_error"
+    now = time.monotonic()
+    effective_deadline = min(deadline, now + timeout_seconds) if deadline is not None else now + timeout_seconds
+    stdout, failure = _supervise_bytes(runtime, request_bytes, deadline=effective_deadline)
+    if failure is not None or stdout is None:
+        return None, failure or "runtime_error"
+    try:
+        value = json.loads(stdout.decode("utf-8"))
     except (UnicodeDecodeError, json.JSONDecodeError, TypeError):
         return None, "runtime_error"
-    return (value, None) if _valid_runtime_result(value) else (None, "runtime_error")
+    return (value, None) if validator(value, request) else (None, "runtime_error")
+
+
+def invoke_owned_runtime(
+    runtime: Path,
+    request: dict,
+    *,
+    timeout_seconds: float = CATCHUP_SECONDS,
+    deadline: float | None = None,
+) -> tuple[dict | None, str | None]:
+    """Invoke the active catch-up child through its exact result validator."""
+    return _invoke_typed_runtime(
+        runtime,
+        request,
+        _valid_runtime_result,
+        timeout_seconds=timeout_seconds,
+        deadline=deadline,
+    )
+
+
+def invoke_plan_runtime(
+    runtime: Path,
+    request: dict,
+    *,
+    timeout_seconds: float = 8.5,
+    deadline: float | None = None,
+) -> tuple[dict | None, str | None]:
+    """Inactive R4-A typed seam; production dispatch is intentionally absent."""
+    return _invoke_typed_runtime(
+        runtime,
+        request,
+        _valid_plan_context_result,
+        timeout_seconds=timeout_seconds,
+        deadline=deadline,
+    )
 
 
 def context(
@@ -352,6 +720,7 @@ def main() -> int:
     if len(sys.argv) != 2 or sys.argv[1] not in EVENTS:
         return 2
     event = sys.argv[1]
+    shared_deadline = time.monotonic() + ADAPTER_DEADLINE_SECONDS
     payload = load_payload()
     root = project_root(payload)
     state = resolve_project_state(root, payload)
@@ -360,9 +729,14 @@ def main() -> int:
     catchup_report = ""
     if event == "SessionStart" and visible:
         request = build_runtime_request(event, payload, state)
-        runtime = owned_runtime_path()
+        runtime = sibling_runtime_path("catchup")
         if request is not None and runtime is not None:
-            runtime_result, _failure = invoke_owned_runtime(runtime, request)
+            runtime_result, _failure = invoke_owned_runtime(
+                runtime,
+                request,
+                timeout_seconds=CATCHUP_SECONDS,
+                deadline=shared_deadline - FINALIZATION_RESERVE_SECONDS,
+            )
             if runtime_result is not None and runtime_result["inject"]:
                 catchup_report = runtime_result["report"]
     output = context(

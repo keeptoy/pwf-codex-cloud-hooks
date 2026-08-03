@@ -54,6 +54,7 @@ function invoke(layout, event, payload, envOverrides = {}, identity = {}) {
 test("SessionStart activates only the sibling owned runtime with an explicit Host request", () => {
   const layout = fixture();
   const capture = path.join(layout.workspace, "request.json");
+  const planMarker = path.join(layout.workspace, "owned-plan-ran");
   const globalMarker = path.join(layout.workspace, "global-skill-ran");
   const globalSkill = path.join(layout.workspace, ".agents", "skills", "planning-with-files", "scripts");
   const stub = [
@@ -66,6 +67,10 @@ test("SessionStart activates only the sibling owned runtime with an explicit Hos
   try {
     fs.writeFileSync(layout.transcript, "{}\n");
     fs.writeFileSync(path.join(layout.managed, "owned-catchup.py"), stub);
+    fs.writeFileSync(
+      path.join(layout.managed, "owned-plan.py"),
+      `import pathlib\npathlib.Path(${JSON.stringify(planMarker)}).write_text('executed')\nraise SystemExit(91)\n`,
+    );
     fs.mkdirSync(globalSkill, { recursive: true });
     fs.writeFileSync(
       path.join(globalSkill, "session-catchup.py"),
@@ -82,6 +87,7 @@ test("SessionStart activates only the sibling owned runtime with an explicit Hos
     assert.match(result.json.hookSpecificOutput.additionalContext, /Task Plan: Owned Activation/);
     assert.doesNotMatch(result.json.hookSpecificOutput.additionalContext, /MUTABLE_GLOBAL_SKILL_EXECUTED/);
     assert.equal(fs.existsSync(globalMarker), false);
+    assert.equal(fs.existsSync(planMarker), false, "R4-A must not dispatch owned-plan on SessionStart");
 
     const request = JSON.parse(fs.readFileSync(capture, "utf8"));
     assert.equal(request.schema_version, 1);
@@ -97,6 +103,7 @@ test("SessionStart activates only the sibling owned runtime with an explicit Hos
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.json.hookSpecificOutput.additionalContext, /Task Plan: Owned Activation/);
     assert.equal(fs.existsSync(capture), false, "UserPromptSubmit must remain local until Phase 3");
+    assert.equal(fs.existsSync(planMarker), false, "R4-A must not dispatch owned-plan on UserPromptSubmit");
   } finally { fs.rmSync(layout.workspace, { recursive: true, force: true }); }
 });
 

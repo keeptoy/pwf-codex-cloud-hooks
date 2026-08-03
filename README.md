@@ -183,6 +183,7 @@ install.js
 | `docs/phase-2-owned-catchup.md` | Active SessionStart owned-runtime boundary 和安全策略 |
 | `docs/phase-3-canonical-plan-context.md` | Phase 3 已选架构、inactive trusted-graph lifecycle、兼容决策、预算和 round gates |
 | `docs/phase-3-round-4-activation-plan.md` | Round 4 A/B/C 激活顺序、共享 deadline、failure matrix、rollback boundary 和 beta.1 Cloud exit gate |
+| `docs/phase-3-round-4-r4a-cloud-acceptance.md` | R4-A bounded supervisor/type seam 的 Linux/Cloud 可复制验收；明确保持 plan dispatch inactive |
 | `docs/phase-3-upstream-invocation-options.md` | overlay/snapshot/其他路线比较、实证和长期 Host/Driver 标准化边界 |
 | `docs/phase-3-round-3-cloud-acceptance.md` | Inactive Round 3 Linux/Cloud、隔离安装、inventory、direct runtime 和 no-dispatch gate |
 | `docs/v0.3.0-alpha.1-cloud-smoke.md` | Phase 1 预发行发布与 Cloud smoke 验收记录 |
@@ -238,10 +239,12 @@ bash -n init-cloud-sandbox-v0.3.0.bash
 git diff --check
 ```
 
-当前 Node suite 注册 63 个**测试案例**，不等于 63 个原子产品功能：
+当前开发版 Node suite 注册 66 个**测试案例**，不等于 66 个原子产品功能：
 
-- Windows：46 PASS、17 个如实标记的 POSIX/Linux-only SKIP、0 FAIL；
-- Cloud/Linux：63 PASS、0 SKIP、0 FAIL；
+- Windows R4-A：48 PASS、18 个如实标记的 POSIX/Linux-only SKIP、0 FAIL；
+- 最近一次已关闭的 Cloud/Linux gate 是 Round 3 的 63 PASS、0 SKIP、0 FAIL；
+- R4-A 新增的 Linux process-group 和 inactive typed-seam 回归须按
+  `docs/phase-3-round-4-r4a-cloud-acceptance.md` 跑到 66/66，当前仍待 Cloud 证据；
 - 已封板 alpha.2 快照仍是 45 registered、42 PASS、3 Linux-only SKIP。
 
 这些案例覆盖：
@@ -504,11 +507,12 @@ git status --short --branch
   single-link policy、inactive trusted graph 和 63/63 Linux/Cloud gate 已关闭；
 - Round 4 入口分析 complete：R4-A 是 bounded supervisor/type seam，R4-B 是 atomic activation
   与 adapter thinning，R4-C 是 beta.1 seal 和 Fresh/Resume Cloud acceptance；
-- 当前只授权 R4-A，尚未开始 implementation；owned-plan production dispatch、R4-B、R4-C 和
-  beta.1 发布仍未授权；alpha.2 保持 rollback baseline。
+- R4-A implementation 与 Windows gate 已完成，Linux/Cloud gate 待执行；owned-plan production
+  dispatch 仍为 inactive，R4-B、R4-C 和 beta.1 发布仍未授权；alpha.2 保持 rollback baseline。
 
 更详细的阶段摘要和发布路标见 `work_plan.md`；Round 4 gate 见
-`docs/phase-3-round-4-activation-plan.md`。prototype branch/commit 中的 beta.1 字样只是实验
+`docs/phase-3-round-4-activation-plan.md`；R4-A Cloud gate 见
+`docs/phase-3-round-4-r4a-cloud-acceptance.md`。prototype branch/commit 中的 beta.1 字样只是实验
 metadata，不代表 beta Release 已成立。新的 lifecycle events 继续延后，直到该 runtime boundary
 和 diagnostic contract 完成。
 

@@ -53,5 +53,14 @@ test("Phase 3 Round 3 installs the exact-v1 canonical plan-context path without 
   assert.equal(artifact.entries.some(item => item.path === "contracts/plan-context-result-v1.schema.json"), true);
   assert.equal(artifact.entries.length, 21);
   const adapter = fs.readFileSync(path.join(root, "hooks", "hook_adapter.py"), "utf8");
-  assert.doesNotMatch(adapter, /owned-plan\.py|adapter-plan-context-request-v1|plan-context-result-v1/);
+  assert.match(adapter, /"plan": "owned-plan\.py"/);
+  assert.match(adapter, /def build_plan_context_request\(/);
+  assert.match(adapter, /def _valid_plan_context_result\(/);
+  assert.match(adapter, /def invoke_plan_runtime\(/);
+  assert.match(adapter, /ADAPTER_DEADLINE_SECONDS = 27\.0/);
+  assert.match(adapter, /CATCHUP_SECONDS = 15\.0/);
+  assert.match(adapter, /FINALIZATION_RESERVE_SECONDS = 1\.0/);
+  assert.doesNotMatch(adapter, /subprocess\.run\(/);
+  assert.match(adapter, /sibling_runtime_path\("catchup"\)/);
+  assert.doesNotMatch(adapter, /sibling_runtime_path\("plan"\)/);
 });

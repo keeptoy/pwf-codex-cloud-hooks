@@ -449,8 +449,8 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 
 - adapter 仍维护 alpha.2 的平行 plan resolution/rendering；inactive `owned-plan.py` 尚未成为
   两个 lifecycle event 的唯一 canonical owner；
-- Round 4 尚未完成共享 deadline supervisor、双 child typed validation、原子激活、adapter
-  thinning 和 beta.1 Fresh/Resume Cloud 验收；
+- R4-A 已在本地实现共享 deadline supervisor 和分离的 catch-up/plan typed seam，但尚待
+  Linux/Cloud gate；原子激活、adapter thinning 和 beta.1 Fresh/Resume Cloud 验收仍未开始；
 - attestation、nonce、smart/structured-ledger 模式与 compact/tool/permission/Stop Managed Hooks
   仍按 Phase 4～8 延后，不能从 upstream allowlist 推断为已实现；
 - normal install 失败可通过备份恢复，但尚不是跨全部外部文件的自动事务回滚；
@@ -514,7 +514,8 @@ Phase 3 目标职责边界：
 
 - Phase 1 与 Phase 2 已完成并通过各自 Cloud 验收；alpha.2 是当前 Phase 3 回滚基线；
 - Phase 3 Round 1～3 已完成，inactive owned-plan 的完整 Linux/Cloud gate 为 63/63 PASS；
-- Round 4 入口分析已完成，当前只授权 R4-A supervisor/type seam；
+- Round 4 入口分析已完成；R4-A implementation 与 Windows gate 已通过，当前等待其
+  Linux/Cloud gate；
 - adapter 尚未 dispatch `owned-plan.py`，R4-B 激活与 R4-C beta.1/Cloud 尚未授权；
 - requirements 仍只注册 adapter；发布过的 alpha.2 ZIP/bootstrap 保持不可变。
 
@@ -568,7 +569,7 @@ Phase 3 目标职责边界：
 
 1. **可选 Host 证据**：独立证明 Hook stdin `transcript_path` 所指 JSONL 的
    `session_meta.id` / `session_meta.session_id` 与 stdin `session_id` 一致。现有 runtime
-   已执行 identity 校验，因此该证据增强不阻塞 R4-A。
+   已执行 identity 校验，因此该证据增强不阻塞当前 R4-A Linux/Cloud gate。
 2. **Phase 4 入口复核**：开始 hard Stop 前重新审计上游 modes、attestation 与 ledger
    语义，不能沿用 Phase 3 的只读假设直接外推。
 3. **长期泛化证据**：第二个只读插件尚未验证 Host/runner/Driver 抽象；完成前不得把本仓库

@@ -1,6 +1,6 @@
 # Phase 3 Round 4 Activation Plan
 
-> Status: entry analysis complete enough to define implementation gates; production dispatch is still unchanged
+> Status: R4-A implementation and Windows gate PASS; Linux/Cloud gate pending; production dispatch is still unchanged
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
@@ -146,6 +146,11 @@ dispatch `owned-plan.py` yet.
 Gate: the full local suite passes, existing alpha.2 goldens remain byte-exact,
 adapter dispatch still excludes owned-plan, and installed/ZIP counts remain
 11/21.
+
+Current evidence: Windows completed 66 registered / 48 PASS / 18 honest Linux-only
+SKIP / 0 FAIL. Close R4-A only after the copyable Linux/Cloud gate in
+[`phase-3-round-4-r4a-cloud-acceptance.md`](phase-3-round-4-r4a-cloud-acceptance.md)
+reaches 66 PASS / 0 SKIP / 0 FAIL. That acceptance does not authorize R4-B.
 
 ## R4-B — atomic activation and adapter thinning
 

@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Begin R4-A only: implement and verify the bounded shared-deadline supervisor and separate typed result seams while `owned-plan.py` dispatch remains inactive. R4-B activation and R4-C beta.1/Cloud work remain unauthorized until the preceding gate passes.
+Run and assess only `docs/phase-3-round-4-r4a-cloud-acceptance.md` against the exact R4-A commit. Keep `owned-plan.py` production dispatch inactive. Do not begin R4-B activation or R4-C beta.1/Cloud work until R4-A has 66/66 Linux PASS and the user explicitly continues.
 
 ## Current Phase
-Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 entry analysis is complete, R4-A implementation is next, no owned-plan production path is active, and alpha.2 remains the rollback baseline
+Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 R4-A implementation and Windows verification are complete, Linux/Cloud acceptance is pending, no owned-plan production path is active, and alpha.2 remains the rollback baseline.
 
 ## Phases
 
@@ -123,7 +123,7 @@ Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 en
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
 | 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
 | 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | complete; Cloud PASS |
-| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | entry analysis complete; R4-A pending |
+| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | R4-A local PASS; Linux/Cloud pending |
 
 - [ ] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
 - [ ] Dispatch both lifecycle events through `owned-plan.py`, which must call the verified standalone resolver, finalize one canonical contained project state, and invoke the managed-legacy upstream injector.
@@ -134,7 +134,7 @@ Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 en
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
 - [ ] Prove prompt injection runs exclusively from the owned runtime bundle and no mutable global Skill script executes; retain the pristine global Skill for model discovery/instructions and deployment governance.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Rounds 1–3 complete; Round 3 inactive Cloud acceptance PASS; Round 4 entry analysis complete, R4-A pending, no activation yet
+- **Status:** Rounds 1–3 complete; Round 3 inactive Cloud acceptance PASS; R4-A implementation and Windows gate PASS, Linux/Cloud pending, no activation yet
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 
@@ -212,7 +212,7 @@ Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 en
 | Preserve legacy behavior by default | Existing plans must not be forced into attestation, ledger, or gating without an explicit migration/mode. |
 | Roll out lifecycle events incrementally | Managed Hooks are globally trusted, can coexist and run concurrently with other sources, and are harder for users to disable. |
 | Add hard Stop gating last | It has the greatest recursion, concurrency, and runaway risk and requires real host verification. |
-| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 added one inactive-contract case for forty-six; Round 2 added eight feasibility cases plus one parent isolation case for fifty-five; Round 3 adds eight production owned-plan cases for sixty-three. Several cases cover multiple guarantees. Windows runs 46 and honestly skips 17 production-POSIX cases; the completed Cloud/Linux Round 3 gate runs all 63 with zero skips. |
+| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 added one inactive-contract case for forty-six; Round 2 added eight feasibility cases plus one parent isolation case for fifty-five; Round 3 added eight production owned-plan cases for sixty-three. R4-A adds three supervisor/seam/identity cases for sixty-six. Several cases cover multiple guarantees. Windows runs 48 and honestly skips 18 production-POSIX cases; the completed Cloud/Linux Round 3 gate remains 63/63, while the R4-A 66/66 Linux gate is pending. |
 | Treat the v0.2.2 catch-up patch as a temporary compatibility overlay | It is valuable Cloud-proven behavior, but mutating and executing a global Skill conflicts with the owned-runtime trust boundary. |
 | Make the host/runtime contract explicit | `.agents` placement, initialization/runtime environment differences, absent Hook-time `CODEX_THREAD_ID`, and the Host-provided transcript path prove that script-path and setup-shell inference are not stable Cloud interfaces. |
 | Add reason-coded diagnostics without injecting them by default | Silent early returns made black-box failures expensive to localize, while stderr or debug text must not contaminate Hook JSON/context. |
