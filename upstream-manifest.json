@@ -31,7 +31,7 @@
     "contracts": {
       "runtime_bundle": {
         "path": "contracts/runtime-bundle-v1.json",
-        "sha256": "6b7176fdfaaa142da51dbcba5823a77e7f4e5810f43f7bbb1f143c7d7cebaffd"
+        "sha256": "1b88a92bf43ffa4c9eb01ef2758bbccaf6d16716f4e609bd63d4bb1f5ce7d516"
       },
       "compatibility_overlays": {
         "path": "contracts/compatibility-overlays-v1.json",
@@ -41,13 +41,23 @@
         "path": "contracts/adapter-runtime-request-v1.schema.json",
         "sha256": "a86588e3c7d55cbbeddc74110403ba815ad8715735c149d77dd0c47996ee72d5"
       },
+      "adapter_plan_context_request": {
+        "path": "contracts/adapter-plan-context-request-v1.schema.json",
+        "installed_path": "hooks/planning-with-files/contracts/adapter-plan-context-request-v1.schema.json",
+        "sha256": "3d6378959768241aae7cb07fc76cf7a66086dc122fbe07799e964c35a1b59dd5"
+      },
+      "plan_context_result": {
+        "path": "contracts/plan-context-result-v1.schema.json",
+        "installed_path": "hooks/planning-with-files/contracts/plan-context-result-v1.schema.json",
+        "sha256": "c76772d5d6ae22a75ffb792cd9c48b0212bff42f28926d386f8cbcd712e70b32"
+      },
       "runtime_result": {
         "path": "contracts/runtime-result-v1.schema.json",
         "sha256": "1cb545d9487c8d0ef9f4ccd270a786d0dc998629813e81a2cc05463b23b62ed7"
       },
       "release_artifact": {
         "path": "contracts/release-artifact-v1.json",
-        "sha256": "4f33e03a2d6fea85afbbaed707b305c8001d7025e67a0565440c71400d192923"
+        "sha256": "25cf0aebcdcd48a0dece46aec876dbd8cd1261dd62dbd54d8918859234013bd2"
       }
     },
     "importer": {
@@ -68,6 +78,13 @@
         "mode": "0755",
         "origin": "local_managed_runtime",
         "sha256": "bb3a18b8144e63b17c33db4cccf81425f135647948e6f20f4c44c3e42ba71f85"
+      },
+      {
+        "id": "owned_plan",
+        "package_path": "runtime/owned-plan.py",
+        "mode": "0755",
+        "origin": "local_managed_runtime",
+        "sha256": "2be123e4b73ac72ed189ecffa816ceb6b4129f216093a16b2bba9c998353caef"
       }
     ],
     "files": [

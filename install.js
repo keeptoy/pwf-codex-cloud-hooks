@@ -82,6 +82,18 @@ function sourceRuntimeFiles() {
       mode: Number.parseInt(item.mode, 8),
     });
   }
+  for (const [id, item] of Object.entries(managed.contracts || {})) {
+    if (!item.installed_path) continue;
+    const relative = path.posix.relative("hooks/planning-with-files", item.installed_path);
+    if (!relative || relative.startsWith("../") || path.posix.isAbsolute(relative)) throw new Error(`BLOCKED_PACKAGE_DRIFT: invalid installed contract path ${item.installed_path}`);
+    files.push({
+      id,
+      relative,
+      source: path.join(ROOT, ...item.path.split("/")),
+      expected: item.sha256,
+      mode: 0o644,
+    });
+  }
   files.push({
     id: "compatibility_overlays",
     relative: "compatibility-overlays-v1.json",

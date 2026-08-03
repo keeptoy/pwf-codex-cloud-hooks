@@ -36,6 +36,49 @@
       "host_dependencies": [
         "python3-standard-library"
       ]
+    },
+    {
+      "id": "owned_plan",
+      "package_path": "runtime/owned-plan.py",
+      "installed_path": "hooks/planning-with-files/owned-plan.py",
+      "origin": "local_managed_runtime",
+      "activation_phase": 3,
+      "language": "python3",
+      "mode": "0755",
+      "sha256": "2be123e4b73ac72ed189ecffa816ceb6b4129f216093a16b2bba9c998353caef",
+      "direct_file_dependencies": [
+        {
+          "id": "resolve_plan_dir",
+          "condition": "always",
+          "required": true
+        },
+        {
+          "id": "inject_plan",
+          "condition": "managed_legacy snapshot",
+          "required": true
+        }
+      ],
+      "host_dependencies": [
+        "python3-standard-library",
+        "linux-openat-and-process-groups",
+        "posix-sh"
+      ]
+    }
+  ],
+  "installed_contracts": [
+    {
+      "id": "adapter_plan_context_request",
+      "package_path": "contracts/adapter-plan-context-request-v1.schema.json",
+      "installed_path": "hooks/planning-with-files/contracts/adapter-plan-context-request-v1.schema.json",
+      "mode": "0644",
+      "sha256": "3d6378959768241aae7cb07fc76cf7a66086dc122fbe07799e964c35a1b59dd5"
+    },
+    {
+      "id": "plan_context_result",
+      "package_path": "contracts/plan-context-result-v1.schema.json",
+      "installed_path": "hooks/planning-with-files/contracts/plan-context-result-v1.schema.json",
+      "mode": "0644",
+      "sha256": "c76772d5d6ae22a75ffb792cd9c48b0212bff42f28926d386f8cbcd712e70b32"
     }
   ],
   "files": [

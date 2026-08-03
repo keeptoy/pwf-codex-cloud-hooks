@@ -17,9 +17,12 @@ let cliWorkspace;
 const expectedRuntimeFiles = [
   "THIRD_PARTY_NOTICES.md",
   "compatibility-overlays-v1.json",
+  "contracts/adapter-plan-context-request-v1.schema.json",
+  "contracts/plan-context-result-v1.schema.json",
   "hook_adapter.py",
   "installed-manifest.json",
   "owned-catchup.py",
+  "owned-plan.py",
   "upstream/inject-plan.sh",
   "upstream/ledger-summary.sh",
   "upstream/resolve-plan-dir.sh",
@@ -112,6 +115,7 @@ test("managed install is merge-preserving, idempotent, diagnosable and uninstall
   assert.match(requirements, /enforce_residency = "us"/); assert.match(requirements, /browser_use = false/); assert.match(requirements, /command = "\\\/usr\\\/bin\\\/keep"|command = "\/usr\/bin\/keep"/);
   assert.match(requirements, /hooks = true/); assert.equal((requirements.match(/hook_adapter\.py/g) || []).length, 2);
   assert.doesNotMatch(requirements, /owned-catchup\.py/);
+  assert.doesNotMatch(requirements, /owned-plan\.py/);
   result = run(home, "install"); assert.equal(result.status, 0, result.stderr);
   requirements = fs.readFileSync(requirementsPath, "utf8"); assert.equal((requirements.match(/hook_adapter\.py/g) || []).length, 2);
   result = run(home, "doctor"); assert.equal(result.status, 0, result.stderr); assert.equal(result.json.healthy, true);
@@ -130,6 +134,9 @@ test("installed runtime permissions are cross-user readable on the Linux target"
     assert.equal(fs.statSync(path.join(runtime, "upstream")).mode & 0o777, 0o755);
     assert.equal(fs.statSync(path.join(runtime, "hook_adapter.py")).mode & 0o777, 0o755);
     assert.equal(fs.statSync(path.join(runtime, "owned-catchup.py")).mode & 0o777, 0o755);
+    assert.equal(fs.statSync(path.join(runtime, "owned-plan.py")).mode & 0o777, 0o755);
+    assert.equal(fs.statSync(path.join(runtime, "contracts", "adapter-plan-context-request-v1.schema.json")).mode & 0o777, 0o644);
+    assert.equal(fs.statSync(path.join(runtime, "contracts", "plan-context-result-v1.schema.json")).mode & 0o777, 0o644);
     assert.equal(fs.statSync(path.join(runtime, "upstream", "session-catchup.py")).mode & 0o777, 0o755);
   } finally { fs.rmSync(home, { recursive: true, force: true }); }
 });
@@ -145,6 +152,11 @@ test("repair fixes only owned adapter and managed definition drift", () => {
   const ownedCatchup = path.join(home, "hooks", "planning-with-files", "owned-catchup.py");
   fs.appendFileSync(ownedCatchup, "# drift\n");
   result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, true); assert.match(result.json.errors.join(" "), /owned_catchup hash drift/);
+  result = run(home, "install", "--repair"); assert.equal(result.status, 0, result.stderr);
+
+  const ownedPlan = path.join(home, "hooks", "planning-with-files", "owned-plan.py");
+  fs.appendFileSync(ownedPlan, "# drift\n");
+  result = run(home, "doctor"); assert.equal(result.status, 1); assert.equal(result.json.repairable, true); assert.match(result.json.errors.join(" "), /owned_plan hash drift/);
   result = run(home, "install", "--repair"); assert.equal(result.status, 0, result.stderr);
 
   const catchup = path.join(home, "hooks", "planning-with-files", "upstream", "session-catchup.py");

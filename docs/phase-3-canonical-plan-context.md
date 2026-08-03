@@ -1,8 +1,8 @@
 # Phase 3 Canonical Plan Context
 
-> Phase status: Rounds 1–2 complete; Round 3 production policies and Cloud compatibility gate frozen/closed
+> Phase status: Rounds 1–2 complete; Round 3 inactive implementation in progress
 >
-> Runtime status: staged only; not implemented, dispatched, installed, or packaged
+> Runtime status: exact-v1 owned path implemented, installed, and packaged in the inactive Round 3 trusted graph; not dispatched
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
@@ -10,7 +10,7 @@
 >
 > Cloud single-link gate: Fresh + Resume PASS; 40/40 stable regular-file observations with `st_nlink=1`
 >
-> Next gate: Round 3 inactive production implementation; no adapter dispatch or beta Release yet
+> Next gate: complete Round 3 Linux/Cloud evidence; no adapter dispatch or beta activation yet
 
 ## Purpose
 
@@ -27,16 +27,15 @@ Those remain Phase 4 scope.
 
 The Round 1 filenames intentionally do not carry a `candidate` suffix. The
 architecture is selected, and the two schemas already have stable versioned
-protocol identities. Their lifecycle is **selected but staged/inactive**, which
-is recorded here, in each schema's `$comment`, and by regression tests proving
-that alpha.2 does not package them. Round 3 promotes the same v1 identities into
-the owned runtime atomically; a filename or schema-version change is reserved
-for an incompatible contract change, not for ordinary staged-to-active
-promotion.
+protocol identities. Their lifecycle is now **implemented/installed but
+inactive**: the published alpha.2 asset does not contain them, while the Round 3
+development trusted graph installs and packages the same v1 identities without
+adapter dispatch. A filename or schema-version change is reserved for an
+incompatible contract change, not for ordinary inactive-to-active promotion.
 
 `tests/phase3-contracts.test.js` is likewise a permanent lifecycle regression,
-not a disposable candidate test: before Round 3 it proves trusted-graph
-exclusion, and later rounds must update it atomically with implementation and
+not a disposable candidate test: it now proves inactive trusted-graph inclusion
+and adapter-dispatch exclusion, and Round 4 must update it atomically with
 activation state.
 
 ## Target flow
@@ -66,7 +65,7 @@ continue to register only `hook_adapter.py`.
 
 ## Request contract
 
-The staged machine contract is
+The installed inactive machine contract is
 `contracts/adapter-plan-context-request-v1.schema.json`.
 
 The request contains:
@@ -86,7 +85,7 @@ enable isolation, it cannot attach the session.
 
 ## Result contract
 
-The staged machine contract is
+The installed inactive machine contract is
 `contracts/plan-context-result-v1.schema.json`.
 
 The result carries:
@@ -106,7 +105,7 @@ valid Codex JSON.
 
 Pristine v3.8.2 `inject-plan.sh` cannot be called directly because it resolves
 the plan again, fails open if no canonicalizer is available, and reads Phase 4
-markers. Round 3 will therefore invoke it through a private, bounded filesystem
+markers. The Round 3 owned runtime therefore invokes it through a private, bounded filesystem
 projection instead of modifying the upstream file:
 
 1. resolve and revalidate the selected plan in the real project using the
@@ -167,6 +166,10 @@ handoff isolation case are feasibility evidence, not production implementation.
 
 ### Round 3: inactive production owned plan-context runtime
 
+Implementation status: the child, exact schemas, manifest/installer/Release
+inventory, and local safety regressions are present; Linux/Cloud execution is
+the remaining Round 3 acceptance gate. Adapter dispatch remains unchanged.
+
 - Enforce regular files with `st_nlink == 1` at pre-read, post-read, and
   retained-parent reopen. The Fresh and Resume Cloud gate is closed with 40/40
   stable observations across four real scoped planning files.
@@ -207,10 +210,10 @@ handoff isolation case are feasibility evidence, not production implementation.
 
 ## Release boundary
 
-Round 1 schemas are selected and staged, but are not yet part of the alpha.2
-trusted artifact graph. Round 3 will atomically add the approved schemas,
-`owned-plan.py`, its snapshot-runner contract, and the pristine injector
-dependency to the runtime manifest, installer inventory, Release allowlist, LF
-rules, and exact-count tests. The injector hash and existing overlay ledger do
-not change. Until that atomic update, the published alpha.2 ZIP and external
-bootstrap hashes remain unchanged.
+The published alpha.2 asset remains immutable and does not contain the Round 3
+files. The development inactive Round 3 trusted graph now atomically includes
+the approved schemas, `owned-plan.py`, its controlled-snapshot contract, and the
+existing pristine resolver/injector dependencies in the runtime manifest,
+installer inventory, 21-entry Release allowlist, LF rules, and exact-count
+tests. The injector hash, compatibility-overlay ledger, adapter dispatch,
+published alpha.2 ZIP, and external bootstrap remain unchanged.

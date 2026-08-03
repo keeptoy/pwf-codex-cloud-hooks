@@ -97,6 +97,11 @@ read `findings.md`. When no plan exists, it emits only the event canary.
 
 ### What is not implemented yet
 
+The exact-v1 `owned-plan.py` path is now implemented, installed, and packaged in
+the development Round 3 trusted graph, but it is deliberately not dispatched by
+the adapter. Current Hook behavior therefore remains the Cloud-accepted alpha.2
+path until Round 4 activation.
+
 The following upstream capabilities are intentionally absent from the current
 managed runtime:
 
@@ -187,14 +192,16 @@ owned runtime files beneath managed_dir.
 | `tools/import_upstream_runtime.py` | Pinned-archive, allowlist-only runtime import and drift check |
 | `tools/build_release.py` | Deterministic exact-allowlist Release ZIP builder and verifier |
 | `runtime/owned-catchup.py` | Active Phase 2 SessionStart catch-up entrypoint and transcript trust boundary |
+| `runtime/owned-plan.py` | Inactive Phase 3 exact-v1 canonical plan-context runtime and controlled-snapshot boundary |
 | `runtime/upstream/` | Four verified runtime files; catch-up is active, prompt/ledger files remain deferred |
 | `THIRD_PARTY_NOTICES.md` | Complete upstream MIT attribution for redistributed runtime code |
 | `upstream-manifest.json` | Manifest v3: archive, contracts, importer, license, source paths, modes, and file hashes |
 | `contracts/` | Versioned runtime allowlist, overlay ledger, adapter/runtime schemas, and Release ZIP boundary |
 | `docs/phase-1-runtime-contracts.md` | Human-readable Phase 1 contract and ownership guide |
 | `docs/phase-2-owned-catchup.md` | Active SessionStart owned-runtime boundary and safety policy |
-| `docs/phase-3-canonical-plan-context.md` | Selected Phase 3 prompt-context architecture, staged-contract lifecycle, compatibility decisions, budgets, and round gates |
+| `docs/phase-3-canonical-plan-context.md` | Selected Phase 3 prompt-context architecture, inactive trusted-graph lifecycle, compatibility decisions, budgets, and round gates |
 | `docs/phase-3-upstream-invocation-options.md` | Overlay/snapshot/other route comparison, empirical evidence, and long-term Host/Driver standardization boundary |
+| `docs/phase-3-round-3-cloud-acceptance.md` | Exact inactive Round 3 Linux/Cloud test, isolated-install, inventory, direct-runtime, and no-dispatch gate |
 | `docs/v0.3.0-alpha.1-cloud-smoke.md` | Retained Phase 1 pre-release publication and Cloud-smoke acceptance record |
 | `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md` | Alpha.2 SHA, inventory, permission, owned-runtime, and resume acceptance gate |
 | `snapshot-prototype/` | Reviewed, self-contained Round 2 feasibility handoff for the selected snapshot route; conditional GO evidence, never current runtime or Release input |
@@ -415,19 +422,19 @@ boundary and a 20,000-character whole-context ceiling. Round 2 then completed an
 isolated controlled-snapshot feasibility spike around the pristine
 resolver/injector: eight focused Linux/Cloud cases plus one parent isolation
 case support conditional GO, while multi-target overlay remains fallback only.
-The schemas and prototype remain outside the alpha.2 runtime bundle, installer,
-Release allowlist, bootstrap, and adapter dispatch. The Round 3 production
-policies are now frozen: Fresh and Resume Cloud probes produced 40/40 stable
-regular-file observations with `st_nlink=1`, closing the last compatibility
-gate. Round 3 next productionizes and installs the exact-v1 owned path without
-dispatching it; Round 4 activates it and removes the adapter's parallel
-resolver/renderer.
+The prototype remains outside every production graph. The published alpha.2
+asset and bootstrap also remain unchanged, while the development Round 3 graph
+now installs/packages the exact schemas and `owned-plan.py` without adapter
+dispatch. Its frozen policies include the Fresh + Resume Cloud single-link gate
+(40/40 stable regular-file observations with `st_nlink=1`). Local Windows
+verification is complete; Linux/Cloud execution is the remaining Round 3 gate.
+Round 4 activates the path and removes the adapter's parallel resolver/renderer.
 
 The Phase 3 document, v1 schemas, and contract regression intentionally omit a
-`candidate` filename suffix. Their identities are selected and stable; staged
-versus active status is expressed by schema/document metadata and trusted-graph
-membership. Round 3 promotes those same identities atomically unless the
-contract itself changes incompatibly.
+`candidate` filename suffix. Their identities are selected and stable; inactive
+versus active status is expressed by schema/document metadata, trusted-graph
+membership, and the adapter-dispatch exclusion test. Round 4 activates those
+same identities unless the contract itself changes incompatibly.
 
 The Phase 1 v1 allowlist contains only those four upstream files. Attestation,
 ledger mutation, phase mutation, completion, and Stop-gating scripts remain
@@ -553,9 +560,11 @@ compatibility boundary, and two intentional output changes. Round 2 reviewed the
 self-contained snapshot feasibility handoff and produced conditional GO without
 changing any trusted runtime or Release artifact. The four Round 3 production
 policies are now frozen, including the single-link policy after matching Fresh
-and Resume Cloud PASS evidence (40/40 observations). Phase 3 still has four
-rounds: Round 3 next implements/installs the inactive exact-v1 path; Round 4
-activates it, thins the adapter, packages beta.1, and performs Cloud acceptance.
+and Resume Cloud PASS evidence (40/40 observations). Round 3 has now implemented,
+installed, and packaged the inactive exact-v1 path in the development trusted
+graph; the full Windows suite passes and Linux/Cloud execution remains its final
+gate. Phase 3 still has four rounds: Round 4 activates the path, thins the
+adapter, packages beta.1, and performs Cloud acceptance.
 The broader reusable target is a
 Host/Driver ABI, not a claim that every Skill can use the same conversion
 technique. The prototype commit/branch beta.1 wording remains experimental

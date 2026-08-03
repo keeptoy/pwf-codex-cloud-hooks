@@ -20,6 +20,7 @@ EXECUTABLE_PATHS = {
     "hooks/hook_adapter.py",
     "tools/import_upstream_runtime.py",
     "runtime/owned-catchup.py",
+    "runtime/owned-plan.py",
     "runtime/upstream/session-catchup.py",
     "runtime/upstream/resolve-plan-dir.sh",
     "runtime/upstream/inject-plan.sh",

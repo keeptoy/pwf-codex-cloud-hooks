@@ -228,3 +228,16 @@ store 和协议差异，本仓库应优先迁移、缩小或退役，而不是�
 - 证明超时、kill、非零退出、空输出、stderr、无效 UTF-8 和超限输出都 fail-closed；
 - alpha.2 的 adapter dispatch、ZIP 和 bootstrap 在 inactive Round 3 保持不变；
 - Round 4 激活后完成新的 beta golden、fresh Cloud lifecycle/resume 和 post-resume doctor。
+
+## 9. Round 3 当前落地状态
+
+受控快照已经从 Round 2 原型翻译为独立的 production `runtime/owned-plan.py`，并与两个
+exact-v1 schema 一起进入开发版 manifest、installer、11-file installed inventory 和
+21-entry Release contract。实现采用冻结的 single-link、bounded stale cleanup、portable
+`openat` 与共享 deadline 策略；adapter 仍无任何 owned-plan 引用，因此当前 Hook 行为仍是
+alpha.2 基线。
+
+Windows 完整回归为 63 registered / 46 PASS / 17 明确 POSIX/Linux SKIP / 0 FAIL。
+Round 3 关闭前还必须按 `docs/phase-3-round-3-cloud-acceptance.md` 在 Linux/Codex Cloud
+执行全部 63 项、隔离安装/doctor、11-file inventory、direct exact-v1、21-entry ZIP 和
+adapter no-dispatch 门槛。该门槛不激活 lifecycle，也不发布 beta.1。

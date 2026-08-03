@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Begin Phase 3 Round 3's inactive exact-v1 `owned-plan.py` implementation using the four frozen production policies. The Cloud single-link gate is closed after Fresh and Resume both passed (40/40 stable regular-file observations with `st_nlink=1`). Keep adapter dispatch and alpha.2 Release/bootstrap bytes unchanged until Round 4 activation.
+Run the complete 63-case suite in Linux/Codex Cloud and verify all eight new production owned-plan cases execute rather than skip, the installed runtime inventory is exactly 11 files before `installed-manifest.json`, doctor is healthy, and `hook_adapter.py` still has no owned-plan dispatch. If those inactive gates pass, close Round 3. Do not perform automatic lifecycle activation tests yet; they belong to Round 4.
 
 ## Current Phase
-Phase 3 Rounds 1–2 and the Round 3 production-policy/Cloud compatibility gate are complete; inactive Round 3 implementation is next, no production path is active, and alpha.2 remains the rollback baseline
+Phase 3 Round 3 inactive implementation and Windows/trusted-graph verification are complete; Linux/Cloud execution is pending, no production path is active, and alpha.2 remains the rollback baseline
 
 ## Phases
 
@@ -117,7 +117,7 @@ Phase 3 Rounds 1–2 and the Round 3 production-policy/Cloud compatibility gate 
 |---|---|---|
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
 | 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
-| 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | policy freeze and Cloud single-link gate complete; implementation pending |
+| 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | in progress; local implementation PASS, Linux/Cloud pending |
 | 4 | Activate canonical UserPrompt injection, retire parallel adapter rendering, package beta.1, and complete Cloud acceptance | pending |
 
 - [ ] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
@@ -129,7 +129,7 @@ Phase 3 Rounds 1–2 and the Round 3 production-policy/Cloud compatibility gate 
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
 - [ ] Prove prompt injection runs exclusively from the owned runtime bundle and no mutable global Skill script executes; retain the pristine global Skill for model discovery/instructions and deployment governance.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Rounds 1–2 complete; the four Round 3 policies and their Cloud single-link gate are frozen/closed; inactive production implementation is next
+- **Status:** Rounds 1–2 complete; Round 3 inactive implementation/local verification PASS; Linux/Cloud execution pending before closure
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 
@@ -207,7 +207,7 @@ Phase 3 Rounds 1–2 and the Round 3 production-policy/Cloud compatibility gate 
 | Preserve legacy behavior by default | Existing plans must not be forced into attestation, ledger, or gating without an explicit migration/mode. |
 | Roll out lifecycle events incrementally | Managed Hooks are globally trusted, can coexist and run concurrently with other sources, and are harder for users to disable. |
 | Add hard Stop gating last | It has the greatest recursion, concurrency, and runaway risk and requires real host verification. |
-| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 added one inactive-contract case for forty-six; the reviewed Round 2 handoff adds eight feasibility cases plus one parent isolation case for fifty-five. Several cases cover multiple guarantees. Linux/Cloud runs all 55; Windows honestly runs 45 and skips ten production-POSIX cases. |
+| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 added one inactive-contract case for forty-six; Round 2 added eight feasibility cases plus one parent isolation case for fifty-five; Round 3 adds eight production owned-plan cases for sixty-three. Several cases cover multiple guarantees. Windows runs 46 and honestly skips 17 production-POSIX cases; the prior Cloud/Linux baseline ran all 55, and the eight new cases remain pending there. |
 | Treat the v0.2.2 catch-up patch as a temporary compatibility overlay | It is valuable Cloud-proven behavior, but mutating and executing a global Skill conflicts with the owned-runtime trust boundary. |
 | Make the host/runtime contract explicit | `.agents` placement, initialization/runtime environment differences, absent Hook-time `CODEX_THREAD_ID`, and the Host-provided transcript path prove that script-path and setup-shell inference are not stable Cloud interfaces. |
 | Add reason-coded diagnostics without injecting them by default | Silent early returns made black-box failures expensive to localize, while stderr or debug text must not contaminate Hook JSON/context. |
@@ -281,7 +281,11 @@ Phase 3 Rounds 1–2 and the Round 3 production-policy/Cloud compatibility gate 
 | The first harness fix matched the identical native-harness line instead of the short-circuit harness line | Reapplied with named-array context: native fixtures retain Windows path validation and only the POSIX short-circuit fixture uses production validation. |
 | Final cache hygiene failed after all 35 functional cases passed | A manual `importlib` diagnostic had created one verified `runtime/__pycache__/owned-catchup...pyc`. Removed only that workspace cache and retained the regression that prevents production/test harness cache creation. |
 | First Round 3 supervisor regression failed on invalid child UTF-8 | Python text-mode capture raised inside its reader thread and left `stdout=None`. Switched the inactive supervisor to bounded binary capture followed by strict main-thread UTF-8 decoding, which deterministically maps invalid bytes to `runtime_error`. |
+| First inactive owned-plan focused regression passed 26/27 and failed only on the pre-Round-3 `staged only; not installed` design-document wording | Kept the lifecycle assertion and updated the canonical Phase 3 guide to the actual inactive trusted-graph state; no runtime or safety assertion was weakened. |
 | Initial Round 3 documentation sync used an English `current resolver` anchor where the UTF-8 source said `当前 resolver` | Split the combined patch by file and reapplied the project-understanding update against its exact text. |
 | A timeout inventory used Unix wildcard path arguments under PowerShell, so the second `rg` invocation exited 1 after the first search had already returned useful matches | Re-ran the inventory with `--glob` and explicit directories, then inspected the adapter's exact supervisor lines; no conclusion relies on the failed wildcard invocation. |
+| A Round 3 stale-wording scan accidentally repeated the known PowerShell Unix-wildcard mistake for the active planning files, so `rg` returned useful repository matches but the combined command exited 1 | Kept only the explicit-file results, recorded the repeat, and prohibited wildcard path arguments for the remaining consistency passes; use `--glob` or enumerated files only. |
 | Two inline `python -c` attempts to extract the README Cloud probe were parsed incorrectly by PowerShell (`<` redirection parsing, then stripped nested quotes) | Switched to a PowerShell here-string piped to Python stdin for read-only validation; the exact embedded probe compiled and executed successfully without workspace writes. |
 | The first README-prompt assertion embedded Chinese headings in a PowerShell-to-Python here-string and the console code page converted them to `???` | Verified the UTF-8 headings directly with `rg`, then reran the structural assertion using stable ASCII anchors; 20 Markdown fences are balanced and both prompts are present. |
+| The first post-hardening focused-test escalation timed out in automatic approval review before the command started | Used the permitted single retry with the identical bounded `node --test` command; it executed successfully with 18 registered / 10 PASS / 8 platform SKIP / 0 FAIL. |
+| The first final hash verifier assumed obsolete `path`/`contracts` field names and raised `KeyError` before checking bytes | Inspected the current runtime-bundle/upstream-manifest shapes, changed the read-only verifier to their actual `package_path`/`installed_contracts`/`managed_runtime` fields, and then verified all 13 selected hashes with zero mismatches. |

@@ -29,7 +29,7 @@ test("Release ZIP build is deterministic, exact, and keeps bootstrap external", 
     const secondResult = JSON.parse(result.stdout);
     assert.equal(sha256(first), sha256(second));
     assert.equal(firstResult.sha256, secondResult.sha256);
-    assert.equal(firstResult.entries, 18);
+    assert.equal(firstResult.entries, 21);
     assert.ok(firstResult.size > 0);
     result = run("check", first); assert.equal(result.status, 0, result.stderr);
     assert.equal(JSON.parse(result.stdout).healthy, true);

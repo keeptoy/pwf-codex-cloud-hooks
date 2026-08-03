@@ -103,18 +103,33 @@ test("Phase 1 contracts and Round 2 manifest freeze provenance, overlays, host p
   for (const contract of Object.values(upstream.managed_runtime.contracts)) {
     assert.equal(fileHash(path.join(root, contract.path)), contract.sha256, contract.path);
   }
-  assert.equal(bundle.local_files.length, 1);
-  assert.equal(bundle.local_files[0].id, "owned_catchup");
-  assert.equal(bundle.local_files[0].activation_phase, 2);
-  assert.deepEqual(bundle.local_files[0].direct_file_dependencies, [{ id: "session_catchup", condition: "always", required: true }]);
-  assert.equal(fileHash(path.join(root, bundle.local_files[0].package_path)), bundle.local_files[0].sha256);
-  assert.deepEqual(upstream.managed_runtime.local_files, [{
-    id: "owned_catchup",
-    package_path: "runtime/owned-catchup.py",
-    mode: "0755",
-    origin: "local_managed_runtime",
-    sha256: bundle.local_files[0].sha256,
-  }]);
+  const localFiles = new Map(bundle.local_files.map(file => [file.id, file]));
+  assert.deepEqual([...localFiles.keys()], ["owned_catchup", "owned_plan"]);
+  assert.equal(localFiles.get("owned_catchup").activation_phase, 2);
+  assert.deepEqual(localFiles.get("owned_catchup").direct_file_dependencies, [{ id: "session_catchup", condition: "always", required: true }]);
+  assert.equal(localFiles.get("owned_plan").activation_phase, 3);
+  assert.deepEqual(localFiles.get("owned_plan").direct_file_dependencies.map(item => item.id), ["resolve_plan_dir", "inject_plan"]);
+  for (const local of localFiles.values()) {
+    assert.equal(fileHash(path.join(root, local.package_path)), local.sha256, local.id);
+  }
+  assert.deepEqual(upstream.managed_runtime.local_files.map(item => item.id), ["owned_catchup", "owned_plan"]);
+  for (const managed of upstream.managed_runtime.local_files) {
+    const frozen = localFiles.get(managed.id);
+    for (const key of ["package_path", "mode", "origin", "sha256"]) {
+      assert.equal(managed[key], frozen[key], `${managed.id}.${key}`);
+    }
+  }
+  assert.deepEqual(
+    bundle.installed_contracts.map(item => item.id),
+    ["adapter_plan_context_request", "plan_context_result"],
+  );
+  for (const installed of bundle.installed_contracts) {
+    const managed = upstream.managed_runtime.contracts[installed.id];
+    assert.equal(managed.path, installed.package_path);
+    assert.equal(managed.installed_path, installed.installed_path);
+    assert.equal(managed.sha256, installed.sha256);
+    assert.equal(fileHash(path.join(root, installed.package_path)), installed.sha256);
+  }
   assert.equal(fileHash(path.join(root, upstream.managed_runtime.importer.path)), upstream.managed_runtime.importer.sha256);
   assert.equal(fileHash(path.join(root, upstream.managed_runtime.license_provenance.notice_path)), upstream.managed_runtime.license_provenance.notice_sha256);
 

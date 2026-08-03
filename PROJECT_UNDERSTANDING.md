@@ -463,10 +463,12 @@ managed-legacy 行为，`.mode`、attestation、nonce 和 smart injection 继续
 `st_nlink == 1`；同 EUID trusted `/tmp` base 做有界 stale cleanup；生产基线只要求
 portable fd-rooted `openat` walk；30 秒 Host 上限内采用 27 秒共享 deadline。Fresh 与同一
 sandbox Resume 的 Cloud 探针共 40/40 次观测均为 regular、single-link、identity stable，
-因此最后的 single-link 兼容门槛已关闭。第 3 轮下一步实现/安装但不 dispatch exact-v1
-owned prompt path；第 4 轮才切换 adapter、打包 beta.1 并做 Cloud 验收。
-新增的两个 schema 目前只是 staged contract，不属于 alpha.2 runtime、installer、Release
-或 bootstrap 边界。后续架构复盘进一步比较了多目标 overlay 与不修改上游的受控快照：
+因此最后的 single-link 兼容门槛已关闭。第 3 轮已经把 exact-v1 `owned-plan.py`、两个
+schema、fd-rooted/single-link 读取、受控 snapshot、stale cleanup、process-group supervision
+和机器可读诊断纳入开发 trusted graph、installer 与 21-entry Release contract，但 adapter
+仍完全不引用它。Windows 63 项回归已经通过；Linux/Cloud 运行是第 3 轮剩余门槛。第 4 轮
+才切换 adapter、打包 beta.1 并做 Cloud 验收。发布过的 alpha.2 ZIP 和外部 bootstrap
+保持原字节不变。后续架构复盘进一步比较了多目标 overlay 与不修改上游的受控快照：
 Phase 3 选择后者，在私有 legacy 投影中运行 pristine resolver/injector；多目标 overlay
 只作为 Cloud/Linux 实证失败后的后备。长期标准化对象是 Codex Cloud Host ABI、受管
 runner 和 Integration Driver request/result，不是把快照或 overlay 强制为所有 Skill
@@ -506,10 +508,11 @@ Phase 1 第 3 轮 installer 把四个上游脚本作为 inactive owned inventory
 同时安装 overlay ledger 与 MIT notice；Phase 2 加入并激活本地 owned entrypoint。
 Managed Hook 命令仍只注册 `hook_adapter.py`。alpha.2 验收快照为 45 个测试：Windows
 42 PASS、3 个 Linux-only 跳过；Phase 3 Round 1 增加 1 个 inactive contract case，Round 2
-handoff 再增加 8 个 feasibility cases 和 1 个父仓库隔离 case，当前登记 55 个：Windows
-45 PASS/10 个诚实 POSIX/Linux SKIP/0 FAIL，Cloud/Linux 55 PASS/0 SKIP。Release allowlist
-仍为 18 entries（新增 owned runtime、移除历史 global patcher），没有因 staged Phase 3
-schema 或 prototype 改变。alpha.1 的
+handoff 再增加 8 个 feasibility cases 和 1 个父仓库隔离 case，Round 3 再增加 8 个
+production owned-plan cases。当前登记 63 个：Windows 46 PASS/17 个诚实 POSIX/Linux
+SKIP/0 FAIL；上一轮 Cloud/Linux 基线为 55 PASS/0 SKIP，新增 8 项尚待 Cloud 执行。
+开发 Release allowlist 已由 alpha.2 的 18 entries 增至 21 entries（owned-plan + 两个
+schema）；prototype 仍不进入。alpha.1 的
 25-case/18-entry/7-payload 数据保留为历史验收快照。
 
 ## 14. 本仓库可能退役的条件
