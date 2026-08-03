@@ -499,3 +499,99 @@
 - Synchronized README, work plan, project understanding, Phase 2 acceptance guide, task plan, and historical findings. Alpha.2 is unambiguously the current Phase 3 rollback baseline; alpha.1 is a retained predecessor; v0.2.2 is the stable-release fallback.
 - No adapter/runtime/installer/importer/overlay/Release/bootstrap file or accepted alpha.2 artifact changed during this audit.
 - Final validation passed outside the Windows sandbox: both staged schemas parse, the focused lifecycle assertions are included in the complete suite, and all 46 cases finish as 43 PASS / 3 explicit Linux-only SKIP / 0 FAIL. `git diff --check` reports no errors; the sandbox-only Node runner still hits the known `spawn EPERM` before executing tests.
+
+# Repository deep-reading checkpoint (2026-08-02)
+
+- Followed the documented recovery sequence and read the active plan,
+  findings/progress history, README, `PROJECT_UNDERSTANDING.md`, black-box
+  runbook, work plan, implementation boundaries, contracts, and Phase 3 guides.
+- Traced the accepted alpha.2 execution path through `install.js`,
+  `hook_adapter.py`, `owned-catchup.py`, upstream runtime files, exact runtime
+  inventory, and deterministic Release boundary.
+- Wrote `docs/repository-code-reading-notes.md` to preserve the resulting
+  code-level mental model for the maintainer and the next implementation turn.
+- No runtime, adapter, installer, importer, manifest, Release ZIP, or external
+  bootstrap byte changed; Phase 3 remains at Round 1 complete with inactive
+  Round 2 implementation next.
+- Validation passed: the complete Linux suite registered and passed all 46
+  cases, the reading-note structure check passed, and `git diff --check`
+  reported no whitespace errors.
+- Addressed maintainer feedback on the code-reading note by restoring the full
+  Phase 3 route-decision rationale and implementation detail rather than merely
+  linking to the authoritative options document. Runtime and Release behavior
+  remain unchanged.
+- Follow-up validation passed on Linux: all 46 tests passed, both pristine
+  resolver/injector hashes matched the manifest, the expanded Markdown passed
+  its required-detail/fence check, the upstream manifest parsed, and
+  `git diff --check` reported no errors.
+- Added an explicit maintainer recommendation to the code-reading note: choose
+  the controlled pristine snapshot, implement it in eight gated steps, and
+  reopen overlay work only when a documented Linux/Cloud failure condition is
+  empirically demonstrated. This clarifies the decision without changing the
+  already selected Phase 3 contract or runtime behavior.
+- Recommendation follow-up validation passed: focused Phase 3 contract 1/1,
+  complete Linux suite 46/46, required decision-detail/fence check, and
+  `git diff --check` all succeeded.
+
+## Phase 3 Round 2 snapshot feasibility spike (2026-08-02)
+
+- Started a one-hour autonomous timebox at `2026-08-02T17:16:52Z`; hard
+  deadline is `2026-08-02T18:16:52Z`. A local timer sentinel will be removed
+  on early completion and is never part of the commit.
+- Scope is an unshipped prototype and evidence only: simulated managed
+  user-dialogue flows, Linux safe-open/race/permissions/environment/timeout/
+  cleanup probes, relevant primary-source industry patterns, and a documented
+  go/no-go recommendation. Adapter dispatch and alpha.2 bytes remain frozen.
+- The first official-source web search failed with HTTP 401 from the configured
+  web tool. Switched once to direct reads of known primary documentation URLs;
+  do not repeat the failing search path during this timebox.
+- First prototype test run passed inventory isolation but failed three harness
+  assertions: a global `/tmp` prefix count saw an unrelated/stale snapshot,
+  Node has no `fs.mkfifoSync`, and the same global count affected the oversize
+  case. The runtime outcomes themselves were not the reported failures. Fix the
+  harness by using a per-test `TMPDIR` and `/usr/bin/mkfifo`; do not weaken the
+  prototype checks.
+- Corrected only the harness and completed the focused spike: 8/8 cases pass on
+  Linux, including a real FIFO, deterministic pathname replacement, 0700/0600
+  mode probe, timeout cleanup, and synthetic `nobody` execution.
+- Direct pristine invocation and the prototype snapshot are byte-equal on the
+  current active plan: 6,113 characters with SHA-256
+  `227b30d2fa5406363f668b59fcec30f9b376db84d50271cd8527566c14fb1303`.
+- Added the feasibility report (now relocated to
+  `snapshot-prototype/FEASIBILITY_REPORT.md`) with the conditional GO,
+  primary-source industry patterns, limitations, Round 2 gaps, and four
+  maintainer questions. The prototype remains outside adapter/trusted/Release
+  graphs.
+- Completed early at `2026-08-02T17:24:32Z` and cancelled/removed the timer
+  sentinel. Full development regression now registers 54 cases and passes
+  54/54 on Linux; Python/Node syntax, report structure, and `git diff --check`
+  also pass. Restored the active plan to inactive production Round 2 next.
+
+## Snapshot prototype independent handoff migration (2026-08-03)
+
+- Moved the prototype runner, focused test, and feasibility report into a new
+  root `snapshot-prototype/` handoff folder; added its own README, package
+  scripts, MIT license, and pristine resolver/injector copies so it can run
+  without the parent repository.
+- The first literal-copy test under a `mktemp` parent passed 7/8 but exposed a
+  harness-only cross-user issue: `mktemp` creates its parent as 0700, so
+  `nobody` could not traverse to the unpacked runner. The production primitive
+  was not involved. Updated the cross-user test to stage the handoff runner
+  beneath its explicitly traversable fixture before switching user; retain the
+  private-parent copy test rather than weakening it.
+- The corrected literal-copy run passes 8/8. Standalone `npm test` passes 8/8,
+  standalone syntax checks pass, pristine copied hashes match the pinned
+  identities, and the repository-wide suite now passes 55/55 including the
+  parent-only trusted-graph exclusion case.
+- Removed generated bytecode and changed the standalone syntax check to
+  in-memory compilation; the prototype also disables bytecode writes when
+  imported by race/timeout probes, preserving a clean handoff directory.
+- The first clean-directory assertion after that change still found bytecode:
+  importlib decides cache behavior before the module body can set
+  `sys.dont_write_bytecode`. Set `PYTHONDONTWRITEBYTECODE=1` in the standalone
+  Node harness before spawning/importing Python, then rerun the same hygiene
+  assertion; do not ignore or merely delete post-test cache output.
+- Final handoff validation passes: standalone checks and 8/8 tests, literal
+  out-of-tree/private-parent copy 8/8, pristine hash verification, no generated
+  bytecode, `git diff --check`, and the complete repository suite 55/55. The
+  production adapter/runtime/installer/Release/bootstrap bytes remain unchanged.

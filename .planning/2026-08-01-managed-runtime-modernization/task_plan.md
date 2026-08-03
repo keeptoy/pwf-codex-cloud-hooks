@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Begin Phase 3 Round 2 by implementing the inactive `owned-plan.py` request/result boundary, safe private legacy snapshot runner around the pristine resolver/injector, and beta golden/policy/supervision/inventory/provenance tests. Keep adapter dispatch and all alpha.2 Release/bootstrap bytes unchanged until Round 3 activation.
+Begin the production Phase 3 Round 2 implementation from the conditional-GO spike: convert the proven safe-open/snapshot/supervision primitives into inactive `owned-plan.py`, exact v1 request/result handling, expanded adversarial tests, and atomic inventory/provenance updates. Keep adapter dispatch and all alpha.2 Release/bootstrap bytes unchanged until Round 3 activation.
 
 ## Current Phase
-Phase 3 Round 1 contract analysis complete; inactive Round 2 implementation is next and alpha.2 remains the rollback baseline
+Phase 3 Round 2 snapshot feasibility spike complete with conditional GO; inactive production implementation is next and alpha.2 remains the rollback baseline
 
 ## Phases
 
@@ -116,7 +116,7 @@ Phase 3 Round 1 contract analysis complete; inactive Round 2 implementation is n
 | Round | Scope | Status |
 |---|---|---|
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
-| 2 | Implement inactive owned prompt entrypoint/dispatch seam and prove golden compatibility | pending |
+| 2 | Implement inactive owned prompt entrypoint/dispatch seam and prove golden compatibility | pending; feasibility spike GO |
 | 3 | Activate canonical UserPrompt injection, retire parallel adapter rendering, package, and complete Cloud acceptance | pending |
 
 - [ ] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.

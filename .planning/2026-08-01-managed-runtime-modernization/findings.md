@@ -456,3 +456,72 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - The preferred Phase 3 strategy is now: safe fd-based reads, `0700` private temporary root, `0600` task/progress files, scrubbed minimal environment, pristine `inject-plan.sh`, strict timeout/output validation, and `finally` cleanup. Multi-target overlay is retained only if Linux/Cloud proves this cannot meet semantics, permission, or cleanup requirements.
 - Snapshot cost is real: safe `openat`/`O_NOFOLLOW` regular-file handling, file-size and output limits, common race detection, segmented timeouts, SIGKILL residual-content policy, Linux permission tests, and explicit Phase 4 projection expansion. It avoids a second upstream fork point and the corresponding importer/ledger/manifest/hash retirement burden.
 - The complete route comparison and implementation gates are durable in `docs/phase-3-upstream-invocation-options.md`. Earlier findings that describe a multi-target overlay as preferred are superseded by this section but retained as the audit trail that motivated the comparison.
+
+# Repository code-reading checkpoint (2026-08-02)
+
+- Re-read the repository from the operator and maintainer entry points through
+  the executable boundaries: README, project understanding, black-box manual,
+  work/active plans, adapter, active owned catch-up runtime, installer,
+  manifests/contracts, Phase 3 design, and test inventory.
+- Added `docs/repository-code-reading-notes.md` as a compact, code-grounded map
+  of the accepted alpha.2 execution chain, trust and Release boundaries,
+  executable test architecture, and selected-but-inactive Phase 3 design.
+- Confirmed the central remaining implementation debt: SessionStart already
+  supervises an owned catch-up child, while UserPromptSubmit still resolves and
+  renders locally in `hook_adapter.py`; Phase 3 Round 2 must add the inactive
+  owned-plan boundary without changing dispatch or alpha.2 artifact bytes.
+- Confirmed that documentation under `docs/` and `.planning/` is excluded from
+  the exact alpha.2 Release ZIP, so this reading checkpoint does not alter its
+  trusted runtime or sealed bootstrap identity.
+- Maintainer review identified that the first reading note compressed the
+  Phase 3 invocation-strategy dispute too aggressively. Expanded it to retain
+  the overlay-versus-snapshot decision table, alternative routes, pristine
+  resolver/injector identities, the full eleven-step call chain, environment
+  allowlist, empirical probe, secure-open/race/timeout/cleanup matrix, and the
+  precise Release/provenance work avoided by keeping the injector pristine.
+- Follow-up maintainer question requested an explicit recommendation rather
+  than another neutral option summary. The recommendation is controlled
+  pristine snapshot for Round 2, with an allowlist-built environment,
+  fd-rooted safe reads, strict non-injecting failure results, inactive-dispatch
+  proof, and four objective Linux/Cloud conditions that alone reopen the
+  multi-target overlay fallback.
+
+## Phase 3 snapshot feasibility spike findings (2026-08-02)
+
+- A one-hour prototype spike demonstrates a conditional GO for controlled
+  pristine snapshot on the current Linux/Cloud-shaped environment. The
+  unshipped tool uses fd-rooted `O_NOFOLLOW` walking, regular-file and 1 MB
+  limits, pre/post/reopen identity checks, 0700/0600 projection, allowlisted
+  environment, child timeouts, whole-context budget, and cleanup.
+- Eight simulated dialogue/adversarial cases pass: normal scoped context,
+  ambient-mode and marker isolation, symlink/FIFO rejection, input/output
+  limits, deterministic atomic-replacement race detection, exact modes and
+  timeout cleanup, synthetic `nobody` execution, and trusted-graph/dispatch
+  exclusion.
+- A fresh direct-versus-prototype comparison is byte-equal: 6,113 characters,
+  SHA-256 `227b30d2fa5406363f668b59fcec30f9b376db84d50271cd8527566c14fb1303`.
+- Primary patterns align with Linux `openat2` resolution constraints, Python
+  tempfile/subprocess lifecycle primitives, Bazel declared-input sandboxing,
+  and systemd private temporary/runtime-directory controls. Composition still
+  requires repository tests and Cloud acceptance.
+- None of the four overlay fallback gates fired. Remaining production risks
+  include hard-link trust wording, parent-SIGKILL stale projections,
+  process-group descendant termination, broader mutation races, exact timeout
+  split, and installed-layout/fresh-Cloud verification.
+
+## Snapshot prototype independent handoff (2026-08-03)
+
+- The prototype is now a self-contained root `snapshot-prototype/` bundle with
+  its own README, full feasibility report, runner, Node package/test entrypoint,
+  MIT license, and pinned pristine resolver/injector copies. Runtime paths
+  resolve only within the bundle; a literal copy under a private temporary
+  parent passes all eight focused cases.
+- A small parent-repository bridge keeps the complete suite aware of the
+  standalone tests and separately proves the folder remains absent from the
+  production runtime, Release, and adapter dispatch graphs. The bundle itself
+  never reads parent contracts or code.
+- The handoff README carries the prototype chain, secure-open identity checks,
+  allowlisted environment, scenario matrix, both equality probes, industry
+  patterns, route comparison, pristine hashes/provenance, eleven-step future
+  chain, production gaps, final recommendation, and four open decisions. A
+  third party no longer needs the surrounding project documentation to start.
