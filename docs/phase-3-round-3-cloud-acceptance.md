@@ -240,3 +240,9 @@ printf 'ROUND3_INACTIVE_CLOUD_ACCEPTANCE=PASS\n'
 
 任何 FAIL 都留在 Round 3；不得因此启用 adapter 或进入 Round 4。这里不要求 Resume：
 single-link Fresh/Resume gate 已独立通过，而本轮 runtime 仍未接入自动 lifecycle。
+
+如果唯一失败是 test 37 的 `injector descendant survived process-group timeout`，不要直接
+修改 supervisor 或把 `kill -0` 重试时间继续加长。先执行
+[`phase-3-round-3-process-group-diagnostic.md`](phase-3-round-3-process-group-diagnostic.md)
+中的只读 Cloud 诊断，区分 live descendant、terminated zombie 和 PID reuse，再按证据选择
+test-only 或 runtime-and-test 修复边界。

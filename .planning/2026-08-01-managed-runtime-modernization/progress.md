@@ -570,3 +570,12 @@
 - Post-change focused regression: 18 registered / 10 PASS / 8 explicit Windows platform SKIP / 0 FAIL. Post-change complete regression: 63 registered / 46 PASS / 17 explicit POSIX/Linux SKIP / 0 FAIL.
 - Round 3 remains intentionally open only at the non-activating Linux/Codex Cloud gate documented in `docs/phase-3-round-3-cloud-acceptance.md`; Round 4 has not started.
 - Final handoff audit: `git diff --check` passes, the explicit current-document scan finds no stale Round 3 staged/pending-gate wording, and the Cloud runbook still enforces a clean checkout after its isolated test. The worktree changes are intentionally uncommitted for maintainer review/push.
+
+## Phase 3 Round 3 — first inactive Cloud gate (2026-08-03)
+
+- Maintainer supplied the complete Fresh Cloud output from `PWF_PHASE3_ROUND3_INACTIVE_CLOUD_V1`: Python 3.14.4, Node 22.22.2, 63 tests executed, 62 PASS, 1 FAIL, 0 SKIP.
+- The sole failure is test 37, `owned plan kills the injector process group, bounds output, and cleans snapshots`; the timeout outcome and snapshot cleanup assertions passed before the test found that the recorded descendant PID still answered `kill -0` for one second.
+- Because the runbook uses `set -Eeuo pipefail` and requires 63 PASS, it correctly stopped before isolated install, doctor, direct installed-runtime invocation, and development ZIP checks. Those stages remain **not executed**, not product failures.
+- Repository status remained clean in Cloud. Round 3 stays open; no adapter activation or Round 4 work is authorized. Next action is a read-only Linux `/proc` diagnostic that distinguishes a live descendant from an unreaped zombie.
+- Added `docs/phase-3-round-3-process-group-diagnostic.md` with a no-product-edit Cloud prompt, exact `/proc` probe, five-way classification, and evidence-dependent modification boundary. Markdown structure and embedded Python compile locally; Git Bash syntax validation requires the already established outside-sandbox path because the managed Windows sandbox blocked its signal pipe.
+- Outside-sandbox `bash -n` subsequently passed. The original inactive Cloud acceptance guide now routes an isolated test-37 failure to this diagnostic instead of recommending another full run or a longer `kill -0` wait. Final Markdown/link checks and `git diff --check` pass.

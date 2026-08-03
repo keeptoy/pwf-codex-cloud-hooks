@@ -529,3 +529,10 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Session attachment marker discovery is bounded to 1,024 directory entries and opens candidate markers relative to the sessions directory with `O_NOFOLLOW`, then validates the opened inode with `fstat`; excess entries fail closed as `detached`.
 - The process-group timeout regression allows a one-second bounded convergence window before declaring a surviving descendant, avoiding a race between group termination and observation.
 - This hardening changes `runtime/owned-plan.py`; the runtime-bundle and upstream-manifest SHA-256 chain must be regenerated before the final test gate.
+
+## 2026-08-03 — First inactive Cloud gate failure
+
+- The Linux/Cloud suite executed all 63 tests with zero skips. Tests 1–36 and 38–63 passed; test 37 alone failed because the descendant PID continued to satisfy `kill -0` for the one-second polling window after the injector timeout. The `set -Eeuo pipefail` runbook then correctly stopped, so isolated install, doctor, direct exact-v1 invocation, and ZIP stages have no acceptance result yet.
+- Production `_kill_process_group()` already sends `SIGKILL` to the child-created session/process group and waits for the direct child. The current test observes only PID existence via `kill -0`; that does not distinguish a running/sleeping process from a dead-but-unreaped zombie.
+- Leading hypothesis: the shell was reaped by Python, while its killed `sleep` descendant was reparented and remained zombie under the Cloud container's PID 1. This is an inference, not a conclusion. A same-environment `/proc/<pid>/stat` capture of state/PPID/PGID/SID before and after timeout is required.
+- Decision boundary: if the descendant state is `Z`, repair the test to assert non-running state (and separately retain group-signal evidence); do not add privileged subreaper behavior merely to reap a grandchild. If state is live (`S`, `R`, `D`, etc.) or its process group differs, fix the supervisor/launcher and keep the stronger disappearance assertion where the platform reliably reaps.
