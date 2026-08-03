@@ -1,250 +1,234 @@
 # pwf-codex-cloud-hooks
 
-System-managed lifecycle Hooks that connect a global
+通过系统托管的生命周期 Hooks，把全局安装的
 [`OthmanAdi/planning-with-files`](https://github.com/OthmanAdi/planning-with-files)
-Skill installation to Codex Cloud sessions.
+Skill 接入 Codex Cloud 会话。
 
-> **Status:** `v0.2.2` remains the published stable baseline and
-> `v0.3.0-alpha.1` the retained Phase 1 pre-release. `v0.3.0-alpha.2` activates
-> the owned SessionStart catch-up runtime and has passed its complete
-> fresh-Cloud Phase 2 hard acceptance. Alpha.2 is the rollback baseline for
-> the next Phase 3 canonical UserPrompt-injection work.
+> **状态：**`v0.2.2` 仍是已发布的稳定基线，`v0.3.0-alpha.1` 是保留的 Phase 1
+> 预发行版本。`v0.3.0-alpha.2` 已激活 owned SessionStart catch-up runtime，并通过完整的
+> Fresh Cloud Phase 2 硬验收。Alpha.2 是下一步 Phase 3 canonical UserPrompt injection
+> 工作的回滚基线。
 
-## Start here
+## 从这里开始
 
-This repository answers a deployment problem, not a planning-method problem:
+本仓库解决的是部署问题，不是 planning 方法本身的问题：
 
-- **planning-with-files** defines the planning workflow and stores project state
-  in `task_plan.md`, `findings.md`, `progress.md`, and `.planning/`;
-- **Codex Skill discovery** makes the workflow instructions available to the
-  model;
-- **this repository** installs trusted lifecycle Hooks so a Cloud session sees
-  the relevant planning state at session start and on each user prompt.
+- **planning-with-files** 定义 planning 工作流，并把项目状态保存在 `task_plan.md`、
+  `findings.md`、`progress.md` 和 `.planning/`；
+- **Codex Skill discovery** 让模型能够读取这套工作流说明；
+- **本仓库** 安装可信的生命周期 Hooks，使 Cloud 会话在启动和每次用户提示时自动获得相关
+  planning 状态。
 
-If you are operating the current release, read [Current behavior](#current-behavior),
-[Install and operate](#install-and-operate), and [Failure and repair model](#failure-and-repair-model).
-If you are continuing the modernization, read [Target architecture](#target-architecture)
-and [How to continue the work](#how-to-continue-the-work) before changing code.
+如果你在操作当前版本，请先读[当前行为](#当前行为)、[安装与运维](#安装与运维)和
+[故障与修复模型](#故障与修复模型)。如果你要继续 modernization，请在修改代码前阅读
+[目标架构](#目标架构)和[如何继续开发](#如何继续开发)。
 
-## Why this repository exists
+## 为什么需要这个仓库
 
-Codex can discover a standalone Skill from locations such as
-`$HOME/.agents/skills/planning-with-files`, but Skill discovery alone does not
-install global lifecycle Hooks. Copying upstream `.codex/` files into every
-product repository would duplicate configuration, while a user-level
-`~/.codex/hooks.json` installation would require separate trust and merge
-management.
+Codex 可以从 `$HOME/.agents/skills/planning-with-files` 等位置发现独立 Skill，但 Skill
+discovery 本身不会安装全局生命周期 Hooks。把上游 `.codex/` 文件复制到每个产品仓库会造成
+重复配置；安装到用户级 `~/.codex/hooks.json` 又需要单独处理信任与合并。
 
-Codex Cloud instead needs a centrally reviewed deployment that:
+Codex Cloud 需要一套经过集中审查的部署方式：
 
-1. installs the Hook runtime once under the active `$CODEX_HOME`;
-2. registers absolute commands through `/etc/codex/requirements.toml`;
-3. preserves unrelated administrator configuration;
-4. pins and verifies the upstream Skill identity;
-5. supports dry-run, diagnosis, guarded repair, backup, and uninstall;
-6. provides a visible canary for black-box lifecycle verification.
+1. 在当前 `$CODEX_HOME` 下只安装一次 Hook runtime；
+2. 通过 `/etc/codex/requirements.toml` 注册绝对路径命令；
+3. 保留无关的管理员配置；
+4. 固定并验证上游 Skill 身份；
+5. 支持 dry-run、诊断、受控修复、备份和卸载；
+6. 提供可见 canary，用于生命周期黑盒验证。
 
-That managed deployment and governance layer is the purpose of this repository.
-It does not replace the planning-with-files Skill and does not create a second
-project-memory format.
+本仓库负责这层托管部署和治理。它不会取代 planning-with-files Skill，也不会创建第二套项目
+记忆格式。
 
-## Current behavior
+## 当前行为
 
-### Accepted `v0.3.0-alpha.2` behavior
+### 已验收的 `v0.3.0-alpha.2` 行为
 
-The worktree preserves the two events proven by `v0.2.2`, but Phase 2 now owns
-the SessionStart catch-up execution boundary:
+工作区保留 v0.2.2 已证明的两个事件；Phase 2 已接管 SessionStart catch-up 的执行边界：
 
-| Event | Matcher | Current action | Verification state |
+| Event | Matcher | 当前动作 | 验证状态 |
 |---|---|---|---|
-| `SessionStart` | `startup\|resume\|clear\|compact` | Validates Host/session/project inputs, supervises the installed `owned-catchup.py`, then injects the active plan and recent progress | automated activation and complete alpha.2 Cloud acceptance passed |
-| `UserPromptSubmit` | none | Injects the active plan and recent progress | Cloud-observed |
+| `SessionStart` | `startup\|resume\|clear\|compact` | 校验 Host/session/project 输入，监督已安装的 `owned-catchup.py`，然后注入 active plan 和 recent progress | 自动激活与完整 alpha.2 Cloud 验收已通过 |
+| `UserPromptSubmit` | 无 | 注入 active plan 和 recent progress | Cloud 已观察 |
 
-Both handlers are read-only and emit `PWF_GLOBAL_HOOK_CANARY_V1` as an owned
-diagnostic marker.
+两个 handler 都是只读的，并输出 owned 诊断标记 `PWF_GLOBAL_HOOK_CANARY_V1`。
 
-The `v0.3.0` bootstrap leaves the global upstream `v3.8.2` Skill pristine.
-The four Cloud compatibility deltas are applied only to the hash-pinned copy at
-`runtime/upstream/session-catchup.py`:
+`v0.3.0` bootstrap 保持全局 upstream v3.8.2 Skill pristine。四项 Cloud 兼容 delta 只应用于
+哈希固定的 `runtime/upstream/session-catchup.py` owned copy：
 
-1. the adapter/runtime contract identifies the runtime explicitly as `codex`;
-2. the adapter validates the Host `transcript_path` first, then permits scanning
-   only under explicit roots from `CODEX_SESSIONS_DIR`, `$CODEX_HOME/sessions`,
-   or the installed managed-path fallback;
-3. catch-up recognizes scoped `.planning/<slug>/task_plan.md` state as well as
-   legacy root planning files;
-4. long Cloud-wrapped user messages keep a bounded head and tail, so a trailing
-   user instruction or regression sentinel is not hidden by the wrapper.
+1. adapter/runtime contract 显式把 runtime 标识为 `codex`；
+2. adapter 优先校验 Host 提供的 `transcript_path`，之后只允许在
+   `CODEX_SESSIONS_DIR`、`$CODEX_HOME/sessions` 或已安装 managed path 推导出的显式 root
+   下扫描；
+3. catch-up 同时识别 scoped `.planning/<slug>/task_plan.md` 和 legacy root planning 文件；
+4. 长 Cloud wrapper 用户消息有界保留头部和尾部，使末尾用户指令或回归 sentinel 不会被遮蔽。
 
-This is a downstream bridge, not a mutable global-Skill fork. The historical
-patcher remains in the source tree only to reproduce and audit the owned overlay;
-it is no longer included in the alpha.2 Release ZIP or called by the bootstrap.
+这是 downstream bridge，不是可变的 global-Skill fork。历史 patcher 只保留在源码树中，用于
+复现和审计 owned overlay；alpha.2 Release ZIP 不包含它，bootstrap 也不会调用它。
 
-For Hook processes where `CODEX_HOME` is absent, the adapter may derive the
-session-store root from its installed path under
-`$CODEX_HOME/hooks/planning-with-files/`. The setup-shell export is therefore
-not a hidden runtime dependency and `/opt/codex` is not treated as permanent.
+Hook 进程缺少 `CODEX_HOME` 时，adapter 可以从自身位于
+`$CODEX_HOME/hooks/planning-with-files/` 下的安装路径推导 session-store root。因此 setup
+shell 的 export 不是隐藏的 runtime 依赖，`/opt/codex` 也不被视为永久平台常量。
 
-The adapter resolves project planning state in this order:
+alpha.2 adapter 按以下顺序解析项目 planning state：
 
-1. `.planning/.active_plan` when it names a valid scoped plan;
-2. the most recently modified valid plan under `.planning/`;
-3. legacy root-level `task_plan.md`.
+1. `.planning/.active_plan` 指向的有效 scoped plan；
+2. `.planning/` 下修改时间最新的有效 plan；
+3. legacy root-level `task_plan.md`。
 
-When a plan exists, the current legacy-style implementation injects the first
-50 lines of `task_plan.md`, the last 20 lines of `progress.md`, and a reminder to
-read `findings.md`. When no plan exists, it emits only the event canary.
+存在 plan 时，当前 legacy-style 路径注入 `task_plan.md` 前 50 行、`progress.md` 后 20 行，
+并提示读取 `findings.md`。不存在 plan 时，只输出 event canary。
 
-### What is not implemented yet
+### 尚未实现或尚未激活
 
-The exact-v1 `owned-plan.py` path is now implemented, installed, and packaged in
-the development Round 3 trusted graph, but it is deliberately not dispatched by
-the adapter. Current Hook behavior therefore remains the Cloud-accepted alpha.2
-path until Round 4 activation.
+exact-v1 `owned-plan.py` 已在开发版 Round 3 trusted graph 中实现、安装并打包，但 adapter
+刻意尚未 dispatch 它。当前 Hook 行为仍保持 Cloud-accepted alpha.2 路径，直到 Round 4
+激活门槛通过。
 
-The following upstream capabilities are intentionally absent from the current
-managed runtime:
+当前 managed runtime 还没有启用以下上游能力：
 
-- plan attestation and nonce framing;
-- smart injection and structured ledger summaries;
-- `PreCompact`, `PostCompact`, `PreToolUse`, `PostToolUse`, and
-  `PermissionRequest`;
-- advisory Stop completion messages and hard completion gating.
+- plan attestation 和 nonce framing；
+- smart injection 和 structured ledger summary；
+- `PreCompact`、`PostCompact`、`PreToolUse`、`PostToolUse` 和
+  `PermissionRequest`；
+- advisory Stop completion message 和 hard completion gating。
 
-Do not infer these features from the pinned upstream Skill version. They become
-managed behavior only after this repository explicitly imports, tests, installs,
-and registers them.
+不能因为 pinned upstream Skill 中存在这些能力，就推断本仓库已经支持。只有在本仓库显式
+导入、测试、安装并注册后，它们才属于 managed behavior。
 
-## Current architecture
+## 当前架构
 
 ```text
 Codex Cloud setup/maintenance
   |
-  | downloads a pinned installer archive and verifies its checksum
+  | 下载固定版本的 installer archive 并校验 checksum
   v
 install.js
-  |-- requires the hash-pinned compatibility patch in the global Skill
-  |-- installs $CODEX_HOME/hooks/planning-with-files/hook_adapter.py
-  |-- records $CODEX_HOME/hooks/planning-with-files/installed-manifest.json
-  `-- merges managed Hook definitions into /etc/codex/requirements.toml
+  |-- 验证 pristine global Skill 和 hash-pinned owned bundle
+  |-- 安装 adapter、owned-catchup、inactive owned-plan、schemas 和 upstream files
+  |-- 记录 $CODEX_HOME/hooks/planning-with-files/installed-manifest.json
+  `-- 把 owned Hook definitions 合并到 /etc/codex/requirements.toml
           |
           v
      /usr/bin/python3 <absolute-managed-path>/hook_adapter.py <event>
           |
-          |-- parses Codex stdin JSON
-          |-- optionally calls pinned Skill session-catchup.py
-          `-- returns Codex hookSpecificOutput.additionalContext JSON
+          |-- 解析 Codex stdin JSON
+          |-- SessionStart 调用 sibling owned-catchup.py
+          |-- 当前仍在 adapter 内渲染 plan context（alpha.2 行为）
+          |-- activation gates 通过前不 dispatch installed owned-plan.py
+          `-- 返回 Codex hookSpecificOutput.additionalContext JSON
 ```
 
-The current Python adapter still contains plan resolution and injection logic.
-That was useful for establishing a small Cloud baseline, but it must not grow
-into a long-lived parallel implementation of the upstream runtime.
+当前 Python adapter 仍包含 plan resolution 和 injection 逻辑。这有助于建立小而稳定的 Cloud
+基线，但不能继续扩张成长期平行实现。
 
-## Trust and ownership boundaries
+## 信任与所有权边界
 
-### This repository owns
+### 本仓库负责
 
-- rendering and merging the managed Hook policy;
-- absolute runtime paths and file permissions;
-- installer locking and atomic writes;
-- backup, doctor, guarded repair, and uninstall;
-- installed-runtime inventory and drift classification;
-- Codex Hook stdin/stdout protocol adaptation;
-- Cloud rollout and canary verification;
-- the temporary, deterministic Codex Cloud compatibility transformation.
+- 渲染和合并 managed Hook policy；
+- 绝对 runtime 路径和文件权限；
+- installer locking 和原子写入；
+- backup、doctor、受控 repair 和 uninstall；
+- installed-runtime inventory 和 drift 分类；
+- Codex Hook stdin/stdout 协议适配；
+- Cloud rollout 和 canary 验证；
+- 临时、确定性的 Codex Cloud 兼容转换。
 
-### The upstream Skill currently owns
+### 上游 Skill 当前负责
 
-- planning instructions and file conventions;
-- the canonical `resolve-plan-dir.sh` and `session-catchup.py` files whose hashes
-  are checked by this release;
-- planning-with-files behavior outside the two managed events implemented here.
+- planning 指令和文件约定；
+- 本仓库校验哈希的 canonical `resolve-plan-dir.sh`、`inject-plan.sh`、
+  `session-catchup.py` 和 `ledger-summary.sh`；
+- 本仓库当前两个 managed events 之外的 planning-with-files 行为。
 
-### Ownership rule
+### 所有权规则
 
-Install and integrity checks fail closed. Runtime advisory failures should not
-terminate the Codex loop, but unsafe or unverifiable content must not be injected.
-Unknown or unrelated administrator drift is never silently absorbed by repair.
+安装和完整性检查 fail-closed。Runtime advisory failure 不应终止 Codex loop，但不安全或无法
+验证的内容不得注入。repair 永远不能静默吸收未知 drift 或无关管理员变更。
 
-## Upstream pin
+## 上游版本固定
 
-The current package approves:
+当前 package 批准：
 
-- repository: `OthmanAdi/planning-with-files`;
-- release: `v3.8.2`;
-- commit: `b04ffd9c8f9f93919649d197e5d4ec1bfc06fa14`;
-- archive: `https://github.com/OthmanAdi/planning-with-files/archive/refs/tags/v3.8.2.zip`;
-- release archive SHA-256:
-  `7dab03ae283da38d33b9d551c7ec621d1818b9f0f17cf9ced566d4accbfc6dd1`.
+- repository：`OthmanAdi/planning-with-files`；
+- release：`v3.8.2`；
+- commit：`b04ffd9c8f9f93919649d197e5d4ec1bfc06fa14`；
+- archive：`https://github.com/OthmanAdi/planning-with-files/archive/refs/tags/v3.8.2.zip`；
+- release archive SHA-256：
+  `7dab03ae283da38d33b9d551c7ec621d1818b9f0f17cf9ced566d4accbfc6dd1`。
 
-`upstream-manifest.json` records the pristine global-Skill hashes separately
-from the managed owned-copy hash of `session-catchup.py`. `install.js` requires
-the global Skill to remain pristine and installs only the exact allowlisted
-owned runtime files beneath managed_dir.
+`upstream-manifest.json` 分别记录 pristine global-Skill hashes 和 managed
+`session-catchup.py` owned-copy hash。`install.js` 要求 global Skill 保持 pristine，并且只把
+精确 allowlist 中的 owned runtime 文件安装到 `managed_dir` 下。
 
-## Repository map
+## 仓库地图
 
-| Path | Purpose |
+| 路径 | 用途 |
 |---|---|
-| `install.js` | Managed installer CLI: install, doctor, repair, and uninstall |
-| `hooks/hook_adapter.py` | Read-only Codex protocol adapter, SessionStart supervisor, and still-local UserPrompt injection |
-| `patches/patch_planning_skill.py` | Historical overlay reproduction/audit tool; not shipped or run by alpha.2 |
-| `tools/import_upstream_runtime.py` | Pinned-archive, allowlist-only runtime import and drift check |
-| `tools/build_release.py` | Deterministic exact-allowlist Release ZIP builder and verifier |
-| `runtime/owned-catchup.py` | Active Phase 2 SessionStart catch-up entrypoint and transcript trust boundary |
-| `runtime/owned-plan.py` | Inactive Phase 3 exact-v1 canonical plan-context runtime and controlled-snapshot boundary |
-| `runtime/upstream/` | Four verified runtime files; catch-up is active, prompt/ledger files remain deferred |
-| `THIRD_PARTY_NOTICES.md` | Complete upstream MIT attribution for redistributed runtime code |
-| `upstream-manifest.json` | Manifest v3: archive, contracts, importer, license, source paths, modes, and file hashes |
-| `contracts/` | Versioned runtime allowlist, overlay ledger, adapter/runtime schemas, and Release ZIP boundary |
-| `docs/phase-1-runtime-contracts.md` | Human-readable Phase 1 contract and ownership guide |
-| `docs/phase-2-owned-catchup.md` | Active SessionStart owned-runtime boundary and safety policy |
-| `docs/phase-3-canonical-plan-context.md` | Selected Phase 3 prompt-context architecture, inactive trusted-graph lifecycle, compatibility decisions, budgets, and round gates |
-| `docs/phase-3-round-4-activation-plan.md` | Round 4 A/B/C activation sequence, shared deadline, failure matrix, rollback boundary, and beta.1 Cloud exit gate |
-| `docs/phase-3-upstream-invocation-options.md` | Overlay/snapshot/other route comparison, empirical evidence, and long-term Host/Driver standardization boundary |
-| `docs/phase-3-round-3-cloud-acceptance.md` | Exact inactive Round 3 Linux/Cloud test, isolated-install, inventory, direct-runtime, and no-dispatch gate |
-| `docs/v0.3.0-alpha.1-cloud-smoke.md` | Retained Phase 1 pre-release publication and Cloud-smoke acceptance record |
-| `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md` | Alpha.2 SHA, inventory, permission, owned-runtime, and resume acceptance gate |
-| `snapshot-prototype/` | Reviewed, self-contained Round 2 feasibility handoff for the selected snapshot route; conditional GO evidence, never current runtime or Release input |
-| `init-cloud-sandbox-v0.3.0.bash` | Development bootstrap for the active modernization iteration |
-| `PROJECT_UNDERSTANDING.md` | Durable current-state model, Cloud evidence, boundaries, and next-step context |
-| `黑盒验证.md` | Beginner-oriented Cloud runbook for health, lifecycle, catch-up, repair, and fail-closed tests |
-| `tests/hook-adapter.test.js` | Hook payload and no-plan behavior tests |
-| `tests/installer.test.js` | Managed-policy ownership, drift, repair, backup, and uninstall tests |
-| `tests/skill-patch.test.js` | Compatibility patch, guarded bootstrap, and Cloud-shaped catch-up regressions |
-| `tests/contracts.test.js` | Phase 1 provenance, overlay, protocol, and artifact-boundary contract test |
-| `tests/import-runtime.test.js` | Deterministic import, idempotence, checksum, source-drift, and inventory fail-closed tests |
-| `tests/golden-output.test.js` | Six exact v0.2.2 Hook-output compatibility scenarios |
-| `tests/cloud-fixtures.test.js` | Sanitized Cloud Hook schema, environment-stage, and catch-up JSONL regressions |
-| `tests/release-package.test.js` | Deterministic ZIP inventory, metadata, mode, and bootstrap-separation test |
-| `tests/owned-runtime.test.js` | Inactive request/result, Host transcript, fallback, identity, and containment tests |
-| `tests/phase3-contracts.test.js` | Inactive Phase 3 prompt contracts and alpha.2 trusted-graph exclusion test |
-| `tests/snapshot-prototype-handoff.test.js` | Imports the eight standalone feasibility cases into the parent suite and proves production-graph isolation |
-| `tests/fixtures/planning-with-files/` | Self-contained pinned Skill fixture; not a second production Skill |
-| `planning-with-files-3.8.2/` | Ignored local upstream reference tree supplied for development; never package it |
-| `.planning/.active_plan` | Pointer to the current Managed Runtime Modernization plan |
-| `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` | Completed implementation, Cloud-acceptance, and published-release record |
-| `.planning/2026-08-01-managed-runtime-modernization/` | Active long-term managed-runtime modernization roadmap and audit history |
+| `AGENTS.md` | 智能体进入仓库后的阅读顺序、文档权威关系、稳定边界和验证规则 |
+| `install.js` | Managed installer CLI：install、doctor、repair、uninstall |
+| `hooks/hook_adapter.py` | 只读 Codex 协议 adapter、SessionStart supervisor，以及仍在本地实现的 UserPrompt injection |
+| `patches/patch_planning_skill.py` | 历史 overlay 复现/审计工具；alpha.2 不发布、不执行 |
+| `tools/import_upstream_runtime.py` | 固定 archive、仅 allowlist 的 runtime 导入与 drift 检查 |
+| `tools/build_release.py` | 确定性、精确 allowlist 的 Release ZIP 构建与验证 |
+| `runtime/owned-catchup.py` | Active Phase 2 SessionStart catch-up 入口和 transcript trust boundary |
+| `runtime/owned-plan.py` | Inactive Phase 3 exact-v1 canonical plan-context runtime 和 controlled-snapshot boundary |
+| `runtime/upstream/` | 四个已验证 runtime 文件；catch-up active，prompt/ledger 文件按阶段使用 |
+| `THIRD_PARTY_NOTICES.md` | 再分发 runtime code 的完整 upstream MIT attribution |
+| `upstream-manifest.json` | Manifest v3：archive、contracts、importer、license、source paths、modes 和 hashes |
+| `contracts/` | Versioned runtime allowlist、overlay ledger、adapter/runtime schemas 和 Release ZIP boundary |
+| `docs/phase-1-runtime-contracts.md` | Phase 1 contract 和 ownership 的可读说明 |
+| `docs/phase-2-owned-catchup.md` | Active SessionStart owned-runtime boundary 和安全策略 |
+| `docs/phase-3-canonical-plan-context.md` | Phase 3 已选架构、inactive trusted-graph lifecycle、兼容决策、预算和 round gates |
+| `docs/phase-3-round-4-activation-plan.md` | Round 4 A/B/C 激活顺序、共享 deadline、failure matrix、rollback boundary 和 beta.1 Cloud exit gate |
+| `docs/phase-3-upstream-invocation-options.md` | overlay/snapshot/其他路线比较、实证和长期 Host/Driver 标准化边界 |
+| `docs/phase-3-round-3-cloud-acceptance.md` | Inactive Round 3 Linux/Cloud、隔离安装、inventory、direct runtime 和 no-dispatch gate |
+| `docs/v0.3.0-alpha.1-cloud-smoke.md` | Phase 1 预发行发布与 Cloud smoke 验收记录 |
+| `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md` | Alpha.2 SHA、inventory、权限、owned runtime 和 resume 验收门槛 |
+| `snapshot-prototype/` | 已审查且自包含的 Round 2 snapshot feasibility handoff；只作为 conditional GO 证据，不是 runtime/Release 输入 |
+| `init-cloud-sandbox-v0.3.0.bash` | 当前 modernization 迭代的开发 bootstrap |
+| `PROJECT_UNDERSTANDING.md` | 持久心智模型、Cloud 事实、组件边界、决策和恢复时文档路由 |
+| `work_plan.md` | Programme/Release 层 Phase 路线、Cloud 验收和发布路标 |
+| `黑盒验证.md` | 面向初学者的 Cloud health、lifecycle、catch-up、repair 和 fail-closed runbook |
+| `tests/hook-adapter.test.js` | Hook payload、当前 plan behavior 和 no-plan 测试 |
+| `tests/installer.test.js` | Managed-policy ownership、drift、repair、backup 和 uninstall 测试 |
+| `tests/skill-patch.test.js` | 历史 compatibility patch、bootstrap guard 和 Cloud-shaped catch-up 回归 |
+| `tests/contracts.test.js` | Phase 1 provenance、overlay、protocol 和 artifact-boundary contract 测试 |
+| `tests/import-runtime.test.js` | 确定性导入、幂等、checksum、source drift 和 inventory fail-closed 测试 |
+| `tests/golden-output.test.js` | 六个 exact v0.2.2 Hook output 兼容场景 |
+| `tests/cloud-fixtures.test.js` | 脱敏 Cloud Hook schema、environment stage 和 catch-up JSONL 回归 |
+| `tests/release-package.test.js` | 确定性 ZIP inventory、metadata、mode 和 bootstrap separation 测试 |
+| `tests/owned-runtime.test.js` | Owned catch-up request/result、Host transcript、fallback、identity 和 containment 测试 |
+| `tests/owned-plan-runtime.test.js` | Owned plan exact-v1、snapshot、safe-read、timeout 和 cleanup 测试 |
+| `tests/phase3-contracts.test.js` | Inactive Phase 3 prompt contracts 和 alpha.2 trusted-graph exclusion 测试 |
+| `tests/snapshot-prototype-handoff.test.js` | 把八个独立 feasibility cases 纳入父 suite，并证明 production-graph isolation |
+| `tests/fixtures/planning-with-files/` | 自包含 pinned Skill fixture；不是第二套 production Skill |
+| `planning-with-files-3.8.2/` | 开发用、Git 忽略的上游参考树；不得打包 |
+| `.planning/.active_plan` | 指向当前 Managed Runtime Modernization plan |
+| `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` | 已完成的实现、Cloud 验收和发布记录 |
+| `.planning/2026-08-01-managed-runtime-modernization/` | 当前长期 managed-runtime modernization 计划与审计历史 |
 
-## Install and operate
+## 安装与运维
 
-### Prerequisites
+### 前置条件
 
-- Linux Codex Cloud runtime with an absolute non-root `$CODEX_HOME`;
-- `/usr/bin/python3`;
-- Node.js 18 or newer;
-- authorization to modify `/etc/codex/requirements.toml` for production install;
-- the pinned planning-with-files Skill installed in an approved location.
+- Linux Codex Cloud runtime，并且 `$CODEX_HOME` 是绝对、非根目录路径；
+- `/usr/bin/python3`；
+- Node.js 18 或更新版本；
+- production install 时有权修改 `/etc/codex/requirements.toml`；
+- pinned planning-with-files Skill 已安装在获准位置。
 
-By default the installer searches for the Skill in:
+installer 默认按以下顺序查找 Skill：
 
-1. `$HOME/.agents/skills/planning-with-files`;
-2. `$CODEX_HOME/skills/planning-with-files`;
-3. `$HOME/.codex/skills/planning-with-files`.
+1. `$HOME/.agents/skills/planning-with-files`；
+2. `$CODEX_HOME/skills/planning-with-files`；
+3. `$HOME/.codex/skills/planning-with-files`。
 
-Use `--skill-root PATH` to select an explicit installation.
+使用 `--skill-root PATH` 可以显式选择安装位置。
 
-### Local development and tests
+### 本地开发与测试
 
 ```bash
 npm test
@@ -254,54 +238,33 @@ bash -n init-cloud-sandbox-v0.3.0.bash
 git diff --check
 ```
 
-The development Node suite currently registers fifty-five **test cases**, not
-fifty-five atomic product features. On Windows, forty-five pass and ten
-production-POSIX/Linux cases explicitly skip; on the Cloud/Linux feasibility
-run, all fifty-five passed without skips. The sealed alpha.2 snapshot remains
-forty-five registered / forty-two pass / three skip. Phase 3 Round 1 added one
-inactive-contract case; the reviewed Round 2 handoff adds eight focused
-feasibility cases plus one parent trusted-graph-isolation case. Several cases
-cover multiple related guarantees. Together they cover:
+当前 Node suite 注册 63 个**测试案例**，不等于 63 个原子产品功能：
 
-- both current Hook payloads and the no-plan canary;
-- read-only dry-run;
-- incompatible `managed_dir` rejection;
-- merge preservation and idempotence;
-- doctor and owned uninstall;
-- repairable owned drift;
-- rejection of unowned, manifest, and unknown-runtime drift;
-- byte-for-byte restoration from installation backups;
-- deterministic/idempotent patching and rejection of unknown Skill drift;
-- guarded v0.3.0 checksum and pristine-Skill bootstrap ordering;
-- `.agents` installation, `$CODEX_HOME/sessions`, scoped-plan, resume-adapter,
-  and unsynced-sentinel catch-up behavior, including a sentinel after a long
-  Cloud wrapper;
-- Phase 1 runtime provenance, overlay anchors and retirement rules,
-  adapter/runtime schemas, and the external-bootstrap Release boundary;
-- deterministic allowlist import, archive/source hash rejection, exact managed
-  output hashes, idempotence, and changed/unknown runtime rejection;
-- six exact v0.2.2 Hook output goldens and two Cloud-shaped evidence contracts;
-- multi-file install/doctor/repair/backup/uninstall inventory behavior;
-- owned-runtime request/result, Host-path preference, explicit fallback,
-  session identity, containment, and bounded compatibility output;
-- controlled-snapshot safe reads, private projection, environment isolation,
-  races, timeout cleanup, cross-user feasibility, output budget, pristine hash,
-  and explicit non-production handoff isolation;
-- backward-compatible session attachment/isolation, explicit opt-out, canonical
-  plan/file containment, `PLAN_ID`/BOM precedence, and safe runtime outcomes;
-- strict Codex JSONL normalization, conservative cross-family deduplication,
-  content-free diagnostics, corruption/budget reason codes, and bounded
-  child-process supervision;
-- adapter activation/fail-open behavior, proof that mutable global catch-up is
-  not executed, and Linux root/root plus synthetic cross-user gates;
-- deterministic 18-entry alpha.2 ZIP construction with fixed metadata and external Bash.
+- Windows：46 PASS、17 个如实标记的 POSIX/Linux-only SKIP、0 FAIL；
+- Cloud/Linux：63 PASS、0 SKIP、0 FAIL；
+- 已封板 alpha.2 快照仍是 45 registered、42 PASS、3 Linux-only SKIP。
 
-Tests use temporary Codex homes and projects and do not write the live
-`$CODEX_HOME` or `/etc/codex/requirements.toml`.
+这些案例覆盖：
 
-### Installer CLI
+- 当前两个 Hook payload、no-plan canary 和 read-only dry-run；
+- managed policy 合并、幂等、所有权、doctor、repair、backup、uninstall 和 unknown drift；
+- upstream archive/source hashes、确定性 allowlist import 和 exact runtime inventory；
+- v0.2.2 golden output、Cloud Hook schema 和 Cloud-shaped JSONL fixture；
+- SessionStart owned-catchup、transcript identity/containment/fallback、bounded output 和诊断；
+- adapter activation/fail-open、global Skill 不执行，以及 Linux root/root 和 synthetic cross-user；
+- canonical plan resolution、opt-out、session attachment/isolation、PLAN_ID/BOM precedence；
+- owned-plan exact-v1、fd-rooted safe read、single-link policy、race detection、private snapshot、
+  process-group timeout、stale cleanup 和 output budget；
+- snapshot prototype handoff 与 production graph/Release/dispatch isolation；
+- deterministic Release ZIP、固定 metadata/mode、external bootstrap separation；
+- Phase 3 exact-v1 schemas、11-file installed graph、21-entry development ZIP 和 adapter no-dispatch。
 
-For a non-production preview or test location, override both destination paths:
+测试只使用临时 Codex homes 和 projects，不会写入 live `$CODEX_HOME` 或
+`/etc/codex/requirements.toml`。
+
+### 安装程序 CLI
+
+非 production 预览或测试位置必须同时覆盖 destination paths：
 
 ```bash
 node install.js install --dry-run --json \
@@ -310,7 +273,7 @@ node install.js install --dry-run --json \
   --managed-requirements /absolute/test/requirements.toml
 ```
 
-Production examples:
+生产环境示例：
 
 ```bash
 node install.js install --dry-run --json --codex-home /opt/codex
@@ -320,25 +283,20 @@ sudo node install.js install --repair --json --codex-home /opt/codex
 sudo node install.js uninstall --json --codex-home /opt/codex
 ```
 
-`--managed-requirements PATH` defaults to `/etc/codex/requirements.toml`.
-Production installation normally requires root. If an existing
-`hooks.managed_dir` does not contain this package's adapter, installation fails
-instead of replacing the administrator's managed Hook root.
+`--managed-requirements PATH` 默认是 `/etc/codex/requirements.toml`。Production install
+通常需要 root。如果现有 `hooks.managed_dir` 不包含本 package 的 adapter，安装会失败，而不是
+替换管理员的 managed Hook root。
 
-### Cloud bootstrap
+### Cloud 初始化脚本
 
-`init-cloud-sandbox-v0.3.0.bash` is the Debian/Ubuntu amd64 development
-bootstrap. It can install prerequisites, PowerShell, Node.js, the Skill, and the managed Hook
-package, then validate the filesystem, TOML, Codex feature state, adapter
-protocol, and canaries.
+`init-cloud-sandbox-v0.3.0.bash` 是 Debian/Ubuntu amd64 开发 bootstrap。它可以安装依赖、
+PowerShell、Node.js、Skill 和 managed Hook package，然后检查 filesystem、TOML、Codex
+feature state、adapter protocol 和 canary。
 
-Codex Cloud does not need to provide `CODEX_HOME` before setup. The bootstrap
-exports `/opt/codex` as its default; an explicitly supplied value still wins.
-Current Cloud evidence shows the variable is absent while the sandbox
-initialization script runs, then is available as `/opt/codex` after the Codex
-runtime starts, including in the observed managed Hook processes. The bootstrap
-default is therefore an installation-stage fallback, not the source of the
-later runtime variable.
+Codex Cloud 不需要在 setup 前提供 `CODEX_HOME`。bootstrap 默认导出 `/opt/codex`，显式传入
+的值仍优先。当前 Cloud 证据表明：sandbox initialization script 运行时该变量不存在；Codex
+runtime 启动后，包括实际 managed Hook process 中，该变量为 `/opt/codex`。所以 bootstrap
+默认值只是 installation-stage fallback，不是后续 runtime 变量的来源。
 
 ```bash
 sudo bash init-cloud-sandbox-v0.3.0.bash all
@@ -346,180 +304,169 @@ bash init-cloud-sandbox-v0.3.0.bash help
 bash init-cloud-sandbox-v0.3.0.bash verify
 ```
 
-The alpha.2 workflow targets `v0.3.0-alpha.2` and uses two stages: the external
-bootstrap keeps an all-zero guard while ZIP bytes are being frozen, then only
-that external bootstrap is sealed with the final ZIP SHA. Release sealing must
-always be ordered: freeze the target version and ZIP contents, build and hash
-the ZIP, write that version/package/SHA into the external bootstrap, hash the
-sealed bootstrap, then publish and verify both assets. The published `v0.2.2`
-release remains the stable-release fallback; the narrower modernization/Phase 3
-rollback baseline is the Cloud-accepted alpha.2 release.
+alpha.2 workflow 面向 `v0.3.0-alpha.2`，分为两个阶段：冻结 ZIP bytes 时，外部 bootstrap
+保留全零 guard；ZIP 确定后，再把最终 ZIP SHA 封入外部 bootstrap。Release 封板顺序固定为：
 
-Component commands do not install their dependencies automatically. Use `all`
-for the complete ordered workflow or follow the dependency notes printed by
-`help`.
+1. 冻结目标版本和 ZIP 内容；
+2. 构建 ZIP 并计算 SHA；
+3. 把版本、package name 和 ZIP SHA 写入外部 bootstrap；
+4. 计算封板后 bootstrap SHA；
+5. 发布并重新下载验证两个独立资产。
 
-After setup succeeds, start a completely new Cloud task and perform the
-black-box verification in [`黑盒验证.md`](黑盒验证.md). Seeing a canary by
-manually reading files is not proof that the lifecycle Hook ran; the canary must
-already be present in the new session's runtime context.
+已发布 v0.2.2 仍是 stable-release fallback；范围更窄的 modernization/Phase 3 rollback
+baseline 是 Cloud-accepted alpha.2。
 
-## Failure and repair model
+component command 不会自动安装其依赖。完整有序流程使用 `all`，或遵循 `help` 输出的依赖说明。
 
-Every write operation first backs up affected managed files. Normal `install`
-can establish or upgrade owned state. `install --repair` is deliberately
-narrower:
+setup 成功后，必须启动一个全新的 Cloud task，并执行[`黑盒验证.md`](黑盒验证.md)。手动读取
+文件看到 canary 不能证明 lifecycle Hook 已执行；canary 必须在新 session 的 runtime context
+中已经存在。
 
-- it requires an intact schema-v3 owned manifest;
-- the upstream pin, installation paths, and unowned requirements fingerprint
-  must still match;
-- it repairs only the owned adapter/runtime payload or owned managed-Hook definitions;
-- unknown drift returns `REPAIR_BLOCKED_UNKNOWN_DRIFT` and requires Human review.
+## 故障与修复模型
 
-Upgrade once from `v0.2.0` with normal `install` before using repair. Repair does
-not treat an older manifest as proof of ownership.
+每次写操作都会先备份受影响的 managed files。普通 `install` 可以建立或升级 owned state；
+`install --repair` 的边界刻意更窄：
 
-Operational response:
+- 必须存在完整的 schema-v3 owned manifest；
+- upstream pin、安装路径和 unowned requirements fingerprint 必须仍然匹配；
+- 只修复 owned adapter/runtime payload 或 owned managed-Hook definitions；
+- unknown drift 返回 `REPAIR_BLOCKED_UNKNOWN_DRIFT`，需要人工审查。
 
-1. run `doctor`;
-2. if `repairable` is true, preview `install --repair --dry-run` and then repair;
-3. if blockers or `REPAIR_BLOCKED_UNKNOWN_DRIFT` appear, stop automation;
-4. inspect requirements, runtime inventory, manifest, and backups;
-5. use normal install only after the unexpected state is understood and approved.
+从 `v0.2.0` 升级时，先执行一次普通 `install`，之后才能使用 repair。repair 不会把旧 manifest
+当成所有权证明。
 
-## Target architecture
+运维处理顺序：
 
-The approved modernization direction is a **fixed upstream source snapshot
-packaged as a managed runtime bundle**:
+1. 运行 `doctor`；
+2. 如果 `repairable=true`，先预览 `install --repair --dry-run`，再执行 repair；
+3. 如果出现 blocker 或 `REPAIR_BLOCKED_UNKNOWN_DRIFT`，停止自动化；
+4. 检查 requirements、runtime inventory、manifest 和 backups；
+5. 只有理解并批准异常状态后，才允许普通 install。
+
+## 目标架构
+
+已批准的 modernization 方向是：**把固定的 upstream source snapshot 打包成 managed runtime
+bundle**。
 
 ```text
 Codex
   |
   v
 /etc/codex/requirements.toml
-  |  absolute commands beneath managed_dir only
+  |  只注册 managed_dir 下的绝对 adapter 命令
   v
 $CODEX_HOME/hooks/planning-with-files/
-  |-- hook_adapter.py                 # owned here: Codex protocol only
-  |-- owned-catchup.py                # active SessionStart child runtime
-  |-- upstream/                       # exact allowlisted files from pinned release
-  |   |-- resolve-plan-dir.sh
-  |   |-- inject-plan.sh
-  |   |-- session-catchup.py
-  |   `-- ledger-summary.sh
-  |-- compatibility-overlays-v1.json  # temporary downstream deltas + retirement rules
+  |-- hook_adapter.py                 # 唯一 Host command
+  |-- owned-catchup.py                # active SessionStart child
+  |-- owned-plan.py                   # canonical plan-context child；当前未 dispatch
+  |-- contracts/
+  |   |-- adapter-plan-context-request-v1.schema.json
+  |   `-- plan-context-result-v1.schema.json
+  |-- upstream/
+  |   |-- resolve-plan-dir.sh         # pristine
+  |   |-- inject-plan.sh              # pristine
+  |   |-- session-catchup.py          # owned overlay
+  |   `-- ledger-summary.sh           # pristine/deferred mode
+  |-- compatibility-overlays-v1.json  # 临时 downstream delta + retirement rules
   |-- installed-manifest.json
   `-- THIRD_PARTY_NOTICES.md
 ```
 
-Managed Hook commands still register only `hook_adapter.py`. For SessionStart,
-that adapter now validates an explicit v1 Host request and supervises the sibling
-`owned-catchup.py`, which imports only the installed verified upstream copy.
-UserPromptSubmit plan injection remains local until Phase 3. The global Skill is
-pristine and is never executed for catch-up.
+Managed Hook 命令仍只注册 `hook_adapter.py`。当前 SessionStart adapter 会校验显式 v1
+Host request 并监督 sibling `owned-catchup.py`；UserPromptSubmit plan injection 仍在 adapter
+本地实现。global Skill 保持 pristine，catch-up 不会执行它。
 
-Phase 3 Round 1 selected and froze a separate managed-legacy prompt request/result
-boundary and a 20,000-character whole-context ceiling. Round 2 then completed an
-isolated controlled-snapshot feasibility spike around the pristine
-resolver/injector: eight focused Linux/Cloud cases plus one parent isolation
-case support conditional GO, while multi-target overlay remains fallback only.
-The prototype remains outside every production graph. The published alpha.2
-asset and bootstrap also remain unchanged, while the development Round 3 graph
-now installs/packages the exact schemas and `owned-plan.py` without adapter
-dispatch. Its frozen policies include the Fresh + Resume Cloud single-link gate
-(40/40 stable regular-file observations with `st_nlink=1`). Local Windows and
-the complete 63/63 inactive Linux/Cloud acceptance now pass, so Round 3 is closed.
-Round 4 activates the path and removes the adapter's parallel resolver/renderer.
+Phase 3 Round 1 冻结 managed-legacy prompt request/result boundary、20,000 字符总 context 上限
+和两项有意输出差异。Round 2 用 pristine resolver/injector 完成隔离的 controlled-snapshot
+feasibility spike：8 个 focused Linux/Cloud cases 加 1 个父仓库 isolation case 支持
+`CONDITIONAL_GO`，multi-target overlay 只作为 fallback。prototype 永远不进入 production graph。
 
-The Phase 3 document, v1 schemas, and contract regression intentionally omit a
-`candidate` filename suffix. Their identities are selected and stable; inactive
-versus active status is expressed by schema/document metadata, trusted-graph
-membership, and the adapter-dispatch exclusion test. Round 4 activates those
-same identities unless the contract itself changes incompatibly.
+Round 3 已把 exact-v1 schemas 和 `owned-plan.py` 纳入 development trusted graph、installer 和
+package，但没有改变 adapter dispatch。Fresh + Resume Cloud single-link gate 共 40/40 次观察
+均为 regular、`st_nlink=1`、identity stable；Windows suite 和完整 63/63 inactive
+Linux/Cloud acceptance 均通过，因此 Round 3 已关闭。Round 4 通过分段 gate 激活该路径并退休
+adapter 的平行 resolver/renderer。
 
-The Phase 1 v1 allowlist contains only those four upstream files. Attestation,
-ledger mutation, phase mutation, completion, and Stop-gating scripts remain
-explicitly deferred until their owning phases; they are not allowed into the
-early runtime artifact.
+Phase 3 文档、v1 schemas 和 contract regression 刻意不使用 `candidate` filename suffix。
+它们的 identity 已选定且稳定；inactive/active 状态由 schema/document metadata、trusted-graph
+membership 和 adapter-dispatch exclusion test 表达。除非 contract 发生不兼容变化，Round 4
+激活同一组 identity。
 
-### Target responsibilities
+Phase 1 v1 allowlist 只包含上述四个 upstream files。Attestation、ledger mutation、phase
+mutation、completion 和 Stop-gating scripts 必须等各自 Phase；早期 runtime artifact 不允许
+包含它们。
 
-`hook_adapter.py` will be intentionally thin and limited to:
+### 目标职责
 
-- stdin JSON and event validation;
-- `cwd`, `session_id`, event-scoped `turn_id`, and validated Host
-  `transcript_path` extraction;
-- explicit Codex runtime, transcript/session-store fallback, event/source,
-  project-root, and output-budget request fields;
-- supervised subprocess execution and timeout handling;
-- stdout/stderr isolation;
-- Codex `additionalContext`, `systemMessage`, and decision JSON;
-- rollout canaries.
+`hook_adapter.py` 应保持薄，只负责：
 
-The pinned upstream runtime will own planning semantics:
+- stdin JSON 和 event 校验；
+- 提取 `cwd`、`session_id`、event-scoped `turn_id` 和已校验 Host `transcript_path`；
+- 构造显式 Codex runtime、transcript/session-store fallback、event/source、project root 和
+  output budget request；
+- 共享 deadline、受监督 subprocess execution 和 timeout handling；
+- stdout/stderr isolation 和严格 typed result validation；
+- Codex `additionalContext`、`systemMessage`、decision JSON 和 rollout canary。
 
-- plan resolution and containment;
-- opt-out and session isolation;
-- injection shape;
-- attestation and nonce framing;
-- smart injection and ledger summaries;
-- compact reminders and completion semantics;
-- catch-up transcript normalization, diagnostic reason codes, and bounded reports.
+PWF Integration Driver/owned runtime 负责 planning 语义：
 
-The Host-provided `transcript_path` is the primary transcript selector. The
-active Phase 2 entrypoint independently requires canonical containment,
-rollout shape, matching session identity/cwd, and an explicit allowed root
-before reading it, then uses only explicitly supplied session-store roots as a
-compatibility fallback. Codex transcript JSONL is not a stable public interface.
-The runtime normalizes the
-observed families, rejects malformed UTF-8/JSON without partial injection, and
-reports unknown or duplicate families without trusting them as conversation text.
+- plan resolution、containment、opt-out 和 session isolation；
+- controlled private snapshot、pristine injection shape 和 canonical project state；
+- catch-up transcript normalization、diagnostic reason codes 和 bounded reports；
+- 后续 Phase 显式批准后才加入的 attestation、ledger、compact 和 completion 语义。
 
-`install.js` will continue to own deployment and governance:
+Host 提供的 `transcript_path` 是首选 transcript selector。active owned-catchup 在读取前独立
+要求 canonical containment、rollout shape、matching session identity/cwd 和显式 allowed root；
+只有显式 session-store roots 可以作为 compatibility fallback。Codex transcript JSONL 不是稳定
+公共接口。runtime 会归一化已观察 record families，拒绝 malformed UTF-8/JSON 且不做 partial
+injection，并在不信任其为 conversation text 的前提下诊断 unknown/duplicate families。
 
-- absolute managed commands;
-- atomic install, backup, doctor, repair, and uninstall;
-- upstream archive provenance and per-file hashes;
-- deterministic compatibility overlays with pristine/patched hashes and retirement conditions;
-- exact runtime allowlist and unknown-file rejection;
-- staged event registration, rollout, rollback, and canaries.
+`install.js` 继续负责部署和治理：
 
-### Why this design
+- absolute managed commands；
+- atomic install、backup、doctor、repair 和 uninstall；
+- upstream archive provenance 和 per-file hashes；
+- deterministic overlay、pristine/patched hashes 和 retirement conditions；
+- exact runtime allowlist 和 unknown-file rejection；
+- staged event registration、rollout、rollback 和 canary。
 
-- It avoids maintaining a second implementation of upstream planning behavior.
-- It does not execute mutable scripts directly from a user's Skill directory.
-- It keeps the actual managed runtime reproducible and reversible.
-- It preserves this repository's stricter Cloud ownership and drift model.
-- It imports only reviewed dependencies instead of copying all upstream `.codex/` files.
-- It moves the Cloud-proven catch-up path out of the mutable global Skill and into
-  the same owned inventory as the adapter.
+长期可复用边界是 Host ABI + managed runner + Integration Driver request/result。当前唯一正式
+支持的集成仍是 PWF；在第二个只读插件验证前，本仓库不是通用 Skill 转换器。
 
-### Modernization invariants
+### 为什么选择这套设计
 
-- preserve existing legacy-plan behavior unless a migration is explicit;
-- add tests before enabling each new lifecycle event;
-- keep managed commands beneath `managed_dir`;
-- fail closed on runtime integrity and unsafe context injection;
-- keep advisory runtime failures non-fatal to the Codex loop;
-- make Runtime identity and the validated Host transcript path explicit rather
-  than inferring them from a Skill path or transient setup environment; retain
-  session-store scanning only as a compatibility fallback;
-- treat transcript JSONL record shapes as changeable Host data, not a stable
-  schema owned by this repository;
-- keep injected catch-up output bounded while exposing detailed skip/failure
-  reasons only through a non-injecting diagnostic surface;
-- add hard Stop gating last and only behind an explicit mode.
+- 避免维护第二套 upstream planning behavior；
+- 不从用户 Skill 目录直接执行可变脚本；
+- managed runtime 可复现、可诊断、可回滚；
+- 保留本仓库更严格的 Cloud ownership 和 drift model；
+- 只导入经过审查的依赖，不复制完整 upstream `.codex/`；
+- 把 Cloud 已证明的 catch-up 路径从可变 global Skill 移入 adapter 同一 owned inventory。
 
-## How to continue the work
+### 现代化不变量
 
-The roadmap is intentionally stored as planning-with-files state so it survives
-resume, clear, and context compaction.
+- 没有显式 migration 时，保留现有 legacy-plan behavior；
+- 每个新 lifecycle event 激活前先增加测试；
+- managed command 必须位于 `managed_dir` 下；
+- runtime integrity 和 unsafe context injection 必须 fail-closed；
+- runtime advisory failure 对 Codex loop 保持 non-fatal；
+- Runtime identity 和已校验 Host transcript path 必须显式传入，不能只从 Skill path 或临时
+  setup environment 推断；session-store scanning 只作 compatibility fallback；
+- transcript JSONL record shape 是可变化的 Host data，不是本仓库拥有的稳定 schema；
+- catch-up 注入有总预算，详细 skip/failure reason 只进入 non-injecting diagnostic surface；
+- hard Stop gating 最后实现，并且只在显式模式下启用。
 
-### Restore context
+## 如何继续开发
 
-From the repository root:
+路线以 planning-with-files 状态持久化，因此可以跨 resume、clear 和 context compaction 恢复。
+
+### 恢复上下文
+
+从仓库根目录开始：
 
 ```bash
+cat AGENTS.md
+cat PROJECT_UNDERSTANDING.md
+cat work_plan.md
 cat .planning/.active_plan
 cat .planning/2026-08-01-managed-runtime-modernization/task_plan.md
 cat .planning/2026-08-01-managed-runtime-modernization/progress.md
@@ -527,110 +474,87 @@ cat .planning/2026-08-01-managed-runtime-modernization/findings.md
 git status --short --branch
 ```
 
-Treat `task_plan.md` as the execution contract, `findings.md` as durable research
-and decisions, and `progress.md` as the chronological implementation log.
+文档职责：
 
-### Published v0.2.2 baseline
+- `AGENTS.md`：智能体阅读顺序、文档权威关系、稳定边界和验证规则；
+- `PROJECT_UNDERSTANDING.md`：长期心智模型、稳定事实、决策和恢复路由；
+- `work_plan.md`：programme/Release 层路线、Cloud 验收和发布路标；
+- `task_plan.md`：当前执行契约、唯一 Next Step、不变量和退出条件；
+- `findings.md`：持久研究与决策依据；
+- `progress.md`：按时间记录实施和测试证据。
 
-- Patch, adapter/installer/bootstrap integration, automated regression coverage,
-  Cloud acceptance, final packaging, and publication are complete.
-- The complete A—F Cloud matrix in [`黑盒验证.md`](黑盒验证.md) passed on
-  2026-08-01, including the long-wrapper unsynced sentinel and final doctor.
-- Published Release ZIP SHA-256:
-  `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84`.
-- `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` retains the
-  implementation, acceptance evidence, and release history.
+状态或下一步冲突时，以活动 `task_plan.md` 为准。
 
-### Active v0.3.0 modernization
+### 已发布 v0.2.2 基线
 
-`.planning/2026-08-01-managed-runtime-modernization/` is active again. The
-v0.2.2 patch is now an explicit temporary compatibility-overlay milestone:
-All three Phase 1 rounds are complete locally: contracts and overlays are
-frozen, the runtime is reproducibly imported, manifest/license provenance is
-verified, exact inactive installation is fail-closed, Cloud/golden fixtures pass,
-and the alpha.1 ZIP is deterministic. The pre-release download/SHA, install,
-doctor, exact inventory, per-file hashes, adapter-only command boundary, and
-compatibility smoke through resume have passed in Cloud. Phase 1 is complete;
-Phase 2 Rounds 1–3 added and hardened the structured owned-catch-up path,
-plan/session policy, transcript normalization, diagnostics, and supervisor
-failure semantics. Round 4 activated catch-up, retired bootstrap/global Skill
-mutation, and passed the complete alpha.2 fresh-Cloud hard acceptance. Alpha.2
-is now the Phase 3 rollback baseline. Phase 3 Round 1 completed the canonical
-prompt-injection audit and froze the owned-plan contracts, managed-legacy
-compatibility boundary, and two intentional output changes. Round 2 reviewed the
-self-contained snapshot feasibility handoff and produced conditional GO without
-changing any trusted runtime or Release artifact. The four Round 3 production
-policies are now frozen, including the single-link policy after matching Fresh
-and Resume Cloud PASS evidence (40/40 observations). Round 3 has now implemented,
-installed, and packaged the inactive exact-v1 path in the development trusted
-graph; the full Windows suite and 63/63 Linux/Cloud inactive acceptance pass.
-Round 3 is closed. Phase 3 still has four rounds, and the mandatory Round 4
-entry analysis is now complete. The final round is intentionally gated as R4-A
-(bounded supervisor/type seam), R4-B (atomic activation and adapter thinning),
-and R4-C (beta.1 seal plus fresh/resume Cloud acceptance). Implementation has
-not started; alpha.2 remains the rollback baseline.
-The broader reusable target is a
-Host/Driver ABI, not a claim that every Skill can use the same conversion
-technique. The prototype commit/branch beta.1 wording remains experimental
-metadata, not a beta release. New lifecycle events remain deferred until this
-runtime boundary and its diagnostic contract are complete.
+- patch、adapter/installer/bootstrap 集成、自动回归、Cloud 验收、最终打包和发布均已完成；
+- [`黑盒验证.md`](黑盒验证.md) 的完整 A—F Cloud matrix 于 2026-08-01 通过，包括长
+  wrapper unsynced sentinel 和最终 doctor；
+- 已发布 Release ZIP SHA-256：
+  `71d2ac8e073c49a6a75e4b649f1d9687b6eb9c5c51e525db72c505e69c353d84`；
+- `.planning/2026-08-01-v0.2.2-cloud-catchup-compatibility/` 保留实现、验收和发布历史。
 
-### Working rules
+### 当前 v0.3.0 modernization
 
-1. Re-read the active plan before making architectural decisions.
-2. Record research in `findings.md`, not in `task_plan.md`.
-3. Update `progress.md` after implementation and test work.
-4. Update phase status and `Next Step` together.
-5. Preserve upstream files byte-for-byte where possible; put host translation in
-   the local adapter.
-6. Never point production at a moving branch or `latest` artifact.
-7. Keep each lifecycle expansion in a separate, reviewable rollout.
-8. Apply the Discovery Gate in `PROJECT_UNDERSTANDING.md`: every new Phase starts
-   with re-audit/replanning, and any material architecture, contract, trust,
-   release, rollback, or Cloud-evidence divergence pauses implementation before
-   code changes continue.
+- Phase 1 complete：来源、contracts、overlay ledger、deterministic import、manifest/license、
+  installer lifecycle 和 alpha.1 Cloud smoke 均已关闭；
+- Phase 2 complete：owned-catchup、transcript/session safety、diagnostic、supervisor、权限边界和
+  alpha.2 Fresh/Resume Cloud hard acceptance 均已通过；alpha.2 是当前回滚基线；
+- Phase 3 Round 1～3 complete：canonical owned-plan contracts、controlled snapshot、safe reads、
+  single-link policy、inactive trusted graph 和 63/63 Linux/Cloud gate 已关闭；
+- Round 4 入口分析 complete：R4-A 是 bounded supervisor/type seam，R4-B 是 atomic activation
+  与 adapter thinning，R4-C 是 beta.1 seal 和 Fresh/Resume Cloud acceptance；
+- 当前只授权 R4-A，尚未开始 implementation；owned-plan production dispatch、R4-B、R4-C 和
+  beta.1 发布仍未授权；alpha.2 保持 rollback baseline。
 
-The detailed phases, exit criteria, decisions, and verification matrix live in
-`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`. Audit evidence
-and architectural rationale live in the sibling `findings.md`.
+更详细的阶段摘要和发布路标见 `work_plan.md`；Round 4 gate 见
+`docs/phase-3-round-4-activation-plan.md`。prototype branch/commit 中的 beta.1 字样只是实验
+metadata，不代表 beta Release 已成立。新的 lifecycle events 继续延后，直到该 runtime boundary
+和 diagnostic contract 完成。
 
-## Release workflow
+### 工作规则
 
-1. Review and merge changes in this repository.
-2. Run the full local and installer test matrix.
-3. Build an immutable archive rooted at `pwf-codex-cloud-hooks/` from the exact
-   entry list and deterministic settings in
-   `contracts/release-artifact-v1.json`. Do not use a repository-wide wildcard
-   and do not include the local `planning-with-files-3.8.2/` reference tree.
-4. Inspect the final ZIP contents and compute its SHA-256, but do not mutate the
-   ZIP after this point.
-5. Seal `init-cloud-sandbox-v0.3.0.bash` with the final version, package name,
-   and ZIP SHA-256, then compute the sealed Bash SHA-256.
-6. Publish both immutable assets and verify their uploaded hashes.
-7. Run bootstrap install and doctor in a fresh environment.
-8. Follow the `v0.3.0` regression procedure in
-   [`黑盒验证.md`](黑盒验证.md) and require the
-   resume canary, `Runtime: codex`, unsynced count, and sentinel.
-9. Keep canaries until every newly enabled lifecycle path is proven.
-10. Remove canaries in a separately reviewed change and recompute production hashes.
+1. 做架构决策前重读活动 plan；
+2. 研究写入 `findings.md`，不要堆入 `task_plan.md`；
+3. 实施和测试后更新 `progress.md`；
+4. phase status 和 `Next Step` 一起更新；
+5. upstream files 能保持 byte-for-byte 就不修改，Host translation 放在本地 adapter/Driver；
+6. production 永远不能指向 moving branch 或 `latest` artifact；
+7. 每次 lifecycle expansion 都必须是独立、可审查的 rollout；
+8. 遵守 `PROJECT_UNDERSTANDING.md` 的 Discovery Gate：新 Phase 必须重新审计/规划；架构、
+   contract、trust、Release、rollback 或 Cloud evidence 发生实质分歧时，先暂停实施。
 
-Never configure Cloud setup to download a moving branch or an unchecksummed
-`latest` release.
+## Release 发布流程
 
-## Safety summary
+1. 审查并合并本仓库变更；
+2. 运行完整本地和 installer test matrix；
+3. 使用 `contracts/release-artifact-v1.json` 的精确 entry list 和 deterministic settings，构建
+   根目录为 `pwf-codex-cloud-hooks/` 的 immutable archive；不得使用 repository-wide wildcard，
+   不得包含本地 `planning-with-files-3.8.2/` 参考树；
+4. 检查最终 ZIP 内容并计算 SHA-256，此后不得再修改 ZIP；
+5. 把最终 version、package name 和 ZIP SHA-256 写入
+   `init-cloud-sandbox-v0.3.0.bash`，再计算封板后 Bash SHA-256；
+6. 发布两个 immutable assets，并核对上传后的 hashes；
+7. 在 fresh environment 运行 bootstrap install 和 doctor；
+8. 按[`黑盒验证.md`](黑盒验证.md)的 v0.3.0 流程回归，必须看到 resume canary、
+   `Runtime: codex`、unsynced count 和 sentinel；
+9. 每条新 lifecycle path 全部证明前，保留 canary；
+10. 在独立审查的变更中移除 canary，并重新计算 production hashes。
 
-- preserve unrelated requirements and Hook handlers;
-- install only owned runtime and remove only owned state;
-- use atomic writes and an exclusive installer lock;
-- verify pinned upstream identity and installed runtime;
-- record full and unowned requirements hashes;
-- block repair on unknown drift;
-- use the system-managed Hook channel without
-  `--dangerously-bypass-hook-trust` or private trust-state keys;
-- require Human review for managed commands and unexpected policy state.
+Cloud setup 永远不能下载 moving branch 或没有 checksum 的 `latest` release。
 
-## License
+## 安全摘要
 
-This repository is MIT licensed. Redistributed upstream runtime code retains
-the complete upstream MIT copyright and permission notice in
-`THIRD_PARTY_NOTICES.md`.
+- 保留无关 requirements 和 Hook handlers；
+- 只安装 owned runtime，只删除 owned state；
+- 使用原子写入和 exclusive installer lock；
+- 校验 pinned upstream identity 和 installed runtime；
+- 记录完整 requirements hash 和 unowned requirements hash；
+- unknown drift 时阻止 repair；
+- 使用 system-managed Hook channel，不依赖 `--dangerously-bypass-hook-trust` 或私有 trust-state keys；
+- managed commands 和异常 policy state 必须人工审查。
+
+## 许可证
+
+本仓库采用 MIT License。再分发的 upstream runtime code 在 `THIRD_PARTY_NOTICES.md` 中保留
+完整的 upstream MIT copyright 和 permission notice。

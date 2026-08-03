@@ -3,6 +3,7 @@
 > 最后更新：2026-08-03
 > 当前迭代：`v0.3.0` 开发版  
 > 已发布基线：`v0.2.2`
+> 当前 Phase 3 回滚基线：Cloud-accepted `v0.3.0-alpha.2`
 
 ## 1. 这份文档的用途
 
@@ -13,17 +14,18 @@
 
 - 当前行为和操作说明看 `README.md`；
 - Cloud 验收步骤看 `黑盒验证.md`；
-- 后续阶段和轮次看 `work_plan.md`；
-- 具体执行契约看活动 `.planning/<slug>/task_plan.md`；
+- 长期 Phase 路线、发布路标和 Cloud 验收摘要看 `work_plan.md`；
+- 当前授权范围、下一步、不变量和退出条件看活动 `.planning/<slug>/task_plan.md`；
 - 历史研究和实施证据看同目录的 `findings.md`、`progress.md`。
 
 推荐恢复上下文顺序：
 
-1. 读本文件；
-2. 读 `.planning/.active_plan`；
-3. 读活动计划的 `task_plan.md`、`progress.md`、`findings.md`；
-4. 读 `git status --short --branch`；
-5. 开始改动前再核对 README、黑盒手册和相关源码。
+1. 读根级 `AGENTS.md`，确认阅读顺序、权威关系和稳定工作边界；
+2. 读本文件；
+3. 读 `work_plan.md` 和 `.planning/.active_plan`；
+4. 读活动计划的 `task_plan.md`、`progress.md`、`findings.md`；
+5. 读 `git status --short --branch`；
+6. 开始改动前再核对 README、黑盒手册、当前专项设计和相关源码。
 
 ### 1.1 探路门槛（Discovery Gate）
 
@@ -195,31 +197,33 @@ CODEX_SESSIONS_DIR=UNSET
   session identity、session-store fallback、event/source 和输出预算；
 - session store 默认可由已安装的 managed root 推导，但允许显式覆盖。
 
-## 7. v0.2.2 的四项 Cloud 兼容补丁
+## 7. v0.2.2 历史兼容 overlay
 
 补丁 ID：`PWF_CODEX_CLOUD_COMPAT_PATCH`。
 
-目标文件：全局 Skill 的 `scripts/session-catchup.py`。
+历史目标文件：全局 Skill 的 `scripts/session-catchup.py`。从 alpha.2 起，全局 Skill 保持
+pristine；相同四项兼容行为只存在于哈希固定的 owned
+`runtime/upstream/session-catchup.py`，生产 bootstrap 不再运行补丁器。
 
-| Delta | Cloud 事实 | 当前兼容行为 |
+| Delta | Cloud 事实 | v0.2.2 overlay / alpha.2 owned 等价行为 |
 |---|---|---|
 | Runtime 选择 | Skill 位于 `.agents/skills`，路径中没有 `/.codex/` | adapter 显式传 `PWF_RUNTIME=codex` |
 | Session store | `/root/.codex/sessions` 不存在，实际在 `/opt/codex/sessions` | 优先 `CODEX_SESSIONS_DIR`，再 `$CODEX_HOME/sessions`，最后 `~/.codex/sessions` |
 | Scoped plan | planning context 支持 `.planning/<slug>`，原 catch-up 入口只检查根目录 | catch-up existence guard 同时识别 scoped planning state |
 | 长 Cloud wrapper | 真正用户指令可能位于长 PR/反馈 wrapper 尾部 | 长用户消息有界保留头 350 字和尾 650 字 |
 
-补丁器只接受两个已知状态：
+历史复现补丁器只接受两个已知状态：
 
 - pristine upstream SHA-256；
 - 当前 patched SHA-256。
 
-任何第三种内容都拒绝修改。补丁是临时 bridge，不是永久 fork。
+任何第三种内容都拒绝修改。它现在只用于复现和审计历史 overlay，不是安装或运行依赖。
 
-## 8. 上游源码与补丁输入边界
+## 8. 上游源码与历史 overlay 输入边界
 
 仓库附带但忽略提交的 `planning-with-files-3.8.2/` 是开发参考树，不进入生产包。
 
-当前补丁输入来自上游 canonical Skill 分发文件：
+历史 overlay 复现输入来自上游 canonical Skill 分发文件：
 
 ```text
 planning-with-files-3.8.2/skills/planning-with-files/scripts/session-catchup.py
@@ -244,7 +248,7 @@ fc765590dc32b3949027de97e33dad6a049daf148719ba1822598a6c146461e2
 ```
 
 上游仓库根目录的 `scripts/session-catchup.py` 是另一分发实现，哈希不同，不能当作
-当前生产补丁输入。
+历史 overlay 输入。当前生产运行时从 manifest/allowlist 生成 owned copy，不读取该仓库根文件。
 
 ## 9. Cloud 实证
 
@@ -283,7 +287,7 @@ fc765590dc32b3949027de97e33dad6a049daf148719ba1822598a6c146461e2
 - 同一用户或助手消息会同时出现在 `response_item` 与 `event_msg`，角色、长度和文本
   哈希完全一致，证明 catch-up 必须做跨 record-family 的保守逻辑去重；
 - 本次 JSONL 共 56 条、无无效 JSON 行，已取得 `session_meta`、`patch_apply_end`、
-  `response_item`、`event_msg` 的脱敏结构，可直接转成 Phase 1 Cloud fixture。
+  `response_item`、`event_msg` 的脱敏结构；这些样本已进入 Phase 1 Cloud fixture。
 
 CLI 版本、feature 状态和镜像文件布局是带日期的观察样本，不是永恒平台契约。
 
@@ -403,10 +407,34 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 - 解析 Hook stdin JSON 和 `cwd`；
 - 输出 Codex `hookSpecificOutput.additionalContext` JSON；
 - 输出 rollout canary；
-- 当前自行解析 active/newest/root plan；
-- 当前自行读取 plan head 和 progress tail；
-- SessionStart 时构造严格 v1 请求并监督运行 sibling `owned-catchup.py`；
+- alpha.2 当前路径仍自行解析 active/newest/root plan，并读取 plan head/progress tail；
+- SessionStart 时构造严格 v1 请求并监督 sibling `owned-catchup.py`；
+- Round 4 目标是只保留 Host payload/request、共享监督器、严格结果校验、上下文组合与 Codex JSON；
 - Runtime advisory 失败时保持 Codex loop 可继续。
+
+### `runtime/owned-catchup.py`
+
+- Phase 2 起作为 active SessionStart child；
+- 验证 Host transcript/session roots 与 canonical project state；
+- 归一化 Codex JSONL、保守跨 record-family 去重、识别 planning update；
+- 有界渲染 unsynced context，并返回严格 runtime-result-v1；
+- 不解析或读取 plan body，不执行 global Skill。
+
+### `runtime/owned-plan.py`
+
+- Phase 3 Round 3 已安装、哈希和打包，但 adapter 尚未 dispatch；
+- 拥有 opt-out、session attachment、canonical plan resolution 和 fd-rooted safe reads；
+- 在私有 `0700` snapshot/`0600` 文件中调用 pristine resolver/injector；
+- 返回 exact-v1 plan context 和唯一 canonical project state；
+- Round 4 R4-B 才允许成为两个 event 的 active plan owner。
+
+### `runtime/upstream/` 与 `contracts/`
+
+- 四个 upstream 文件来自 pinned v3.8.2 allowlist；只有 `session-catchup.py` 带 managed overlay；
+- `resolve-plan-dir.sh`、`inject-plan.sh`、`ledger-summary.sh` 保持 pristine；
+- 两个 installed plan schema 冻结 adapter ↔ owned-plan exact-v1；
+- overlay ledger、runtime bundle、catch-up schemas 和 Release allowlist 负责来源与边界治理；
+- deferred Phase 4+ 脚本不能因上游版本中存在就自动成为 Managed Runtime。
 
 ### `patches/patch_planning_skill.py`（历史 overlay 复现工具）
 
@@ -419,137 +447,80 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 
 ## 11. 当前长期缺口
 
-- owned runtime 当前安装 adapter、active `owned-catchup.py`、四个 pinned upstream
-  文件、overlay ledger、notice 和 installed manifest；
-- adapter 仍维护一套平行的 plan resolution/injection 实现；
-- adapter 的本地 resolver 已补齐 `PLAN_ID`、BOM 和 canonical containment，但在
-  Phase 3 canonical prompt injection 前仍是一套平行实现；
-- installer 校验的 `resolve-plan-dir.sh` 当前没有被 Managed Hook 执行；
-- 安装时记录的 `skill_root` 只用于 pristine Skill 安装校验，不是 Hook 运行时输入；
-- active owned catch-up 优先验证 Host `transcript_path`，只对明确 session roots 开放 fallback；
-- owned runtime 已提供机器可读 reason code、selected-path diagnostics 和不含 transcript 内容的诊断模式；
-- runtime 已显式归一化 `response_item`/`event_msg`、保守去重，并对损坏
-  UTF-8/JSON、未知 record、总报告预算和子进程失败给出非注入结果；
-- adapter 已实现 opt-out 和 backward-compatible session isolation；当前仍没有 attestation、nonce、smart injection、
-  structured ledger、compact/tool/permission/Stop Managed Hooks；
-- normal install 中途失败依赖备份人工恢复，不是自动事务回滚；
-- upstream allowlist 导入器和精确 Release artifact builder 已在 Phase 1 完成。
+- adapter 仍维护 alpha.2 的平行 plan resolution/rendering；inactive `owned-plan.py` 尚未成为
+  两个 lifecycle event 的唯一 canonical owner；
+- Round 4 尚未完成共享 deadline supervisor、双 child typed validation、原子激活、adapter
+  thinning 和 beta.1 Fresh/Resume Cloud 验收；
+- attestation、nonce、smart/structured-ledger 模式与 compact/tool/permission/Stop Managed Hooks
+  仍按 Phase 4～8 延后，不能从 upstream allowlist 推断为已实现；
+- normal install 失败可通过备份恢复，但尚不是跨全部外部文件的自动事务回滚；
+- `/opt/codex`、Hook schema 和 transcript JSONL 都是带日期的 Cloud 事实，仍需保持显式 Host
+  契约和兼容失败语义；
+- 当前只有 PWF 这一项垂直集成；通用 Host/Driver 抽象必须等第二个只读插件验证后再提取。
 
 ## 12. v0.3.0 目标架构
 
 ```text
 /etc/codex/requirements.toml
-  `-- absolute command beneath managed_dir
-        `-- $CODEX_ROOT/hooks/planning-with-files/
-              |-- hook_adapter.py
-              |-- owned-catchup.py             # Phase 2 Round 4 active for SessionStart
-              |-- upstream/                     # pinned + allowlisted
-              |-- compatibility-overlays.json   # 每项有退休条件
-              |-- installed-manifest.json
-              `-- THIRD_PARTY_NOTICES.md
+  `-- /usr/bin/python3 <managed_dir>/hook_adapter.py <event>
+        `-- $CODEX_HOME/hooks/planning-with-files/
+              |-- hook_adapter.py                         # 唯一 Host command
+              |-- owned-catchup.py                        # active SessionStart child
+              |-- owned-plan.py                           # canonical plan-context child
+              |-- contracts/
+              |     |-- adapter-plan-context-request-v1.schema.json
+              |     `-- plan-context-result-v1.schema.json
+              |-- upstream/
+              |     |-- session-catchup.py                # owned overlay
+              |     |-- resolve-plan-dir.sh               # pristine
+              |     |-- inject-plan.sh                    # pristine
+              |     `-- ledger-summary.sh                 # pristine/deferred mode
+              |-- compatibility-overlays-v1.json
+              |-- THIRD_PARTY_NOTICES.md
+              `-- installed-manifest.json
 ```
 
-目标职责边界：
+该树表示 v0.3.0 目标职责与安装边界，不表示所有 child 已经 dispatch。当前 adapter 仍未调用
+`owned-plan.py`；只有 R4-A 通过后，R4-B 才可改变该生产行为。
 
-- adapter 只负责 Codex 协议、显式请求、子进程监督、预算和输出转换；
-- owned upstream runtime 负责 plan resolution、injection、catch-up、attestation、
-  ledger 和 completion semantics；
-- installer 负责 provenance、allowlist、atomic install、backup、doctor、repair、
-  uninstall、rollout 和 rollback；
+Phase 3 目标职责边界：
+
+- adapter 只负责 Codex Host 协议、显式请求、共享 deadline/子进程监督、严格结果校验、
+  canary、上下文组合和输出转换；
+- `owned-plan.py` 负责 plan/session policy、safe reads、pristine injection 和 canonical project；
+- `owned-catchup.py` 负责 transcript trust/normalization 和 unsynced report；
+- pinned upstream 文件负责其 canonical 语义，任何 managed overlay 都必须有 ledger 和退休条件；
+- installer 负责 provenance、allowlist、受管安装、backup、doctor、repair、uninstall 和 rollout；
 - global Skill 最终保持 pristine，只负责 Skill discovery 和使用说明；
-- 每项 Cloud overlay 都必须记录来源、哈希、fixture、负责人和明确退休条件。
+- Phase 4～8 的 attestation、ledger mutation、compaction/tool/Stop 能力必须各自重新探路，
+  不能提前耦合到 Phase 3 legacy path。
+
+长期可复用边界是 Host ABI + 受管 runner + Integration Driver request/result；受控 snapshot
+只是当前 PWF Driver 的实现选择，不是“任意 Skill 自动转换器”的通用承诺。
 
 ## 13. 当前进度和下一步
 
-当前活动计划：
+本节只提供恢复上下文的路由和带日期快照，不再复制逐轮实施历史：
 
-```text
-.planning/2026-08-01-managed-runtime-modernization/
-```
+| 需要回答的问题 | 读取位置 |
+|---|---|
+| 长期 Phase、发布路标、已完成 Cloud 验收和阶段摘要 | `work_plan.md` |
+| 当前授权范围、唯一 Next Step、不变量和退出条件 | 活动 `.planning/<slug>/task_plan.md` |
+| 当前 Round 的详细研究、试错和测试证据 | 活动计划的 `findings.md`、`progress.md` |
+| Round 4 A/B/C 激活、超时、失败和回滚设计 | `docs/phase-3-round-4-activation-plan.md` |
+| Cloud 可复制操作 | `黑盒验证.md` 及版本/Phase 专项验收文档 |
 
-已完成：
+2026-08-03 状态快照：
 
-- Phase 0：仓库审计与路线图；
-- Phase 0.5：吸收 v0.2.2 Cloud 实证；
-- Phase 0.6：初始化 v0.3.0 迭代身份。
+- Phase 1 与 Phase 2 已完成并通过各自 Cloud 验收；alpha.2 是当前 Phase 3 回滚基线；
+- Phase 3 Round 1～3 已完成，inactive owned-plan 的完整 Linux/Cloud gate 为 63/63 PASS；
+- Round 4 入口分析已完成，当前只授权 R4-A supervisor/type seam；
+- adapter 尚未 dispatch `owned-plan.py`，R4-B 激活与 R4-C beta.1/Cloud 尚未授权；
+- requirements 仍只注册 adapter；发布过的 alpha.2 ZIP/bootstrap 保持不可变。
 
-当前阶段：Phase 1 三轮本地实现和 `v0.3.0-alpha.1` Cloud 验收均已完成。Phase 2
-第 1–3 轮完成 owned runtime、plan/session safety、transcript normalization、diagnostics
-与 supervisor failure semantics；第 4 轮已在本地激活 SessionStart owned catch-up，停止
-global Skill mutation，补上 Linux 权限门槛，并进入 18-entry alpha.2 Release 边界。
-Managed Hook 命令仍只注册 adapter，UserPromptSubmit 仍本地实现。alpha.2 已在新 Cloud
-容器通过 ZIP SHA、bootstrap、doctor、schema-3 八文件精确 inventory、pristine Skill、
-adapter-only policy、实际 owned root/root、synthetic nobody Hook 用户、Host fixture
-transcript、尾部 sentinel 和 UserPrompt local-only 门槛。真实 P2-D resume 已进一步通过：
-自动 owned catch-up 找到真实 rollout 与 message #37，在长消息中间截断后仍保留尾部唯一标记，
-并与 scoped Planning context 同时注入。P2-A 已由维护者确认通过；P2-E resume 后 doctor
-以退出码 0、healthy=true、repairable=false、空 errors/blockers 通过。Phase 2 至此完整关闭，
-alpha.2 成为 Phase 3 的回滚基线。Phase 3 第 1 轮也已完成：本地 adapter 与上游
-`inject-plan.sh`/`resolve-plan-dir.sh` 的差异已逐项审计，冻结了由 `owned-plan.py` 统一产出
-prompt context 与 SessionStart 共用 canonical plan state 的架构；当前阶段只启用
-managed-legacy 行为，`.mode`、attestation、nonce 和 smart injection 继续留给 Phase 4。
-同时明确采用上游更强的 structured-data 提示措辞与时间戳归一化这两项输出变化，并设置
-20,000 字符的完整 context 上限。Phase 3 现按四轮推进：第 1 轮契约冻结已完成；第 2 轮
-已完成独立受控快照 feasibility spike，以 8 个 focused cases 和父仓库 1 个隔离 case
-给出 conditional GO，但没有进入 trusted graph。第 3 轮的四项生产策略现已冻结：
-输入文件在 pre-read、post-read、retained-parent reopen 三处必须为 regular 且
-`st_nlink == 1`；同 EUID trusted `/tmp` base 做有界 stale cleanup；生产基线只要求
-portable fd-rooted `openat` walk；30 秒 Host 上限内采用 27 秒共享 deadline。Fresh 与同一
-sandbox Resume 的 Cloud 探针共 40/40 次观测均为 regular、single-link、identity stable，
-因此最后的 single-link 兼容门槛已关闭。第 3 轮已经把 exact-v1 `owned-plan.py`、两个
-schema、fd-rooted/single-link 读取、受控 snapshot、stale cleanup、process-group supervision
-和机器可读诊断纳入开发 trusted graph、installer 与 21-entry Release contract，但 adapter
-仍完全不引用它。Windows 63 项回归和 Linux/Cloud 63/63 inactive 验收均已通过；隔离安装、
-11-file inventory、doctor、direct exact-v1、21-entry ZIP、零 snapshot 残留与 clean
-workspace 也全部 PASS，第 3 轮已关闭。第 4 轮先重新探路，再切换 adapter、打包 beta.1
-并做 Cloud 验收。Round 4 的入口分析现已完成，实施拆成 R4-A bounded supervisor/type seam、R4-B 原子激活并删除 adapter 平行 resolver/renderer、R4-C beta.1 封板和 Fresh/Resume Cloud 验收三个门槛；这不增加 Phase 3 的轮数，且当前仍未 dispatch `owned-plan.py`。发布过的 alpha.2 ZIP 和外部 bootstrap
-保持原字节不变。后续架构复盘进一步比较了多目标 overlay 与不修改上游的受控快照：
-Phase 3 选择后者，在私有 legacy 投影中运行 pristine resolver/injector；多目标 overlay
-只作为 Cloud/Linux 实证失败后的后备。长期标准化对象是 Codex Cloud Host ABI、受管
-runner 和 Integration Driver request/result，不是把快照或 overlay 强制为所有 Skill
-的统一转换方式。PWF 仍是唯一支持的垂直集成，只有第二个只读插件验证后才提取通用
-接口；详细比较见 `docs/phase-3-upstream-invocation-options.md`。原型已确认能够克服
-fd-rooted no-symlink read、FIFO、替换竞态、0700/0600、环境隔离、超限、timeout cleanup
-和 synthetic cross-user 等最难可行性问题；但它仍缺 exact schema、session/opt-out、
-process-group kill、完整 race/stale cleanup、installed layout 和 beta golden。原型所在
-分支/commit 使用的 beta.1 字样仍只是实验标签，不代表 beta Release 已成立。
-
-Phase 3 的设计文档、两个 v1 schema 和契约测试不追加“候选”文件名：架构路线已经选定，
-协议身份也应保持稳定；“尚未激活”由文档/schema 元数据和 alpha.2 trusted graph 排除测试
-表达。Round 3 已在不改变协议身份的前提下，将它们原名原版本原子提升为 inactive 受管
-runtime 输入并完成 Cloud 验收。
-
-Release 封板存在明确依赖顺序：先确定版本并冻结 ZIP 内容，构建并计算 ZIP SHA-256；
-再把版本、包名和 ZIP SHA 写入 ZIP 外部 Bash，计算封板后的 Bash SHA-256；最后发布并
-核验两个资产。封板前脚本的 SHA 不能当作 Release Bash SHA。
-
-第 1 轮已完成：
-
-- owned runtime allowlist；
-- 直接依赖图；
-- 四项 compatibility overlay ledger 和退休条件；
-- adapter -> runtime versioned request schema；
-- diagnostic reason codes；
-- Release ZIP 文件边界；
-- runtime allowlist、overlay、Host request/result、artifact schema 和契约测试。
-
-机器契约位于 `contracts/`，人类可读说明位于
-`docs/phase-1-runtime-contracts.md`。第 2 轮已经严格消费这些契约，生成
-`runtime/upstream/` 四文件 allowlist、manifest v3、导入/漂移校验和完整 MIT notice；
-没有扩大 allowlist，也没有提前启用 deferred runtime。
-
-Phase 1 三轮均不得改变已经通过 v0.2.2 Cloud 验收的 Hook 行为。
-
-Phase 1 第 3 轮 installer 把四个上游脚本作为 inactive owned inventory 安装和校验，
-同时安装 overlay ledger 与 MIT notice；Phase 2 加入并激活本地 owned entrypoint。
-Managed Hook 命令仍只注册 `hook_adapter.py`。alpha.2 验收快照为 45 个测试：Windows
-42 PASS、3 个 Linux-only 跳过；Phase 3 Round 1 增加 1 个 inactive contract case，Round 2
-handoff 再增加 8 个 feasibility cases 和 1 个父仓库隔离 case，Round 3 再增加 8 个
-production owned-plan cases。当前登记 63 个：Windows 46 PASS/17 个诚实 POSIX/Linux
-SKIP/0 FAIL；Round 3 Cloud/Linux 已执行全部 63 项并以 63 PASS/0 SKIP/0 FAIL 关闭。
-开发 Release allowlist 已由 alpha.2 的 18 entries 增至 21 entries（owned-plan + 两个
-schema）；prototype 仍不进入。alpha.1 的
-25-case/18-entry/7-payload 数据保留为历史验收快照。
+若本节快照与活动 `task_plan.md` 冲突，以活动计划为准。本节只在架构基线、Phase、Cloud
+验收或 Release 状态变化时更新；轮内 next step 和测试计数留在 planning/work plan，避免
+这里再次演化成第三份执行计划。
 
 ## 14. 本仓库可能退役的条件
 
@@ -563,26 +534,45 @@ schema）；prototype 仍不进入。alpha.1 的
 
 ## 15. 已确认决策
 
-1. v0.2.2 是已发布、Cloud 验证的稳定版 fallback；Cloud-accepted alpha.2 是当前
-   modernization/Phase 3 rollback baseline，alpha.1 只保留为历史前序资产。
-2. v0.3.0 是未发布的 Managed Runtime Modernization 迭代。
-3. `/opt/codex` 是当前默认和已验证路径，不是不可变平台常量。
-4. 当前平台在沙箱初始化阶段不提供 `CODEX_HOME`，进入 Codex Runtime 后向 agent 和
-   Hook 环境提供 `/opt/codex`；实现仍须兼容阶段差异和未来缺失，不能当作永久常量。
-5. 初始化 Bash 作为 ZIP 外部的独立 Release Asset。
-6. compat patch 是临时 overlay，不能演化成永久 fork。
-7. 先修正 runtime ownership 和 diagnostics，再增加新 lifecycle events。
-8. hard Stop gating 最后实现，并且必须显式 opt-in、可封顶和可逃生。
-9. Hook stdin 的 `session_id` 是当前首选 session identity；`CODEX_THREAD_ID` 在 agent
-   Shell 存在但在 Hook 环境缺失，不得作为 Hook runtime 依赖。
-10. Hook stdin 的 `transcript_path` 是当前首选 transcript locator；使用前必须做
-    containment、文件类型和 session identity 校验，session-store 扫描保留为兼容 fallback。
+1. **版本基线**：v0.2.2 是已发布、Cloud 验证的稳定 fallback；Cloud-accepted alpha.2
+   是当前 Phase 3 rollback baseline；v0.3.0 仍是未正式发布的 modernization 迭代。
+2. **路径不是契约**：`/opt/codex` 是当前默认和已验证路径，不是不可变平台常量。
+   沙箱初始化阶段可以没有 `CODEX_HOME`，Codex Runtime 当前会向 agent/Hook 提供
+   `/opt/codex`；实现必须同时支持显式参数、运行时变量和安全探测。
+3. **发布边界**：初始化 Bash 长期作为 ZIP 外部的独立 Release Asset；先冻结 ZIP
+   版本与 SHA-256，再封板脚本中的版本和摘要。
+4. **上游所有权**：全局 PWF Skill 保持 pristine upstream v3.8.2；历史兼容 patch
+   只允许作为可重现的 owned-runtime overlay，不得演化成对全局 Skill 的永久 fork。
+5. **托管入口**：Managed Hook policy 只注册 adapter；owned child runtimes 与 adapter
+   同目录安装，不各自成为平台 Hook handler。
+6. **会话定位**：Hook stdin `session_id` 是首选 identity，`transcript_path` 是首选
+   locator；路径必须通过 containment、类型和 identity 校验，session-store 扫描仅作
+   兼容 fallback。`CODEX_THREAD_ID` 不得成为 Hook runtime 依赖。
+7. **Phase 3 路线**：canonical plan context 采用“不修改上游文件的受控私有快照调用”；
+   多目标 overlay 只保留为快照路线无法满足上游语义时的后备方案。
+8. **稳定协议**：`adapter-plan-context-request-v1` 和 `plan-context-result-v1` 是 exact-v1
+   合同名；不存在不兼容变更时不添加 `candidate` 后缀或另立近义合同。
+9. **时间预算**：Host 30 秒上限内冻结共享 27 秒 deadline：plan 8 秒、catch-up 15 秒、
+   adapter 收尾 4 秒；具体 grace、kill 和 JSON 收尾规则由 Round 4 激活设计文档约束。
+10. **失败边界**：输出注入必须 fail-closed；单个 child 的运行失败对 Hook 生命周期
+    fail-open，不能抑制 canary 或其他健康上下文，并须返回有界诊断。
+11. **抽象边界**：当前唯一受支持集成仍是 PWF。Host/runner 可提取技能无关能力；
+    PWF 语义留在 Driver。至少用第二个只读插件验证抽象后，才承诺通用转换能力。
+12. **演进顺序**：新 Phase 和关键轮先过 Discovery Gate；先稳定 ownership、诊断和
+    只读生命周期，再增加 lifecycle events；hard Stop 最后实现且必须显式 opt-in、
+    可封顶、可逃生。
 
 ## 16. 仍待补充或验证
 
-1. 可选增强证据：验证 Hook stdin `transcript_path` 指向的 JSONL，其 `session_meta.id` /
-   `session_meta.session_id` 与 stdin `session_id` 一致；这不阻塞 Phase 1 契约编写。
+这里仅列尚未闭合的证据或架构假设；当前轮的实现清单不在本节维护。
 
-Cloud 环境变量继续作为 non-authoritative input。`session_id` 和 `transcript_path` 已有
-真实 Hook 证据，可以进入 versioned host contract；runtime 对字段缺失、错误类型和越界
-路径仍须定义兼容失败行为。当前已无阻塞 Phase 1 第一轮的外部信息缺口。
+1. **可选 Host 证据**：独立证明 Hook stdin `transcript_path` 所指 JSONL 的
+   `session_meta.id` / `session_meta.session_id` 与 stdin `session_id` 一致。现有 runtime
+   已执行 identity 校验，因此该证据增强不阻塞 R4-A。
+2. **Phase 4 入口复核**：开始 hard Stop 前重新审计上游 modes、attestation 与 ledger
+   语义，不能沿用 Phase 3 的只读假设直接外推。
+3. **长期泛化证据**：第二个只读插件尚未验证 Host/runner/Driver 抽象；完成前不得把本仓库
+   描述为通用技能转换器。
+
+当前实施 gate 不在本节复制，以活动 `task_plan.md` 和相应设计/验收文档为准。目前没有需要
+用户或平台先补充、从而阻塞当前 Next Step 的外部信息缺口。

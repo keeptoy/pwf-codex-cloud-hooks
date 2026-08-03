@@ -1,5 +1,9 @@
 # Task Plan: v0.3.0 Managed Runtime Modernization
 
+## Document Role
+
+This scoped file is the current execution authority: goal, non-goals, invariants, exact next step, active status, implementation gates, decisions, errors, and verification requirements. The repository-level `work_plan.md` is the complementary programme/release roadmap and Cloud-acceptance summary. If current status or next-step wording conflicts, this file controls; synchronize `work_plan.md` when a Phase, Cloud gate, or Release status changes.
+
 ## Goal
 Deliver v0.3.0 by replacing the long-term parallel planning implementation and mutable global-Skill execution in `hook_adapter.py` with a minimal, pinned, hash-verified upstream runtime bundle while preserving the repository's Codex Cloud managed-policy, rollout, recovery, and compatibility guarantees. Retire the v0.2.2 catch-up compatibility patch as a global-Skill mutation by absorbing only its still-needed behavior into the owned runtime or dropping each delta when upstream provides it.
 
@@ -215,7 +219,7 @@ Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 en
 | Preserve bounded head and tail with an overall report budget | Real Cloud wrappers can move the user request to the end; head-only truncation loses meaning, but unbounded transcript injection is unsafe and costly. |
 | Keep final archive construction separate from checksum pinning | Documentation and bootstrap edits change bytes; an explicit artifact boundary prevents stale or self-referential release hashes. |
 
-## Errors Encountered
+## Recent Phase 3 Errors Encountered
 | Error | Attempt | Resolution |
 |---|---|---|
 | Local Phase 3 upstream-output comparison could not start `sh` from PowerShell PATH | 1 | Located the Git for Windows shell explicitly instead of repeating the PATH lookup. |
@@ -246,7 +250,7 @@ Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 en
 | Rollback | old manifest, failed partial install, restore backup, reinstall previous pinned release |
 | Packaging | explicit file allowlist, deterministic ZIP root/order/modes, bootstrap separation, final SHA pin |
 
-## Errors Encountered
+## Historical Implementation Errors
 | Error | Resolution |
 |-------|------------|
 | Initial broad repository output was truncated by the terminal output limit | Re-ran targeted searches and numbered excerpts for the claims used in the audit. |
