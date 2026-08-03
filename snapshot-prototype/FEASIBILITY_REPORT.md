@@ -99,11 +99,12 @@ bytes already copied to the snapshot.
 Production should keep `plan_state_changed` distinct from `plan_unreadable` and
 should test truncate, append, atomic rename, directory replacement, symlink,
 hard-link, FIFO, device, deleted-file, and permission-change cases. A hard link
-to an outside file is not prevented by `O_NOFOLLOW`; the security claim must be
-“read a regular inode selected beneath the contained plan pathname,” not
-“prove the inode has no names outside the project.” If that distinction is not
-acceptable, Linux `openat2`/mount policy or the overlay fallback must be
-reconsidered.
+to an outside file is not prevented by `O_NOFOLLOW`, and `openat2` hardens path
+resolution rather than distinguishing hard-link names. Production must either
+accept “read a regular inode selected beneath the contained plan pathname” as
+its explicit trust claim, or reject any file whose observed `st_nlink` is not
+one across the pre-read/post-read/reopen identity checks. Mount/isolation policy
+may complement that decision but cannot be replaced by the `openat2` choice.
 
 ### Environment allowlisting works better than deleting known variables
 
@@ -248,11 +249,11 @@ environment.
 Questions for maintainer review before production freeze:
 
 1. Is “regular file reached through a contained, no-symlink pathname” the
-   intended trust claim, or must hard links to externally named inodes also be
-   rejected through a stronger filesystem/mount policy?
-2. Should parent-SIGKILL stale snapshots be handled by a bounded startup cleanup
-   policy, or is 0700/0600 plus ephemeral Cloud-container disposal an accepted
-   residual risk?
+   intended trust claim, or must files with observed `st_nlink != 1` be rejected
+   and covered by Cloud-filesystem compatibility tests?
+2. Should parent-SIGKILL stale snapshots be handled by a bounded preflight
+   cleanup on each `owned-plan` invocation, or is 0700/0600 plus ephemeral
+   Cloud-container disposal an accepted residual risk?
 3. Is an optional Linux `openat2` hardening path desirable, or should Round 3
    minimize kernel/version branches and keep the tested portable `openat`
    component walk?

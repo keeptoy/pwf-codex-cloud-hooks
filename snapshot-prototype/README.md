@@ -203,8 +203,10 @@ production Round 3；现在不要扩展 multi-target overlay。
 维护者仍需确认：
 
 1. 是否接受“contained/no-symlink pathname 到达的 regular inode”这一信任声明？
-   `O_NOFOLLOW` 无法排除该 inode 在项目外还有 hard-link 名称。
-2. Python parent 遭 SIGKILL 后，是做有界 stale-snapshot startup cleanup，还是接受
+   `O_NOFOLLOW`/`openat2` 都无法区分 hard-link 名称；更严格的选择是对读取前、读取后
+   和重新打开得到的 `st_nlink != 1` 一律 fail-closed，并补 Cloud 文件系统兼容测试。
+2. Python parent 遭 SIGKILL 后，是在每次 `owned-plan` 调用前做有界 stale-snapshot
+   cleanup，还是接受
    `0700/0600 + ephemeral Cloud container` 的残余风险？
 3. Round 3 使用单一 portable `openat` walk，还是加入 optional `openat2` hardening？
 4. 30 秒 Host timeout 如何冻结？初始建议：resolver 2 秒、injector 5 秒、catch-up

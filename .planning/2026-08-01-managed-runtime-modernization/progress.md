@@ -520,3 +520,11 @@
 - No adapter/runtime/installer/importer/Release/bootstrap file or accepted alpha.2 artifact was activated or changed by the prototype review.
 - Final consistency scan corrected the prototype/report and route-comparison remnants that still called inactive production “Round 2” or activation “Round 3”; the current Phase 3 four-round numbering is now uniform.
 - Final validation passed: both staged schemas parse, changed JavaScript and Python sources compile, `git diff --check` is clean, the parent suite is 55 registered / 45 PASS / 10 explicit POSIX/Linux SKIP / 0 FAIL on Windows, and the standalone prototype is 8 registered / 1 PASS / 7 SKIP / 0 FAIL. Maintainer-provided Cloud/Linux evidence remains the authoritative execution of all 55 without skips.
+
+## Phase 3 Round 3 production-policy review (2026-08-03)
+
+- Re-read the complete prototype README, runner, feasibility report, staged schemas, current adapter supervisor, and all prototype Round/production references. The directory is consistent with the current four-round plan: completed Round 2 feasibility, inactive Round 3 production, Round 4 activation; “Round 1” appears only as historical output-equality evidence.
+- Corrected one security ambiguity: `openat2` hardens path resolution but does not distinguish hard-link names. The prototype documentation now presents observed `st_nlink == 1` as the strict alternative and requires a Cloud-filesystem compatibility gate.
+- Replaced ambiguous “startup cleanup” wording with bounded preflight cleanup on every `owned-plan` invocation; container disposal remains only a secondary residual bound because resumed Cloud sandboxes can retain filesystem state.
+- Recorded the recommended policy freeze: single-link checkpoints; explicit same-EUID 0700 temp base plus bounded stale cleanup; portable fd-rooted `openat` for Round 3 with `openat2` deferred; shared 27-second adapter deadline with owned-plan 8 seconds, catch-up 15 seconds, four seconds adapter reserve, and three seconds Host reserve.
+- Primary-source calibration used Linux `openat2`/`stat` documentation and Python `tempfile`/`subprocess`/`os.killpg` documentation. Static consistency checks, Markdown fence checks, and `git diff --check` passed. Full Windows regression remains 55 registered / 45 PASS / 10 explicit Linux-only SKIP / 0 FAIL.

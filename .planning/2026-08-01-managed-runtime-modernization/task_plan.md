@@ -24,7 +24,7 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Before starting Phase 3 Round 3 implementation, freeze the four production policies exposed by the completed prototype review: contained hard-link trust semantics, parent-SIGKILL stale-snapshot handling, portable `openat` versus optional `openat2`, and the 30-second Host timeout split. Then implement the inactive exact-v1 `owned-plan.py` path while keeping adapter dispatch and alpha.2 Release/bootstrap bytes unchanged.
+Before starting Phase 3 Round 3 implementation, confirm and freeze the reviewed defaults: observed single-link (`st_nlink == 1`) plan inputs, bounded same-EUID invocation-time stale cleanup, portable `openat` as the required path with `openat2` deferred, and a shared 27-second adapter deadline beneath the 30-second Host limit. Then implement the inactive exact-v1 `owned-plan.py` path while keeping adapter dispatch and alpha.2 Release/bootstrap bytes unchanged.
 
 ## Current Phase
 Phase 3 Round 2 feasibility review complete; Round 3 production-policy freeze/implementation is next, no production path is active, and alpha.2 remains the rollback baseline
@@ -282,3 +282,4 @@ Phase 3 Round 2 feasibility review complete; Round 3 production-policy freeze/im
 | Final cache hygiene failed after all 35 functional cases passed | A manual `importlib` diagnostic had created one verified `runtime/__pycache__/owned-catchup...pyc`. Removed only that workspace cache and retained the regression that prevents production/test harness cache creation. |
 | First Round 3 supervisor regression failed on invalid child UTF-8 | Python text-mode capture raised inside its reader thread and left `stdout=None`. Switched the inactive supervisor to bounded binary capture followed by strict main-thread UTF-8 decoding, which deterministically maps invalid bytes to `runtime_error`. |
 | Initial Round 3 documentation sync used an English `current resolver` anchor where the UTF-8 source said `当前 resolver` | Split the combined patch by file and reapplied the project-understanding update against its exact text. |
+| A timeout inventory used Unix wildcard path arguments under PowerShell, so the second `rg` invocation exited 1 after the first search had already returned useful matches | Re-ran the inventory with `--glob` and explicit directories, then inspected the adapter's exact supervisor lines; no conclusion relies on the failed wildcard invocation. |
