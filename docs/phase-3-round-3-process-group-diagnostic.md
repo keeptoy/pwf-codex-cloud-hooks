@@ -1,10 +1,10 @@
 # Phase 3 Round 3 Process-group Cloud Diagnostic
 
-> Status: required after the first inactive Cloud gate failed at test 37
+> Status: complete — Cloud classified the descendant as `TERMINATED_UNREAPED`
 >
 > Scope: read-only diagnosis of the existing `run_child()` / `_kill_process_group()` path
 >
-> Product edits: forbidden until the diagnostic classifies the descendant
+> Product boundary: TEST_ONLY; production runtime changes are not supported by the evidence
 
 ## Why this diagnostic exists
 
@@ -19,6 +19,18 @@ The runtime had already returned `timeout` and removed its snapshot. The test th
 does not distinguish a running process from a terminated zombie waiting for its parent or
 container PID 1 to reap it. Do not weaken the assertion or expand the supervisor until the
 Cloud process state is observed directly.
+
+## Observed Cloud result
+
+The exact diagnostic ran on Linux 6.12.13 with Python 3.14.4. Cloud PID 1 was
+`tail -f /dev/null`. The descendant belonged to the killed group/session, changed from live
+state `S` to zombie state `Z`, retained the same `/proc` start time, was reparented to PID 1,
+and had zero file descriptors throughout 31 samples over three seconds. The direct shell was
+already gone and the supervisor outcome was `timeout`.
+
+Final classification: `TERMINATED_UNREAPED`; live executable descendant: no; production
+supervisor defect: no; test liveness assertion defect: yes. The authorized correction is to
+replace PID-existence polling with `/proc` identity/state checks in test 37 only.
 
 ## Classification contract
 

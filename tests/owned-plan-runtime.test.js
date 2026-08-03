@@ -55,7 +55,38 @@ function cleanup(value) {
   fs.rmSync(value.root, { recursive: true, force: true });
 }
 
+function parseLinuxProcStat(raw) {
+  const close = raw.lastIndexOf(")");
+  const pidEnd = raw.indexOf(" ");
+  assert.ok(pidEnd > 0 && close > pidEnd, "invalid /proc stat record");
+  const fields = raw.slice(close + 2).trim().split(/\s+/);
+  assert.ok(fields.length >= 20, "truncated /proc stat record");
+  return {
+    pid: Number(raw.slice(0, pidEnd)),
+    state: fields[0],
+    ppid: Number(fields[1]),
+    pgrp: Number(fields[2]),
+    session: Number(fields[3]),
+    starttime: Number(fields[19]),
+  };
+}
+
+function readLinuxProcStat(pid) {
+  try {
+    return parseLinuxProcStat(fs.readFileSync(`/proc/${pid}/stat`, "utf8"));
+  } catch (error) {
+    if (error && error.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
 test("owned plan runtime validates exact v1 and short-circuits disabled planning", () => {
+  const syntheticFields = ["Z", "1", "5086", "5086", ...Array(15).fill("0"), "120505"];
+  const syntheticStat = parseLinuxProcStat(`5087 (sleep worker) ${syntheticFields.join(" ")}`);
+  assert.deepEqual(syntheticStat, {
+    pid: 5087, state: "Z", ppid: 1, pgrp: 5086, session: 5086, starttime: 120505,
+  });
+
   const invalid = run({});
   assert.equal(invalid.outcome, "invalid_request");
   assert.equal(invalid.inject, false);
@@ -259,8 +290,18 @@ test("owned plan kills the injector process group, bounds output, and cleans sna
   const privateTmp = path.join(value.root, "private-tmp");
   fs.mkdirSync(privateTmp, { mode: 0o700 });
   const pidFile = path.join(value.root, "descendant.pid");
+  const beforeStatFile = path.join(value.root, "descendant.before.stat");
   const sleeper = path.join(value.root, "sleeper.sh");
-  fs.writeFileSync(sleeper, `#!/bin/sh\nsleep 10 &\necho $! > ${JSON.stringify(pidFile)}\nwait\n`, { mode: 0o700 });
+  fs.writeFileSync(sleeper, [
+    "#!/bin/sh",
+    "sleep 10 &",
+    "child=$!",
+    `printf '%s %s\\n' "$$" "$child" > ${JSON.stringify(pidFile)}`,
+    `IFS= read -r child_stat < "/proc/$child/stat"`,
+    `printf '%s\\n' "$child_stat" > ${JSON.stringify(beforeStatFile)}`,
+    "wait",
+    "",
+  ].join("\n"), { mode: 0o700 });
   const source = String.raw`
 import importlib.util, json, pathlib, sys, time
 spec = importlib.util.spec_from_file_location("owned_plan", sys.argv[1])
@@ -279,14 +320,35 @@ print(json.dumps(result))
     assert.equal(JSON.parse(result.stdout).outcome, "timeout");
     const base = path.join(privateTmp, `pwf-codex-cloud-hooks-${process.getuid()}`);
     assert.deepEqual(fs.readdirSync(base), []);
-    const pid = Number(fs.readFileSync(pidFile, "utf8").trim());
-    let descendantGone = false;
+    const [shellPid, pid] = fs.readFileSync(pidFile, "utf8").trim().split(/\s+/).map(Number);
+    const before = parseLinuxProcStat(fs.readFileSync(beforeStatFile, "utf8"));
+    assert.equal(before.pid, pid);
+    assert.equal(before.pgrp, shellPid, "injector descendant did not join the supervised process group");
+    assert.equal(before.session, shellPid, "injector descendant did not join the supervised session");
+
+    let termination = null;
+    let lastState = null;
     for (let attempt = 0; attempt < 20; attempt += 1) {
-      const probe = spawnSync("/bin/sh", ["-c", `kill -0 ${pid} 2>/dev/null`]);
-      if (probe.status !== 0) { descendantGone = true; break; }
+      const current = readLinuxProcStat(pid);
+      if (current === null) { termination = "gone"; break; }
+      lastState = current.state;
+      if (current.starttime !== before.starttime) { termination = "pid_reused"; break; }
+      if (["Z", "X", "x"].includes(current.state)) {
+        let descriptors = null;
+        try {
+          descriptors = fs.readdirSync(`/proc/${pid}/fd`);
+        } catch (error) {
+          if (!error || error.code !== "ENOENT") throw error;
+        }
+        assert.ok(descriptors === null || descriptors.length === 0,
+          "terminated descendant retained file descriptors");
+        termination = "terminated";
+        break;
+      }
       spawnSync("/bin/sleep", ["0.05"]);
     }
-    assert.equal(descendantGone, true, "injector descendant survived process-group timeout");
+    assert.notEqual(termination, null,
+      `injector descendant remained live after process-group timeout (state=${lastState})`);
 
     const lines = Array.from({ length: 50 }, (_, index) => `${index} ${"X".repeat(500)}`).join("\n");
     fs.writeFileSync(path.join(value.plan, "task_plan.md"), `${lines}\n`);

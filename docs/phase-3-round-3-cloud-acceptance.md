@@ -246,3 +246,18 @@ single-link Fresh/Resume gate 已独立通过，而本轮 runtime 仍未接入�
 [`phase-3-round-3-process-group-diagnostic.md`](phase-3-round-3-process-group-diagnostic.md)
 中的只读 Cloud 诊断，区分 live descendant、terminated zombie 和 PID reuse，再按证据选择
 test-only 或 runtime-and-test 修复边界。
+
+首次 Cloud 运行已触发这一分支，诊断结果为 `TERMINATED_UNREAPED`，因此只修正了 test 37：
+现在先验证 descendant 原本属于目标 PGID/SID，并用 `/proc` 的 `starttime + state` 区分
+同一 live 进程、zombie、PID reuse 和路径消失；生产 supervisor 未修改。推送该 test-only
+修复后，可以先用下面的快速命令验证唯一失败项，然后仍须重新执行本文件的“唯一执行脚本”
+完成全部 gate：
+
+```bash
+node --test --test-reporter=tap \
+  --test-name-pattern='^owned plan kills the injector process group' \
+  tests/owned-plan-runtime.test.js
+```
+
+快速验证在 Linux 上应为 8 registered / 1 PASS / 7 name-pattern SKIP / 0 FAIL；它不替代
+最终的 63 PASS / 0 SKIP 完整验收。

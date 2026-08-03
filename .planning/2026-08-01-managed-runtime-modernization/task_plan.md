@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Diagnose the reproducible Linux/Cloud failure in test 37 without changing production code: distinguish a live descendant from an unreaped zombie by recording `/proc/<pid>/stat` state, PPID, process group, session, and command before/after the owned-plan timeout. Then apply the smallest evidence-backed runtime or assertion fix, rerun the focused Linux case, and rerun the complete 63-case inactive Cloud gate. Do not continue the isolated install/doctor/ZIP stages or enter Round 4 until the suite is 63 PASS / 0 FAIL / 0 SKIP.
+Push the evidence-backed test-only correction, run the focused test-37 Linux command, then rerun the complete 63-case inactive Cloud script including isolated install/doctor/direct-runtime/ZIP/clean-workspace stages. Close Round 3 only at 63 PASS / 0 FAIL / 0 SKIP with every later gate PASS. Do not enter Round 4 before that result.
 
 ## Current Phase
-Phase 3 Round 3 inactive implementation and Windows/trusted-graph verification are complete; the first Linux/Cloud run is blocked by test 37 (62 PASS / 1 FAIL), diagnosis is pending, no production path is active, and alpha.2 remains the rollback baseline
+Phase 3 Round 3 inactive implementation and Windows/trusted-graph verification are complete; Cloud diagnosed the first 62/63 result as a test-only zombie-liveness false positive, the correction is locally green and awaits Linux/full Cloud rerun, no production path is active, and alpha.2 remains the rollback baseline
 
 ## Phases
 
@@ -117,7 +117,7 @@ Phase 3 Round 3 inactive implementation and Windows/trusted-graph verification a
 |---|---|---|
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
 | 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
-| 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | in progress; local PASS, Cloud 62/63 with process-group assertion under diagnosis |
+| 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | in progress; local PASS, Cloud diagnosis PASS, test-only fix awaiting complete Cloud rerun |
 | 4 | Activate canonical UserPrompt injection, retire parallel adapter rendering, package beta.1, and complete Cloud acceptance | pending |
 
 - [ ] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
@@ -129,7 +129,7 @@ Phase 3 Round 3 inactive implementation and Windows/trusted-graph verification a
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
 - [ ] Prove prompt injection runs exclusively from the owned runtime bundle and no mutable global Skill script executes; retain the pristine global Skill for model discovery/instructions and deployment governance.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Rounds 1–2 complete; Round 3 inactive implementation/local verification PASS; first Linux/Cloud gate FAIL at test 37 (62/63), diagnosis required before closure
+- **Status:** Rounds 1–2 complete; Round 3 local verification and Cloud diagnosis PASS; test-only correction awaits focused and complete Linux/Cloud rerun before closure
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 
