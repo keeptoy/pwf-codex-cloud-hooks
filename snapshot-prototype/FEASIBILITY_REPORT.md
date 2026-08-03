@@ -20,8 +20,8 @@ timeout paths, and execute as a synthetic non-root Hook user. No fallback gate
 for a multi-target injector overlay fired.
 
 This is not production approval. The prototype deliberately remains under
-`tools/`, is absent from every trusted inventory, and is unreachable from
-`hook_adapter.py`. Round 2 must translate the evidence into the frozen v1
+`snapshot-prototype/`, is absent from every trusted inventory, and is unreachable from
+`hook_adapter.py`. Round 3 must translate the evidence into the frozen v1
 request/result envelopes and a more complete adversarial test matrix.
 
 ## Prototype shape
@@ -72,10 +72,11 @@ and progress tail, then exercises these scenarios:
 | Synthetic `nobody` Hook user | User creates/reads/removes its own projection | PASS |
 | Inventory/dispatch isolation | Prototype is absent from runtime, Release, adapter | PASS |
 
-The focused suite has eight cases. Linux supplies the real FIFO, directory-fd,
-mode, timeout, and cross-user evidence; non-Linux development should retain fake
-runner/protocol coverage rather than pretend to validate production POSIX
-semantics.
+The focused suite has eight cases. Seven execute the POSIX/Linux runner and are
+explicitly skipped on non-Linux hosts; the static bundle-boundary case remains
+portable. Parent-repository handoff coverage imports all eight and adds one
+production-graph isolation case. Non-Linux development must not pretend to
+validate production POSIX semantics.
 
 An additional live-project comparison ran the pristine injector directly in
 the current repository and through the prototype snapshot under the same
@@ -128,7 +129,7 @@ containers can outlive the Hook process.
 The synthetic `nobody` run succeeds when managed runtime/project inputs are
 traversable/readable and that user creates the snapshot beneath a writable
 sticky temporary parent. This validates the intended ownership model: the
-installer need not pre-create per-call content owned by another user. Round 2
+installer need not pre-create per-call content owned by another user. Round 3
 must repeat the gate against the installed layout and the actual Cloud Hook
 identity.
 
@@ -189,7 +190,7 @@ The copied scripts are pinned pristine planning-with-files v3.8.2 artifacts:
 
 For the parent project their provenance remains `origin = upstream_pristine`
 and `pristine_sha256 == managed_sha256`. The controlled-snapshot decision means
-Round 2 need not modify the injector, add a managed injector hash/overlay
+Round 3 need not modify the injector, add a managed injector hash/overlay
 anchor, or upgrade the importer into a multi-target patcher.
 
 The intended production chain has eleven steps: validate the v1 request; apply
@@ -214,7 +215,7 @@ byte preservation for upstream head/tail semantics; empty output despite the
 injector's exit-zero bias; segmented budgets beneath the 30-second Hook;
 SIGKILL residual directories; and honest Windows-versus-Linux/Cloud gates.
 
-## Gaps before production Round 2 can close
+## Gaps before production Round 3 can close
 
 1. Replace the prototype result with exact validation of both staged v1 schemas.
 2. Integrate session attachment and opt-out ordering without filesystem scans
@@ -239,7 +240,7 @@ SIGKILL residual directories; and honest Windows-versus-Linux/Cloud gates.
 
 ## Recommendation and remaining questions
 
-Proceed with inactive Round 2 implementation using the snapshot route. Do not
+Proceed with inactive Round 3 implementation using the snapshot route. Do not
 open the multi-target overlay fallback based on this spike: all four previously
 defined fallback gates remain untriggered in the local Linux/Cloud-shaped
 environment.
@@ -252,7 +253,7 @@ Questions for maintainer review before production freeze:
 2. Should parent-SIGKILL stale snapshots be handled by a bounded startup cleanup
    policy, or is 0700/0600 plus ephemeral Cloud-container disposal an accepted
    residual risk?
-3. Is an optional Linux `openat2` hardening path desirable, or should Round 2
+3. Is an optional Linux `openat2` hardening path desirable, or should Round 3
    minimize kernel/version branches and keep the tested portable `openat`
    component walk?
 4. What internal timeout split should be frozen beneath the 30-second Host

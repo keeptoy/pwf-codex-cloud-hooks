@@ -111,9 +111,17 @@ Host ABI 的固定假设。
   plan/progress 的快照继续输出 legacy context，nonce 没有泄漏；
 - injector 没有在快照中创建其他文件，所有探针临时目录均已清理。
 
+后续独立 `snapshot-prototype/` feasibility spike 又完成了更强的纵向验证：8 个 focused
+cases 覆盖 fd-rooted safe read、symlink/FIFO、1 MB 输入上限、20,000 字符输出上限、
+pathname replacement、0700/0600、timeout cleanup、synthetic `nobody` 和 bundle
+边界；父仓库 handoff 再增加 1 个 runtime/Release/adapter 隔离 case。Cloud/Linux
+父套件 55 PASS/0 SKIP；Windows 只执行平台无关部分，45 PASS/10 个明确 POSIX/Linux
+SKIP/0 FAIL。结论仍是 conditional GO：证明难点可克服，但不把 prototype 当成
+`owned-plan.py` 生产实现。
+
 这些结果证明 legacy 输出不依赖原始 scoped 路径；把选中内容压平为 root plan 不会
 改变当前 UserPrompt 输出。Cloud/Linux 下的实际 Hook 用户、权限、超时和异常清理
-仍需在激活前单独验证。
+已有 feasibility 证据，仍需在生产 installed layout 和真实激活前重新验证。
 
 ### 优点
 
@@ -212,5 +220,5 @@ store 和协议差异，本仓库应优先迁移、缩小或退役，而不是�
 - 证明 root/root 与 synthetic cross-user 都能创建、读取和清理自己的投影；
 - 证明项目 `.mode`、nonce、attestation、ledger 和 ambient `PWF_*` 不进入 Phase 3；
 - 证明超时、kill、非零退出、空输出、stderr、无效 UTF-8 和超限输出都 fail-closed；
-- alpha.2 的 adapter dispatch、ZIP 和 bootstrap 在 inactive Round 2 保持不变；
-- Round 3 激活后完成新的 beta golden、fresh Cloud lifecycle/resume 和 post-resume doctor。
+- alpha.2 的 adapter dispatch、ZIP 和 bootstrap 在 inactive Round 3 保持不变；
+- Round 4 激活后完成新的 beta golden、fresh Cloud lifecycle/resume 和 post-resume doctor。

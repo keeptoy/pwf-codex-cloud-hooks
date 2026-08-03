@@ -1,12 +1,14 @@
 # Phase 3 Canonical Plan Context
 
-> Phase status: Round 1 complete; architecture selected and contracts frozen
+> Phase status: Rounds 1–2 complete; architecture/contracts frozen and feasibility conditional GO
 >
 > Runtime status: staged only; not implemented, dispatched, installed, or packaged
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
-> Planning gate: Round 2 is paused pending isolated prototype review and Phase 3/4 round-count reassessment
+> Prototype gate: Round 2 feasibility spike reviewed; controlled snapshot is conditional GO
+>
+> Next gate: Round 3 inactive production implementation; no adapter dispatch or beta Release yet
 
 ## Purpose
 
@@ -25,13 +27,13 @@ The Round 1 filenames intentionally do not carry a `candidate` suffix. The
 architecture is selected, and the two schemas already have stable versioned
 protocol identities. Their lifecycle is **selected but staged/inactive**, which
 is recorded here, in each schema's `$comment`, and by regression tests proving
-that alpha.2 does not package them. Round 2 promotes the same v1 identities into
+that alpha.2 does not package them. Round 3 promotes the same v1 identities into
 the owned runtime atomically; a filename or schema-version change is reserved
 for an incompatible contract change, not for ordinary staged-to-active
 promotion.
 
 `tests/phase3-contracts.test.js` is likewise a permanent lifecycle regression,
-not a disposable candidate test: before Round 2 it proves trusted-graph
+not a disposable candidate test: before Round 3 it proves trusted-graph
 exclusion, and later rounds must update it atomically with implementation and
 activation state.
 
@@ -102,7 +104,7 @@ valid Codex JSON.
 
 Pristine v3.8.2 `inject-plan.sh` cannot be called directly because it resolves
 the plan again, fails open if no canonicalizer is available, and reads Phase 4
-markers. Round 2 will therefore invoke it through a private, bounded filesystem
+markers. Round 3 will therefore invoke it through a private, bounded filesystem
 projection instead of modifying the upstream file:
 
 1. resolve and revalidate the selected plan in the real project using the
@@ -136,10 +138,10 @@ lines, static BEGIN/END delimiters, at most 20 raw progress lines, no-plan
 silence beyond the canary, and read-only behavior. Context above 20,000
 characters is suppressed whole; it is never partially injected.
 
-The v0.2.2/alpha.2 goldens remain immutable rollback evidence. Round 2 adds a
+The v0.2.2/alpha.2 goldens remain immutable rollback evidence. Round 3 adds a
 new beta golden fixture that records the intentional textual differences.
 
-## Three-round delivery
+## Four-round delivery
 
 ### Round 1: contract and audit freeze
 
@@ -149,7 +151,19 @@ new beta golden fixture that records the intentional textual differences.
   failure semantics, artifact impact, and Cloud acceptance scope.
 - Do not alter registered or packaged runtime behavior.
 
-### Round 2: inactive owned plan-context runtime
+### Round 2: controlled-snapshot feasibility gate — complete
+
+- Build a standalone, untrusted spike around pristine resolver/injector copies.
+- Prove fd-rooted safe reads, private modes, environment isolation, bounded
+  output, timeout cleanup, replacement-race detection, cross-user execution,
+  output equivalence, and trusted-graph exclusion on Linux/Cloud.
+- Keep the spike self-contained and outside runtime, installer, Release, and
+  adapter dispatch.
+
+The reviewed result is conditional GO. The eight focused cases plus one parent
+handoff isolation case are feasibility evidence, not production implementation.
+
+### Round 3: inactive production owned plan-context runtime
 
 - Add `owned-plan.py` and strict request/result validation.
 - Add a safe private snapshot runner around the pristine resolver/injector.
@@ -157,7 +171,7 @@ new beta golden fixture that records the intentional textual differences.
   output, and exact beta-golden tests.
 - Install and hash the new child but keep adapter dispatch unchanged.
 
-### Round 3: activation and beta acceptance
+### Round 4: activation and beta acceptance
 
 - Dispatch both events through the owned plan-context child.
 - Pass its exact SessionStart project state to owned catch-up.
@@ -182,7 +196,7 @@ new beta golden fixture that records the intentional textual differences.
 ## Release boundary
 
 Round 1 schemas are selected and staged, but are not yet part of the alpha.2
-trusted artifact graph. Round 2 will atomically add the approved schemas,
+trusted artifact graph. Round 3 will atomically add the approved schemas,
 `owned-plan.py`, its snapshot-runner contract, and the pristine injector
 dependency to the runtime manifest, installer inventory, Release allowlist, LF
 rules, and exact-count tests. The injector hash and existing overlay ledger do

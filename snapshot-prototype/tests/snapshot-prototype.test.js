@@ -35,7 +35,9 @@ function run(root, temporary, env = {}) {
   return JSON.parse(result.stdout);
 }
 
-test("prototype emits pristine legacy context from a private scoped-plan snapshot", () => {
+test("prototype emits pristine legacy context from a private scoped-plan snapshot", {
+  skip: process.platform !== "linux",
+}, () => {
   const fixture = project();
   try {
     fs.writeFileSync(path.join(fixture.plan, ".mode"), "autonomous gate inject-smart\n");
@@ -84,7 +86,9 @@ test("prototype rejects symlinked plans and non-regular progress inputs", { skip
   }
 });
 
-test("prototype suppresses oversized input and leaves no snapshot", () => {
+test("prototype suppresses oversized input and leaves no snapshot", {
+  skip: process.platform !== "linux",
+}, () => {
   const fixture = project();
   try {
     fs.writeFileSync(path.join(fixture.plan, "task_plan.md"), Buffer.alloc(1_000_001, 65));
@@ -97,7 +101,9 @@ test("prototype suppresses oversized input and leaves no snapshot", () => {
   }
 });
 
-test("prototype suppresses whole context above the output budget", () => {
+test("prototype suppresses whole context above the output budget", {
+  skip: process.platform !== "linux",
+}, () => {
   const fixture = project();
   try {
     const lines = Array.from({ length: 50 }, (_, index) => `${index} ${"X".repeat(500)}`).join("\n");

@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Do not begin Phase 3 Round 2. In the next review turn, read and evaluate the isolated Cloud-produced `snapshot-prototype/` against the frozen owned-plan contracts, snapshot safety gates, and trusted-artifact boundary; then decide whether the prototype changes the Phase 3/4 round count or scope. Keep adapter/runtime/installer/Release/bootstrap bytes unchanged until that replanning decision.
+Before starting Phase 3 Round 3 implementation, freeze the four production policies exposed by the completed prototype review: contained hard-link trust semantics, parent-SIGKILL stale-snapshot handling, portable `openat` versus optional `openat2`, and the 30-second Host timeout split. Then implement the inactive exact-v1 `owned-plan.py` path while keeping adapter dispatch and alpha.2 Release/bootstrap bytes unchanged.
 
 ## Current Phase
-Pre-Round-2 prototype-review hold; Phase 3 Round 1 is complete, Round 2 has not started, and alpha.2 remains the rollback baseline
+Phase 3 Round 2 feasibility review complete; Round 3 production-policy freeze/implementation is next, no production path is active, and alpha.2 remains the rollback baseline
 
 ## Phases
 
@@ -116,8 +116,9 @@ Pre-Round-2 prototype-review hold; Phase 3 Round 1 is complete, Round 2 has not 
 | Round | Scope | Status |
 |---|---|---|
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
-| 2 | Implement inactive owned prompt entrypoint/dispatch seam and prove golden compatibility | pending; held for prototype review and round-count replanning |
-| 3 | Activate canonical UserPrompt injection, retire parallel adapter rendering, package, and complete Cloud acceptance | pending |
+| 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
+| 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | pending |
+| 4 | Activate canonical UserPrompt injection, retire parallel adapter rendering, package beta.1, and complete Cloud acceptance | pending |
 
 - [ ] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
 - [ ] Dispatch both lifecycle events through `owned-plan.py`, which must call the verified standalone resolver, finalize one canonical contained project state, and invoke the managed-legacy upstream injector.
@@ -128,9 +129,17 @@ Pre-Round-2 prototype-review hold; Phase 3 Round 1 is complete, Round 2 has not 
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
 - [ ] Prove prompt injection runs exclusively from the owned runtime bundle and no mutable global Skill script executes; retain the pristine global Skill for model discovery/instructions and deployment governance.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Round 1 complete; pre-Round-2 prototype review is next, with no implementation authorized yet
+- **Status:** Rounds 1–2 complete; Round 3 inactive production implementation is next, but begins with the four explicit policy decisions
 
 ### Phase 4: Attestation and opt-in v3 injection modes
+
+#### Provisional round shape — re-audit before Phase 4 starts
+| Round | Scope | Status |
+|---|---|---|
+| 1 | Re-audit upstream attestation/mode/nonce/ledger semantics; freeze projection, protocol, fallback, and Cloud gates | pending |
+| 2 | Implement and install the inactive opt-in extension with legacy mode unchanged | pending |
+| 3 | Activate opt-in modes only; complete tamper/cache/rollback and fresh-Cloud acceptance | pending |
+
 - [ ] Import and verify attestation, nonce, smart-injection, and ledger dependencies.
 - [ ] Keep unattested legacy mode backward compatible.
 - [ ] Make autonomous/gated plan-body injection require a valid attestation.
@@ -198,7 +207,7 @@ Pre-Round-2 prototype-review hold; Phase 3 Round 1 is complete, Round 2 has not 
 | Preserve legacy behavior by default | Existing plans must not be forced into attestation, ledger, or gating without an explicit migration/mode. |
 | Roll out lifecycle events incrementally | Managed Hooks are globally trusted, can coexist and run concurrently with other sources, and are harder for users to disable. |
 | Add hard Stop gating last | It has the greatest recursion, concurrency, and runaway risk and requires real host verification. |
-| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 adds one inactive-contract case for forty-six development cases. Several cases cover multiple guarantees; three Linux-only cases skip on Windows. |
+| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 added one inactive-contract case for forty-six; the reviewed Round 2 handoff adds eight feasibility cases plus one parent isolation case for fifty-five. Several cases cover multiple guarantees. Linux/Cloud runs all 55; Windows honestly runs 45 and skips ten production-POSIX cases. |
 | Treat the v0.2.2 catch-up patch as a temporary compatibility overlay | It is valuable Cloud-proven behavior, but mutating and executing a global Skill conflicts with the owned-runtime trust boundary. |
 | Make the host/runtime contract explicit | `.agents` placement, initialization/runtime environment differences, absent Hook-time `CODEX_THREAD_ID`, and the Host-provided transcript path prove that script-path and setup-shell inference are not stable Cloud interfaces. |
 | Add reason-coded diagnostics without injecting them by default | Silent early returns made black-box failures expensive to localize, while stderr or debug text must not contaminate Hook JSON/context. |
@@ -219,6 +228,7 @@ Pre-Round-2 prototype-review hold; Phase 3 Round 1 is complete, Round 2 has not 
 | Broad read-only Bash location scan reached its 30-second command timeout | 1 | Stopped scanning and used the explicit user-provided Git installation target. |
 | Documentation consistency command used Bash-style `{a,b}` path expansion in PowerShell | 1 | Replaced it with an explicit PowerShell file array before running any checks. |
 | Tracked-file size audit used quoted `git ls-files` output as literal Windows paths and failed on the Chinese filename | 1 | Kept the successful file inventory and switched subsequent path handling to unquoted/UTF-8-safe enumeration; no file decision depended on the failed row. |
+| Combined prototype/schema inspection command used a double-quoted PowerShell regex containing nested quotes and failed before reading files | 1 | Split the read and changed the regex to PowerShell single-quoted form; the subsequent inspection completed without changing files. |
 
 ## Verification Matrix
 | Area | Required checks |

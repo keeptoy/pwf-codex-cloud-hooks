@@ -508,3 +508,15 @@
 - Proved the historical v0.2.2 planning/evidence and patcher are still referenced by the overlay ledger and regression tests. Retained and indexed the alpha.1 smoke record; corrected stale pre-Phase-2 wording in the main black-box manual.
 - Confirmed `snapshot-prototype/` is a separate tracked commit with no references from the current runtime manifest, installer, Release contract, or builder. Its duplicated pristine upstream scripts and premature beta.1 branch/commit labels are review inputs, not accepted product state.
 - Final consistency checks found no stale current-state phrases and no prototype reference in the trusted runtime/Release graph. JSON contracts parse, `git diff --check` passes, and the complete outside-sandbox regression remains 46 registered / 43 PASS / 3 explicit Linux-only SKIP / 0 FAIL.
+
+## Phase 3 Round 2 controlled-snapshot feasibility review (2026-08-03)
+
+- Read the complete standalone handoff: runner, eight-case suite, README, feasibility report, package/license, and pristine resolver/injector copies. Verified the copied upstream hashes exactly match the parent runtime copies.
+- Compared the spike line-by-line with the frozen request/result schemas, adapter/catch-up ownership, trusted bundle, Release allowlist, and Phase 3 verification matrix. Confirmed conditional GO for the selected snapshot route while preserving the prototype/production boundary and all listed production gaps.
+- Added `tests/snapshot-prototype-handoff.test.js` so the parent suite imports all eight feasibility cases and adds one explicit runtime/Release/adapter-isolation invariant.
+- Corrected non-Linux test semantics: seven cases that execute the POSIX/Linux runner now skip honestly outside Linux; the static bundle-boundary and parent isolation cases remain portable. Corrected the feasibility report's stale `tools/` location.
+- Parent Windows regression now registers 55 cases: 45 PASS / 10 explicit production-POSIX SKIP / 0 FAIL. The prototype standalone entry registers 8: 1 PASS / 7 SKIP / 0 FAIL. Maintainer-provided Cloud/Linux evidence remains 55 PASS / 0 SKIP.
+- Expanded Phase 3 from three to four rounds: completed Round 2 feasibility; Round 3 inactive production/policy/trusted-graph work; Round 4 activation/beta.1/Cloud acceptance. Added a provisional three-round Phase 4 shape subject to mandatory re-audit at entry.
+- No adapter/runtime/installer/importer/Release/bootstrap file or accepted alpha.2 artifact was activated or changed by the prototype review.
+- Final consistency scan corrected the prototype/report and route-comparison remnants that still called inactive production “Round 2” or activation “Round 3”; the current Phase 3 four-round numbering is now uniform.
+- Final validation passed: both staged schemas parse, changed JavaScript and Python sources compile, `git diff --check` is clean, the parent suite is 55 registered / 45 PASS / 10 explicit POSIX/Linux SKIP / 0 FAIL on Windows, and the standalone prototype is 8 registered / 1 PASS / 7 SKIP / 0 FAIL. Maintainer-provided Cloud/Linux evidence remains the authoritative execution of all 55 without skips.

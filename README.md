@@ -197,7 +197,7 @@ owned runtime files beneath managed_dir.
 | `docs/phase-3-upstream-invocation-options.md` | Overlay/snapshot/other route comparison, empirical evidence, and long-term Host/Driver standardization boundary |
 | `docs/v0.3.0-alpha.1-cloud-smoke.md` | Retained Phase 1 pre-release publication and Cloud-smoke acceptance record |
 | `docs/v0.3.0-alpha.2-cloud-hard-acceptance.md` | Alpha.2 SHA, inventory, permission, owned-runtime, and resume acceptance gate |
-| `snapshot-prototype/` | Unreviewed, isolated Cloud-produced snapshot-route prototype reserved for the next architecture review; not current runtime or Release input |
+| `snapshot-prototype/` | Reviewed, self-contained Round 2 feasibility handoff for the selected snapshot route; conditional GO evidence, never current runtime or Release input |
 | `init-cloud-sandbox-v0.3.0.bash` | Development bootstrap for the active modernization iteration |
 | `PROJECT_UNDERSTANDING.md` | Durable current-state model, Cloud evidence, boundaries, and next-step context |
 | `黑盒验证.md` | Beginner-oriented Cloud runbook for health, lifecycle, catch-up, repair, and fail-closed tests |
@@ -211,6 +211,7 @@ owned runtime files beneath managed_dir.
 | `tests/release-package.test.js` | Deterministic ZIP inventory, metadata, mode, and bootstrap-separation test |
 | `tests/owned-runtime.test.js` | Inactive request/result, Host transcript, fallback, identity, and containment tests |
 | `tests/phase3-contracts.test.js` | Inactive Phase 3 prompt contracts and alpha.2 trusted-graph exclusion test |
+| `tests/snapshot-prototype-handoff.test.js` | Imports the eight standalone feasibility cases into the parent suite and proves production-graph isolation |
 | `tests/fixtures/planning-with-files/` | Self-contained pinned Skill fixture; not a second production Skill |
 | `planning-with-files-3.8.2/` | Ignored local upstream reference tree supplied for development; never package it |
 | `.planning/.active_plan` | Pointer to the current Managed Runtime Modernization plan |
@@ -245,12 +246,14 @@ bash -n init-cloud-sandbox-v0.3.0.bash
 git diff --check
 ```
 
-The development Node suite currently registers forty-six **test cases**, not
-forty-six atomic product features. On Windows, forty-three pass and three
-Linux-only permission/runtime cases skip. The sealed alpha.2 snapshot remains
-forty-five registered / forty-two pass / three skip; the additional case covers
-only inactive Phase 3 contracts. Several cases cover multiple related
-guarantees. Together they cover:
+The development Node suite currently registers fifty-five **test cases**, not
+fifty-five atomic product features. On Windows, forty-five pass and ten
+production-POSIX/Linux cases explicitly skip; on the Cloud/Linux feasibility
+run, all fifty-five passed without skips. The sealed alpha.2 snapshot remains
+forty-five registered / forty-two pass / three skip. Phase 3 Round 1 added one
+inactive-contract case; the reviewed Round 2 handoff adds eight focused
+feasibility cases plus one parent trusted-graph-isolation case. Several cases
+cover multiple related guarantees. Together they cover:
 
 - both current Hook payloads and the no-plan canary;
 - read-only dry-run;
@@ -273,6 +276,9 @@ guarantees. Together they cover:
 - multi-file install/doctor/repair/backup/uninstall inventory behavior;
 - owned-runtime request/result, Host-path preference, explicit fallback,
   session identity, containment, and bounded compatibility output;
+- controlled-snapshot safe reads, private projection, environment isolation,
+  races, timeout cleanup, cross-user feasibility, output budget, pristine hash,
+  and explicit non-production handoff isolation;
 - backward-compatible session attachment/isolation, explicit opt-out, canonical
   plan/file containment, `PLAN_ID`/BOM precedence, and safe runtime outcomes;
 - strict Codex JSONL normalization, conservative cross-family deduplication,
@@ -405,18 +411,19 @@ UserPromptSubmit plan injection remains local until Phase 3. The global Skill is
 pristine and is never executed for catch-up.
 
 Phase 3 Round 1 selected and froze a separate managed-legacy prompt request/result
-boundary and a 20,000-character whole-context ceiling. A post-freeze architecture
-review selected a private legacy snapshot around the pristine resolver/injector;
-multi-target overlay remains only a fallback. Those schemas are staged only:
-they are intentionally absent from the alpha.2 runtime bundle, installer
-inventory, Release allowlist, and bootstrap. Round 2 implements the owned path
-without dispatching it; Round 3 activates it and removes the adapter's parallel
-resolver/renderer.
+boundary and a 20,000-character whole-context ceiling. Round 2 then completed an
+isolated controlled-snapshot feasibility spike around the pristine
+resolver/injector: eight focused Linux/Cloud cases plus one parent isolation
+case support conditional GO, while multi-target overlay remains fallback only.
+The schemas and prototype remain outside the alpha.2 runtime bundle, installer,
+Release allowlist, bootstrap, and adapter dispatch. Round 3 productionizes and
+installs the exact-v1 owned path without dispatching it; Round 4 activates it and
+removes the adapter's parallel resolver/renderer.
 
 The Phase 3 document, v1 schemas, and contract regression intentionally omit a
 `candidate` filename suffix. Their identities are selected and stable; staged
 versus active status is expressed by schema/document metadata and trusted-graph
-membership. Round 2 promotes those same identities atomically unless the
+membership. Round 3 promotes those same identities atomically unless the
 contract itself changes incompatibly.
 
 The Phase 1 v1 allowlist contains only those four upstream files. Attestation,
@@ -537,18 +544,18 @@ Phase 2 Rounds 1–3 added and hardened the structured owned-catch-up path,
 plan/session policy, transcript normalization, diagnostics, and supervisor
 failure semantics. Round 4 activated catch-up, retired bootstrap/global Skill
 mutation, and passed the complete alpha.2 fresh-Cloud hard acceptance. Alpha.2
-is now the Phase 3 rollback baseline. Phase 3 Round 1 has completed the canonical
-prompt-injection audit and frozen the owned-plan contracts, managed-legacy
-compatibility boundary, two intentional output changes, and three-round rollout.
-The selected PWF invocation strategy keeps upstream pristine and runs it against
-a private, scrubbed legacy snapshot; the broader reusable target is a Host/Driver
-ABI, not a claim that every Skill can use the same conversion technique. Round 2
-remains pending, but implementation is paused for a separate review of the
-tracked `snapshot-prototype/` and a re-evaluation of the Phase 3/4 round split.
-The prototype commit/branch label is experimental metadata, not a beta release
-or proof that the project has entered Round 2. New lifecycle events remain
-deferred until this review and the runtime boundary/diagnostic contract are
-complete.
+is now the Phase 3 rollback baseline. Phase 3 Round 1 completed the canonical
+prompt-injection audit and froze the owned-plan contracts, managed-legacy
+compatibility boundary, and two intentional output changes. Round 2 reviewed the
+self-contained snapshot feasibility handoff and produced conditional GO without
+changing any trusted runtime or Release artifact. Phase 3 now has four rounds:
+Round 3 freezes the four remaining production policies and implements/installs
+the inactive exact-v1 path; Round 4 activates it, thins the adapter, packages
+beta.1, and performs Cloud acceptance. The broader reusable target is a
+Host/Driver ABI, not a claim that every Skill can use the same conversion
+technique. The prototype commit/branch beta.1 wording remains experimental
+metadata, not a beta release. New lifecycle events remain deferred until this
+runtime boundary and its diagnostic contract are complete.
 
 ### Working rules
 

@@ -456,22 +456,25 @@ alpha.2 成为 Phase 3 的回滚基线。Phase 3 第 1 轮也已完成：本地 
 prompt context 与 SessionStart 共用 canonical plan state 的架构；当前阶段只启用
 managed-legacy 行为，`.mode`、attestation、nonce 和 smart injection 继续留给 Phase 4。
 同时明确采用上游更强的 structured-data 提示措辞与时间戳归一化这两项输出变化，并设置
-20,000 字符的完整 context 上限。Phase 3 仍按三轮推进：第 1 轮契约冻结已完成，第 2 轮
-实现但不激活 owned prompt path，第 3 轮才切换 adapter、打包 beta.1 并做 Cloud 验收。
+20,000 字符的完整 context 上限。Phase 3 现按四轮推进：第 1 轮契约冻结已完成；第 2 轮
+已完成独立受控快照 feasibility spike，以 8 个 focused cases 和父仓库 1 个隔离 case
+给出 conditional GO，但没有进入 trusted graph；第 3 轮冻结生产策略并实现/安装但不
+dispatch exact-v1 owned prompt path；第 4 轮才切换 adapter、打包 beta.1 并做 Cloud 验收。
 新增的两个 schema 目前只是 staged contract，不属于 alpha.2 runtime、installer、Release
 或 bootstrap 边界。后续架构复盘进一步比较了多目标 overlay 与不修改上游的受控快照：
 Phase 3 选择后者，在私有 legacy 投影中运行 pristine resolver/injector；多目标 overlay
 只作为 Cloud/Linux 实证失败后的后备。长期标准化对象是 Codex Cloud Host ABI、受管
 runner 和 Integration Driver request/result，不是把快照或 overlay 强制为所有 Skill
 的统一转换方式。PWF 仍是唯一支持的垂直集成，只有第二个只读插件验证后才提取通用
-接口；详细比较见 `docs/phase-3-upstream-invocation-options.md`。第 2 轮目前保持 pending：
-下一轮先单独审查 Cloud 产出的 `snapshot-prototype/`，对照已冻结契约判断哪些可复用，
-再决定是否调整 Phase 3/4 的轮数和边界。原型所在分支/commit 使用的 beta.1 字样只是
-实验标签，不代表已经进入第 2 轮，更不代表 beta Release 已成立。
+接口；详细比较见 `docs/phase-3-upstream-invocation-options.md`。原型已确认能够克服
+fd-rooted no-symlink read、FIFO、替换竞态、0700/0600、环境隔离、超限、timeout cleanup
+和 synthetic cross-user 等最难可行性问题；但它仍缺 exact schema、session/opt-out、
+process-group kill、完整 race/stale cleanup、installed layout 和 beta golden。原型所在
+分支/commit 使用的 beta.1 字样仍只是实验标签，不代表 beta Release 已成立。
 
 Phase 3 的设计文档、两个 v1 schema 和契约测试不追加“候选”文件名：架构路线已经选定，
 协议身份也应保持稳定；“尚未激活”由文档/schema 元数据和 alpha.2 trusted graph 排除测试
-表达。Round 2 若契约不发生不兼容变化，就原名原版本原子提升为受管 runtime 输入。
+表达。Round 3 若契约不发生不兼容变化，就原名原版本原子提升为受管 runtime 输入。
 
 Release 封板存在明确依赖顺序：先确定版本并冻结 ZIP 内容，构建并计算 ZIP SHA-256；
 再把版本、包名和 ZIP SHA 写入 ZIP 外部 Bash，计算封板后的 Bash SHA-256；最后发布并
@@ -497,9 +500,11 @@ Phase 1 三轮均不得改变已经通过 v0.2.2 Cloud 验收的 Hook 行为。
 Phase 1 第 3 轮 installer 把四个上游脚本作为 inactive owned inventory 安装和校验，
 同时安装 overlay ledger 与 MIT notice；Phase 2 加入并激活本地 owned entrypoint。
 Managed Hook 命令仍只注册 `hook_adapter.py`。alpha.2 验收快照为 45 个测试：Windows
-42 PASS、3 个 Linux-only 跳过；当前开发树增加 1 个 inactive Phase 3 contract test，登记
-46 个、Windows 43 PASS/3 SKIP/0 FAIL。Release allowlist 仍为 18 entries（新增 owned
-runtime、移除历史 global patcher），没有因 staged Phase 3 schema 改变。alpha.1 的
+42 PASS、3 个 Linux-only 跳过；Phase 3 Round 1 增加 1 个 inactive contract case，Round 2
+handoff 再增加 8 个 feasibility cases 和 1 个父仓库隔离 case，当前登记 55 个：Windows
+45 PASS/10 个诚实 POSIX/Linux SKIP/0 FAIL，Cloud/Linux 55 PASS/0 SKIP。Release allowlist
+仍为 18 entries（新增 owned runtime、移除历史 global patcher），没有因 staged Phase 3
+schema 或 prototype 改变。alpha.1 的
 25-case/18-entry/7-payload 数据保留为历史验收快照。
 
 ## 14. 本仓库可能退役的条件

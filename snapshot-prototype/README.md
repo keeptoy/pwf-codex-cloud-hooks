@@ -34,8 +34,10 @@ npm run check
 python3 prototype_snapshot_runner.py /absolute/project/path
 ```
 
-在非 Linux 平台，Linux 专属的 FIFO、权限、race 和 cross-user 测试会按声明跳过；
-不能把这种跳过当成生产 POSIX 证据。
+在非 Linux 平台，7 个实际执行 snapshot runner 的 POSIX/Linux 测试会按声明跳过，
+只运行不依赖生产 OS 语义的静态 bundle-boundary 测试；不能把这种跳过当成生产
+POSIX 证据。父仓库通过 `tests/snapshot-prototype-handoff.test.js` 自动纳入这 8 项，
+并额外验证原型没有进入正式 runtime、Release 或 adapter dispatch。
 
 ## 实际做出的原型
 
@@ -191,12 +193,12 @@ timeout/正常清理、synthetic cross-user、legacy 输出等价和 bundle 边�
 `openat2`、process-group kill、固定输入上限/timeout split、更多 truncate/append/
 delete/parent replacement/permission races、parent SIGKILL stale cleanup、真实 installed
 layout/Cloud identity、beta golden/latency/size，以及原子更新 manifest/installer/
-inventory/Release 同时保持 Round 2 adapter 不可达。
+inventory/Release 同时保持 Round 3 adapter 不可达。
 
 ## 最终判断与四个问题
 
 四个 overlay fallback gate 都没有触发：继续 controlled snapshot，进入 inactive
-production Round 2；现在不要扩展 multi-target overlay。
+production Round 3；现在不要扩展 multi-target overlay。
 
 维护者仍需确认：
 
@@ -204,7 +206,7 @@ production Round 2；现在不要扩展 multi-target overlay。
    `O_NOFOLLOW` 无法排除该 inode 在项目外还有 hard-link 名称。
 2. Python parent 遭 SIGKILL 后，是做有界 stale-snapshot startup cleanup，还是接受
    `0700/0600 + ephemeral Cloud container` 的残余风险？
-3. Round 2 使用单一 portable `openat` walk，还是加入 optional `openat2` hardening？
+3. Round 3 使用单一 portable `openat` walk，还是加入 optional `openat2` hardening？
 4. 30 秒 Host timeout 如何冻结？初始建议：resolver 2 秒、injector 5 秒、catch-up
    15 秒，至少 5 秒留给 supervision、kill、cleanup 和 JSON。
 
