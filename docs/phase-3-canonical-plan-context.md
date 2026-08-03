@@ -10,7 +10,7 @@
 >
 > Cloud single-link gate: Fresh + Resume PASS; 40/40 stable regular-file observations with `st_nlink=1`
 >
-> Next gate: mandatory Round 4 entry analysis; no adapter dispatch or beta activation yet
+> Next gate: Round 4 entry analysis complete; R4-A bounded-supervisor/type seam is next, with no adapter dispatch yet
 
 ## Purpose
 
@@ -190,12 +190,20 @@ adapter dispatch remains unchanged.
 
 ### Round 4: activation and beta acceptance
 
+- Execute the final round through three ordered gates: R4-A bounded supervisor
+  and typed protocols while plan dispatch stays inactive; R4-B atomic
+  activation plus deletion of the adapter's parallel resolver/renderer; and
+  R4-C beta.1 sealing plus fresh/resume Cloud acceptance.
 - Dispatch both events through the owned plan-context child.
 - Pass its exact SessionStart project state to owned catch-up.
 - Remove adapter plan resolution and file rendering.
 - Prove no mutable global Skill script executes.
 - Update exact installer/manifest/Release inventories, seal beta.1, and perform
   complete Cloud acceptance before Phase 4.
+
+The detailed sequence, relational result validation, failure matrix, shared
+27-second deadline interpretation, rollback boundary, and stop conditions are
+frozen in `docs/phase-3-round-4-activation-plan.md`.
 
 ## Verification matrix
 

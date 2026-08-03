@@ -200,6 +200,7 @@ owned runtime files beneath managed_dir.
 | `docs/phase-1-runtime-contracts.md` | Human-readable Phase 1 contract and ownership guide |
 | `docs/phase-2-owned-catchup.md` | Active SessionStart owned-runtime boundary and safety policy |
 | `docs/phase-3-canonical-plan-context.md` | Selected Phase 3 prompt-context architecture, inactive trusted-graph lifecycle, compatibility decisions, budgets, and round gates |
+| `docs/phase-3-round-4-activation-plan.md` | Round 4 A/B/C activation sequence, shared deadline, failure matrix, rollback boundary, and beta.1 Cloud exit gate |
 | `docs/phase-3-upstream-invocation-options.md` | Overlay/snapshot/other route comparison, empirical evidence, and long-term Host/Driver standardization boundary |
 | `docs/phase-3-round-3-cloud-acceptance.md` | Exact inactive Round 3 Linux/Cloud test, isolated-install, inventory, direct-runtime, and no-dispatch gate |
 | `docs/v0.3.0-alpha.1-cloud-smoke.md` | Retained Phase 1 pre-release publication and Cloud-smoke acceptance record |
@@ -563,9 +564,11 @@ policies are now frozen, including the single-link policy after matching Fresh
 and Resume Cloud PASS evidence (40/40 observations). Round 3 has now implemented,
 installed, and packaged the inactive exact-v1 path in the development trusted
 graph; the full Windows suite and 63/63 Linux/Cloud inactive acceptance pass.
-Round 3 is closed. Phase 3 still has four rounds: after a mandatory entry analysis,
-Round 4 activates the path, thins the
-adapter, packages beta.1, and performs Cloud acceptance.
+Round 3 is closed. Phase 3 still has four rounds, and the mandatory Round 4
+entry analysis is now complete. The final round is intentionally gated as R4-A
+(bounded supervisor/type seam), R4-B (atomic activation and adapter thinning),
+and R4-C (beta.1 seal plus fresh/resume Cloud acceptance). Implementation has
+not started; alpha.2 remains the rollback baseline.
 The broader reusable target is a
 Host/Driver ABI, not a claim that every Skill can use the same conversion
 technique. The prototype commit/branch beta.1 wording remains experimental
@@ -582,6 +585,10 @@ runtime boundary and its diagnostic contract are complete.
    the local adapter.
 6. Never point production at a moving branch or `latest` artifact.
 7. Keep each lifecycle expansion in a separate, reviewable rollout.
+8. Apply the Discovery Gate in `PROJECT_UNDERSTANDING.md`: every new Phase starts
+   with re-audit/replanning, and any material architecture, contract, trust,
+   release, rollback, or Cloud-evidence divergence pauses implementation before
+   code changes continue.
 
 The detailed phases, exit criteria, decisions, and verification matrix live in
 `.planning/2026-08-01-managed-runtime-modernization/task_plan.md`. Audit evidence

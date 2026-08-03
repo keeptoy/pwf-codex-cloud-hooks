@@ -4,6 +4,22 @@
 
 这里的“一轮”指：完成一组关联修改、本地测试通过、文档和 planning 状态同步，形成一个可以单独审查的闭环。估算不包含发现问题后的额外返修轮次。
 
+## 全局探路与动态加轮规则
+
+- 每个新 Phase 的第一轮强制用于探路：恢复前序证据、扫描当前代码/文档/Cloud 事实、复核
+  假设、重新估算轮次并冻结退出条件，原则上不直接切换生产行为。
+- 激活、迁移、删除旧路径、schema/Host ABI、trusted graph、Release、回滚和安全边界属于
+  关键轮；即使不跨 Phase，也必须先设置设计检查点。
+- 实施中如果发现 Cloud/本地证据冲突、设计假设错误、多条实质路线，或 timeout、权限、
+  进程与数据安全模型变化，应主动暂停，不能为了维持原轮次数字而把风险硬塞进当前实现。
+- 变化涉及架构、契约、Phase 范围、信任/Release/回滚边界时，正式增加一轮探路轮；仅涉及
+  已选架构内的安全拆分时，使用 Round 内 A/B/C 子门槛。
+- 探路轮必须给出差异、选项与代价、不变量、实施/停止边界、测试/Cloud/回滚计划，以及
+  `GO`、`CONDITIONAL_GO` 或 `NO_GO`。结论未冻结前，生产 dispatch、发布哈希和外部部署
+  保持不变。
+
+完整触发条件和新会话恢复规则以 `PROJECT_UNDERSTANDING.md` 的“探路门槛”为准。
+
 ## Phase 1 拆成 3 轮
 
 ### 第 1 轮：冻结契约和台账（已完成）
@@ -189,6 +205,6 @@ Phase 8 才测试 hard gating。官方当前 Stop 契约中，decision: "block" 
 
 Phase 1 三轮本地工作和 `v0.3.0-alpha.1` Cloud 验收均已完成：下载/SHA、安装、doctor、精确清单、逐文件哈希、adapter-only Hook 命令边界、startup/UserPrompt canary、scoped context、resume catch-up、长 wrapper 尾部 sentinel 和 resume 后 doctor 全部通过。在 Phase 2 实施期间 alpha.1 曾作为 Cloud 回滚点；Phase 2 验收关闭后已由 alpha.2 接替，alpha.1 只保留为历史前序资产。
 
-Phase 2 第 1 轮完成 structured owned runtime；第 2 轮完成 canonical plan/file containment、opt-out 和 session isolation；第 3 轮完成严格 transcript normalization、保守 cross-family deduplication、content-free diagnostic、损坏/预算 reason codes 和 supervisor timeout/runtime-error 矩阵；第 4 轮已切换 SessionStart catch-up、停止 global Skill mutation、补齐 fail-open 与 Linux 权限门槛，并封板 18-entry alpha.2。requirements 仍只注册 adapter，UserPromptSubmit 仍本地实现。alpha.2 的 45 个本地测试快照为 Windows 42 PASS/3 个 Linux-only SKIP；Cloud 已补验 ZIP SHA、bootstrap、doctor、精确 inventory、pristine Skill、adapter-only policy、实际 owned root/root、synthetic nobody Hook 用户、P2-A 自动 lifecycle、P2-B 基线、P2-C Planning context、P2-D 真实 resume 截断保尾，以及 P2-E resume 后 doctor，全部 PASS。Phase 2 已完整关闭，alpha.2 成为 Phase 3 回滚基线。Phase 3 现按四轮执行：第 1 轮完成本地/上游语义审计，冻结 `owned-plan.py` 单一 canonical state、managed-legacy 范围、两项有意输出变化、20,000 字符 context 上限和 request/result contract；第 2 轮完成独立受控快照 feasibility spike，8 个 focused cases 加 1 个父仓库隔离 case 在 Cloud/Linux 55 项总回归中全部 PASS，路线获得 conditional GO，多目标 overlay 继续作为后备；第 3 轮冻结 hard-link、SIGKILL stale、openat/openat2 和 30 秒 timeout split 四项生产策略，single-link Cloud gate 由 Fresh + Resume 共 40/40 次 regular、`st_nlink=1`、identity-stable 观测关闭，exact-v1 `owned-plan.py`、两个 schema、11-file installed inventory 和 21-entry development Release contract 已实现且保持 adapter 不 dispatch；最终 Linux/Cloud 63 项以 63 PASS/0 SKIP/0 FAIL 通过，隔离安装、doctor、direct exact-v1、ZIP、零 snapshot 残留和 clean workspace 也全部 PASS，第 3 轮正式关闭。第 4 轮尚未开始，必须先重新探路，再激活、精简 adapter、打包 beta.1 并做 Cloud 验收。长期标准化的是 Host ABI、受管 runner 和 Integration Driver 边界，不把任一调用技巧宣传为通用 Skill 转换器。当前开发测试为 63 registered / Windows 46 PASS / 17 honest POSIX/Linux SKIP / 0 FAIL；Cloud/Linux 为 63 PASS / 0 SKIP / 0 FAIL。prototype 始终不进入生产图；inactive owned path 已进入开发 trusted graph，但发布过的 alpha.2 ZIP、adapter dispatch 和外部 bootstrap 保持不变，原型 commit/分支中的 beta.1 字样不代表 Release 晋级。Phase 4 暂按“重新审计/冻结、inactive implementation、opt-in activation/Cloud acceptance”三轮估算，但进入 Phase 4 前必须重新探路。
+Phase 2 第 1 轮完成 structured owned runtime；第 2 轮完成 canonical plan/file containment、opt-out 和 session isolation；第 3 轮完成严格 transcript normalization、保守 cross-family deduplication、content-free diagnostic、损坏/预算 reason codes 和 supervisor timeout/runtime-error 矩阵；第 4 轮已切换 SessionStart catch-up、停止 global Skill mutation、补齐 fail-open 与 Linux 权限门槛，并封板 18-entry alpha.2。requirements 仍只注册 adapter，UserPromptSubmit 仍本地实现。alpha.2 的 45 个本地测试快照为 Windows 42 PASS/3 个 Linux-only SKIP；Cloud 已补验 ZIP SHA、bootstrap、doctor、精确 inventory、pristine Skill、adapter-only policy、实际 owned root/root、synthetic nobody Hook 用户、P2-A 自动 lifecycle、P2-B 基线、P2-C Planning context、P2-D 真实 resume 截断保尾，以及 P2-E resume 后 doctor，全部 PASS。Phase 2 已完整关闭，alpha.2 成为 Phase 3 回滚基线。Phase 3 现按四轮执行：第 1 轮完成本地/上游语义审计，冻结 `owned-plan.py` 单一 canonical state、managed-legacy 范围、两项有意输出变化、20,000 字符 context 上限和 request/result contract；第 2 轮完成独立受控快照 feasibility spike，8 个 focused cases 加 1 个父仓库隔离 case 在 Cloud/Linux 55 项总回归中全部 PASS，路线获得 conditional GO，多目标 overlay 继续作为后备；第 3 轮冻结 hard-link、SIGKILL stale、openat/openat2 和 30 秒 timeout split 四项生产策略，single-link Cloud gate 由 Fresh + Resume 共 40/40 次 regular、`st_nlink=1`、identity-stable 观测关闭，exact-v1 `owned-plan.py`、两个 schema、11-file installed inventory 和 21-entry development Release contract 已实现且保持 adapter 不 dispatch；最终 Linux/Cloud 63 项以 63 PASS/0 SKIP/0 FAIL 通过，隔离安装、doctor、direct exact-v1、ZIP、零 snapshot 残留和 clean workspace 也全部 PASS，第 3 轮正式关闭。第 4 轮入口分析现已完成，仍保持 adapter 不 dispatch；实施按 R4-A（bounded supervisor/type seam）、R4-B（原子激活并删除平行 resolver/renderer）、R4-C（beta.1 封板与 Fresh/Resume Cloud 验收）三个门槛推进，不增加新的 Phase 3 轮次。长期标准化的是 Host ABI、受管 runner 和 Integration Driver 边界，不把任一调用技巧宣传为通用 Skill 转换器。当前开发测试为 63 registered / Windows 46 PASS / 17 honest POSIX/Linux SKIP / 0 FAIL；Cloud/Linux 为 63 PASS / 0 SKIP / 0 FAIL。prototype 始终不进入生产图；inactive owned path 已进入开发 trusted graph，但发布过的 alpha.2 ZIP、adapter dispatch 和外部 bootstrap 保持不变，原型 commit/分支中的 beta.1 字样不代表 Release 晋级。Phase 4 暂按“重新审计/冻结、inactive implementation、opt-in activation/Cloud acceptance”三轮估算，但进入 Phase 4 前必须重新探路。
 
 后续每个 Release 的封板顺序固定为：先冻结版本与 ZIP 内容，构建并计算 ZIP SHA-256；再把版本、包名和 ZIP SHA 写入 ZIP 外部的初始化 Bash；然后计算封板后 Bash 的 SHA-256；最后发布并核验两个独立资产。Bash SHA 不能在 ZIP 版本和哈希确定前得到最终值。

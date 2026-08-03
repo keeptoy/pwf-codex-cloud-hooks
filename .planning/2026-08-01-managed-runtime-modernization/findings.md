@@ -550,3 +550,75 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Isolated installation PASS with exactly 11 runtime files; doctor reported `healthy=true`; installed `owned-plan.py` direct exact-v1 invocation PASS; adapter and Managed Hook requirements still do not dispatch it.
 - The development ZIP contained exactly 21 entries and passed its contract check. Snapshot leftovers were zero, and the repository remained clean after the full script.
 - Phase 3 Round 3 is therefore **CLOSED / PASS**. This proves the inactive trusted graph only; it does not authorize adapter activation, beta.1 sealing, lifecycle black-box claims, or Round 4 implementation without the required entry analysis.
+
+## Phase 3 Round 4 Entry Audit (2026-08-03)
+
+### Release and rollback boundary
+
+- `package.json` remains `0.3.0`; the external bootstrap is still deliberately pinned to the accepted `v0.3.0-alpha.2` ZIP and SHA. Round 4 analysis must not rewrite that rollback asset before a beta.1 ZIP has been frozen and hashed.
+- The installed inventory already contains both owned runtimes and both exact-v1 schemas. Activating the plan path should therefore keep the installed count at 11 and the development ZIP count at 21 unless the contract itself changes.
+- Managed Hook policy remains adapter-only with a 30-second Host timeout. Rollback remains a reinstall of the sealed alpha.2 asset; installation backups protect pre-existing managed files, but are not a substitute for the versioned release rollback point.
+- Beta sealing order is fixed: freeze version and ZIP inventory, build and hash the ZIP, write beta version/package/SHA into the external bootstrap, hash the final bootstrap, publish both assets, then verify downloads and Cloud behavior.
+
+### Shared-deadline interpretation
+
+- The frozen 8 seconds for `owned-plan.py` is the child's work-and-cleanup budget, not permission for the adapter to kill it at exactly the same instant. The child already reserves its final second for snapshot cleanup.
+- The adapter needs one monotonic 27-second deadline for the complete Hook. It should allow the plan child to self-terminate within its 8-second budget, then use a small bounded outer grace from the adapter's four-second supervision/serialization reserve before a process-group kill.
+- This distinction avoids a timeout race that could interrupt private-snapshot cleanup. It also preserves at least three seconds of margin below the Host's 30-second timeout.
+- Because `owned-plan.py` starts resolver and injector in separate sessions, an adapter-level kill of only the plan process group is emergency containment, not the primary nested-child cleanup mechanism. Normal cleanup remains owned by `owned-plan.py`; Round 4 tests must cover both the normal internal timeout path and a pathological parent-hang path without claiming that a zombie PID is executable.
+
+### Exact handoff and platform split
+
+- `contracts/adapter-runtime-request-v1.schema.json` requires the same six `project` fields returned by `plan-context-result-v1.schema.json`. The adapter should pass the validated object directly into the SessionStart catch-up request; it should not resolve, canonicalize, or render project state again.
+- Plan requests may carry nullable `session_id`/`turn_id` according to lifecycle, while catch-up requires a valid SessionStart identity. Therefore a valid non-injecting plan result can still be the authoritative decision to skip catch-up; adapter fallback to alpha.2 local resolution would violate canonical ownership.
+- Real `owned-plan.py` is intentionally POSIX-only. Portable Round 4 adapter tests should install exact-protocol stubs for both sibling runtimes, while Linux/Cloud tests execute the real runtime. The immutable alpha.2 fixture stays rollback evidence; beta output needs a separate fixture rather than rewriting v0.2.2 expectations.
+
+### Entry decision
+
+- Keep Phase 3 at four rounds. Round 4 is internally gated as R4-A/R4-B/R4-C so supervision refactoring, canonical activation, and external release acceptance are not collapsed into one irreversible change.
+- R4-A is the only authorized next implementation boundary. It may replace the development adapter's active catch-up supervisor with a bounded generic byte runner and add separate typed plan/catch-up seams, but it must leave owned-plan dispatch inactive and preserve all alpha.2 outputs.
+- R4-B becomes authorized only after R4-A passes full local regression. It atomically activates plan-first dispatch and deletes the adapter resolver/renderer; there is no hidden local fallback.
+- R4-C becomes authorized only after Windows/Linux activation gates, latency/output measurements, isolated install/upgrade/doctor, and inventory checks pass. It freezes `v0.3.0-beta.1`, then follows ZIP-hash-before-bootstrap-hash order and completes fresh/resume Cloud acceptance.
+
+### Durable Discovery Gate policy
+
+- The maintainer approved a project-wide rule: every new Phase starts with an explicit exploration/replanning round, and critical rounds or material implementation surprises may trigger an additional exploration round.
+- A formal extra round is required when architecture, protocol, Phase scope, trust, Release, rollback, or security boundaries change. An A/B/C sub-gate is sufficient when the selected architecture remains intact and only implementation order must be made safer.
+- The canonical full rule lives near the top of `PROJECT_UNDERSTANDING.md` so it is read during context recovery. `work_plan.md` carries the roadmap rule; README and the active task plan contain short triggers only, minimizing duplicated policy text.
+
+### Initial ownership map
+
+- The active adapter is 382 lines and still owns project containment, plan selection, active-pointer parsing, session attachment, plan-file validation, canonical project-state assembly, transcript/session-store discovery, catch-up request construction, child supervision, canary composition, and Hook JSON conversion.
+- The Cloud-proven inactive `owned-plan.py` is 929 lines and already owns the future canonical planning policy: exact request validation, opt-out, attachment, resolver selection, fd-rooted single-link reads, controlled snapshot/injector execution, and canonical project result.
+- Active `owned-catchup.py` is 645 lines and consumes a supplied project state plus transcript/session-store inputs. Round 4 must remove only the adapter's duplicated plan-resolution/rendering ownership; it must not merge transcript normalization into owned-plan or recreate catch-up selection in the adapter.
+- The first inventory lookup failed only because Windows `rg --files` uses backslashes; native path filtering located the three production components and relevant tests without changing source.
+
+### Active adapter seam
+
+- The adapter's lines 60–169 are the parallel implementation Round 4 must delete: containment, plan candidates, BOM active pointer, newest-plan fallback, session markers, plan-file validation, and canonical project-state construction. Lines 324–348 are a second parallel renderer/reader and must also be deleted after activation.
+- `owned_runtime_path()` is catch-up-specific and `invoke_owned_runtime()` validates only the catch-up result envelope. Round 4 needs explicit sibling identities for owned-plan and owned-catchup plus type-specific request/result validation; a filename-agnostic child runner may be shared, but result schemas must not be conflated.
+- The current child runner uses `subprocess.run(..., capture_output=True, timeout=30)` and checks the 100 KB limit only after capture. This stacks a second 30-second ceiling beneath the Host and does not enforce streaming bounds or process-group cleanup. Round 4 must reuse one bounded supervisor design and one absolute monotonic deadline rather than activate this shape for an additional child.
+- Current output order is canary → SessionStart catch-up → planning context. The activation composition should preserve that order: invoke owned-plan first to obtain the single canonical project state/context; on SessionStart only, pass that exact returned project object into owned-catchup; then compose canary, optional catch-up report, optional owned-plan context.
+- If owned-plan cannot produce a validated result, the adapter has no trusted canonical state and must emit canary only; it must not fall back to the old resolver. Planning-disabled, detached, unsafe, timeout, malformed, and budget failures remain non-injecting. This is the atomic cutover property that prevents dual semantics.
+
+### Contract composition
+
+- The existing plan request/result v1 pair is sufficient for activation without a schema version bump: its result carries the exact six-field project object required by the existing catch-up request v1. Round 4 should validate and forward that object byte-for-structure, not reconstruct it from diagnostics or paths.
+- `owned-plan.py` accepts both lifecycle events and nullable session/turn identifiers where the Host may omit them; `owned-catchup.py` deliberately requires a valid SessionStart session ID. The adapter must therefore invoke owned-plan for every valid Hook event, but invoke catch-up only for a valid SessionStart payload after receiving a safe plan result.
+- Catch-up request construction still legitimately belongs to the adapter because it validates Host transcript/session-root inputs. Its `project` member must change source—from adapter resolution to the exact owned-plan result—while its transcript contract remains unchanged.
+- The plan result's `inject` flag controls only plan context. A validated non-injecting result may still carry a canonical `no_plan`, disabled, or detached project state; however catch-up should run only for `planning_enabled=true`, non-detached, resolved plans because every other state deterministically cannot emit a planning catch-up report.
+- Existing adapter tests assert the alpha.2 local renderer's wording and permissive path behavior. Round 4 must replace their execution seam with installed sibling owned runtimes, retain canary/no-plan/opt-out/isolation/security coverage, and deliberately update golden output only for the two already approved upstream differences (structured-data wording and timestamp normalization).
+
+### Host and installation boundary
+
+- Managed Hook policy remains one adapter command per event with a 30-second Host timeout. Requirements correctly never call owned-catchup or owned-plan directly; Round 4 must preserve that topology so the adapter remains the only Host protocol boundary.
+- Installer inventory already deploys both owned runtimes and both plan schemas. Activation should therefore change adapter bytes/tests/hashes and behavior, not the Managed Hook command shape or installed file count merely to expose owned-plan.
+- The current supervisor test targets only `invoke_owned_runtime()` and its catch-up envelope. Round 4 requires a generic bounded process supervisor underneath two typed validators, plus sequencing tests that prove the total adapter path stays below the one Host deadline.
+
+### Activation regression migration
+
+- `tests/activation.test.js` currently installs/stubs only owned-catchup and explicitly proves UserPromptSubmit remains local. Round 4 must invert that historical assertion: install both siblings, capture the plan request/result first, prove UserPromptSubmit executes only owned-plan, and prove SessionStart executes owned-plan then owned-catchup with the exact returned project object.
+- The existing advisory-failure guarantee remains asymmetric and useful: catch-up failure must not suppress canary or already validated plan context; owned-plan failure must suppress both plan and catch-up injection because no canonical project state exists, while still returning valid canary-only Hook JSON.
+- Linux root/root and synthetic cross-user activation cases must copy and execute both children. This is the target-platform proof that the installed owned-plan snapshot path and active catch-up path coexist under actual Hook identity.
+- The existing supervisor matrix covers timeout, nonzero, malformed JSON, contradictory envelope, warning types, invalid UTF-8, oversize, and spawn failure for catch-up. Round 4 should keep those cases at the generic byte-supervisor layer and add two typed-envelope tests rather than duplicating the entire failure matrix per child.
+- No new runtime artifact is required for activation: both children and schemas are already in the 11-file installed graph and 21-entry development ZIP. Absent a contract change, Round 4 changes adapter bytes, tests, documentation, version/sealing metadata, and final artifact hashes—not inventory counts.

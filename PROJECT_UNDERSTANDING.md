@@ -1,6 +1,6 @@
 # 项目理解：pwf-codex-cloud-hooks
 
-> 最后更新：2026-08-02  
+> 最后更新：2026-08-03
 > 当前迭代：`v0.3.0` 开发版  
 > 已发布基线：`v0.2.2`
 
@@ -24,6 +24,39 @@
 3. 读活动计划的 `task_plan.md`、`progress.md`、`findings.md`；
 4. 读 `git status --short --branch`；
 5. 开始改动前再核对 README、黑盒手册和相关源码。
+
+### 1.1 探路门槛（Discovery Gate）
+
+本项目采用“先探路、再实施”的动态轮次治理。后续 Codex 会话恢复上下文时，除确认当前
+Phase/轮次外，还必须判断是否需要暂停实施并进入探路门槛。
+
+以下情况必须先探路：
+
+1. **进入全新 Phase**：第一轮默认是恢复背景、扫描当前实现与证据、复核旧假设、重估
+   轮次并冻结退出条件；原则上不直接修改生产行为。
+2. **进入关键轮**：激活、迁移、删除旧实现、修改 schema/Host ABI/trusted graph、Release、
+   回滚或安全边界前，必须先做设计检查点。
+3. **实施中出现实质偏差**：Cloud 与本地证据冲突、测试揭示设计假设错误、存在两条以上
+   代价明显不同的路线，或 timeout、权限、进程、数据安全模型发生变化时，应主动停止当前
+   实施并追加探路。
+
+是否“正式增加一轮”按影响判断：如果变化会修改架构、契约、Phase 范围、信任边界、
+Release 边界或回滚方式，就新增可独立审查的探路轮；如果架构不变，只是把既定方案拆成
+安全的实施顺序，则可使用当前 Round 内的 A/B/C 子门槛。普通测试补漏、文档同步和已冻结
+方案内的局部 bug 修复不单独增加探路轮。
+
+探路期间应把实现状态明确标记为暂停，且不得提前修改生产 dispatch、发布哈希或外部环境。
+探路至少产出：
+
+- 新证据与旧计划的差异；
+- 可选路线、代价和最终选择；
+- 不变量、非目标、实施边界和停止条件；
+- 本地测试、Cloud 验收与回滚方案；
+- 明确的 `GO`、`CONDITIONAL_GO` 或 `NO_GO` 结论。
+
+判断口诀是：**如果继续写代码可能出现“实现正确，但架构方向错了”，就先停下来探路。**
+Codex 可以依据上述触发条件主动暂停；若路线选择需要维护者授权，应先给出证据和选项再询问，
+不能用代码实现代替架构决策。
 
 ## 2. 一句话定位
 
@@ -469,7 +502,7 @@ schema、fd-rooted/single-link 读取、受控 snapshot、stale cleanup、proces
 仍完全不引用它。Windows 63 项回归和 Linux/Cloud 63/63 inactive 验收均已通过；隔离安装、
 11-file inventory、doctor、direct exact-v1、21-entry ZIP、零 snapshot 残留与 clean
 workspace 也全部 PASS，第 3 轮已关闭。第 4 轮先重新探路，再切换 adapter、打包 beta.1
-并做 Cloud 验收。发布过的 alpha.2 ZIP 和外部 bootstrap
+并做 Cloud 验收。Round 4 的入口分析现已完成，实施拆成 R4-A bounded supervisor/type seam、R4-B 原子激活并删除 adapter 平行 resolver/renderer、R4-C beta.1 封板和 Fresh/Resume Cloud 验收三个门槛；这不增加 Phase 3 的轮数，且当前仍未 dispatch `owned-plan.py`。发布过的 alpha.2 ZIP 和外部 bootstrap
 保持原字节不变。后续架构复盘进一步比较了多目标 overlay 与不修改上游的受控快照：
 Phase 3 选择后者，在私有 legacy 投影中运行 pristine resolver/injector；多目标 overlay
 只作为 Cloud/Linux 实证失败后的后备。长期标准化对象是 Codex Cloud Host ABI、受管

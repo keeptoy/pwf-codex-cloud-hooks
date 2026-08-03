@@ -22,12 +22,13 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 8. Runtime identity, validated Host transcript path, session-store fallback, project root, event source, and output limits are explicit host contracts; they are never inferred solely from an installed script path. Transcript JSONL record shapes are treated as changeable Host data rather than a stable repository-owned schema.
 9. Hook stdout remains valid, bounded Codex JSON. Detailed skip/failure reasons go to a separate diagnostic surface and never corrupt injected context.
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
+11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Pause before Phase 3 Round 4 and perform the mandatory new-round analysis/replanning pass. Re-read the now Cloud-proven inactive owned-plan contract, adapter responsibilities, activation/rollback boundary, beta.1 packaging scope, and required lifecycle black boxes before authorizing any dispatch change.
+Begin R4-A only: implement and verify the bounded shared-deadline supervisor and separate typed result seams while `owned-plan.py` dispatch remains inactive. R4-B activation and R4-C beta.1/Cloud work remain unauthorized until the preceding gate passes.
 
 ## Current Phase
-Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 has not started, no production path is active, and alpha.2 remains the rollback baseline
+Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 entry analysis is complete, R4-A implementation is next, no owned-plan production path is active, and alpha.2 remains the rollback baseline
 
 ## Phases
 
@@ -118,7 +119,7 @@ Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 ha
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
 | 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
 | 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | complete; Cloud PASS |
-| 4 | Activate canonical UserPrompt injection, retire parallel adapter rendering, package beta.1, and complete Cloud acceptance | pending |
+| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | entry analysis complete; R4-A pending |
 
 - [ ] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
 - [ ] Dispatch both lifecycle events through `owned-plan.py`, which must call the verified standalone resolver, finalize one canonical contained project state, and invoke the managed-legacy upstream injector.
@@ -129,7 +130,7 @@ Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 ha
 - [ ] Measure Hook latency and output size in plan/no-plan cases.
 - [ ] Prove prompt injection runs exclusively from the owned runtime bundle and no mutable global Skill script executes; retain the pristine global Skill for model discovery/instructions and deployment governance.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Rounds 1–3 complete; Round 3 inactive Cloud acceptance PASS; Round 4 pending mandatory entry analysis
+- **Status:** Rounds 1–3 complete; Round 3 inactive Cloud acceptance PASS; Round 4 entry analysis complete, R4-A pending, no activation yet
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 
@@ -293,3 +294,5 @@ Phase 3 Round 3 is complete with full inactive Cloud acceptance PASS; Round 4 ha
 | Local `bash -n` for the new Cloud diagnostic was blocked inside the managed Windows sandbox by Git Bash `couldn't create signal pipe, Win32 error 5` | The document structure and embedded Python already compiled successfully; rerun only the extracted Bash syntax check outside the signal-pipe sandbox. |
 | The first Round 3 closure consistency patch failed because a `PROJECT_UNDERSTANDING.md` anchor crossed a different physical line wrap | Keep the already persisted planning closure, split synchronization by file, and patch only exact current paragraphs instead of repeating the combined multi-file patch. |
 | The first narrow `PROJECT_UNDERSTANDING.md` retry still missed the apparent rendered anchor | Stop matching the paragraph visually; inspect the exact UTF-8 line representations and patch the smallest literal lines or surrounding stable headings. |
+| Initial Round 4 source inventory regex assumed POSIX `/` separators in `rg --files` output on Windows and returned no matches | Switch to PowerShell basename/pattern filtering over the file list; do not reuse the separator-sensitive expression. |
+| Round 4 activation-boundary search referenced a guessed `tests/adapter-runtime-activation.test.js` filename that does not exist | Keep the useful matches from real files, locate activation tests from the actual test inventory, and avoid guessed paths in subsequent searches. |
