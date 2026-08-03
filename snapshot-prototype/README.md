@@ -180,8 +180,9 @@ injector 和 catch-up 各自解析出不同状态。
 timeout/kill/wait；Bazel sandbox 的 declared-input view；systemd `PrivateTmp=` 和
 runtime-directory mode。详细链接与适用边界见 `FEASIBILITY_REPORT.md`。
 
-原型先采用 portable `openat`/`dir_fd`/`O_NOFOLLOW`。生产可选用 `openat2` hardening，
-但必须有经过测试的 fallback，不能因内核版本差异静默失效。
+原型先采用 portable `openat`/`dir_fd`/`O_NOFOLLOW`，Round 3 生产基线保持这条路线。
+未来只有在具备受维护的 syscall wrapper、capability matrix 和语义等价 fallback 后，
+才重新评估 optional `openat2` hardening；不能因内核版本差异静默失效。
 
 ## 已证实可克服与仍需生产化
 
@@ -189,18 +190,18 @@ runtime-directory mode。详细链接与适用边界见 `FEASIBILITY_REPORT.md`�
 pathname replacement、ambient mode/environment 污染、0700/0600 权限、direct-child
 timeout/正常清理、synthetic cross-user、legacy 输出等价和 bundle 边界隔离。
 
-仍需生产化：完整两个 v1 schema、session attachment/opt-out ordering、是否增加
-`openat2`、process-group kill、固定输入上限/timeout split、更多 truncate/append/
-delete/parent replacement/permission races、parent SIGKILL stale cleanup、真实 installed
-layout/Cloud identity、beta golden/latency/size，以及原子更新 manifest/installer/
-inventory/Release 同时保持 Round 3 adapter 不可达。
+仍需生产化：完整两个 v1 schema、session attachment/opt-out ordering、portable `openat`
+的 parent/cross-file consistency、process-group kill、固定输入上限/timeout split、更多
+truncate/append/delete/parent replacement/permission races、parent SIGKILL stale cleanup、
+真实 installed layout/Cloud identity、beta golden/latency/size，以及原子更新 manifest/
+installer/inventory/Release 同时保持 Round 3 adapter 不可达。
 
 ## 最终判断与四个问题
 
 四个 overlay fallback gate 都没有触发：继续 controlled snapshot，进入 inactive
 production Round 3；现在不要扩展 multi-target overlay。
 
-维护者仍需确认：
+原型交接时留下四个待决问题：
 
 1. 是否接受“contained/no-symlink pathname 到达的 regular inode”这一信任声明？
    `O_NOFOLLOW`/`openat2` 都无法区分 hard-link 名称；更严格的选择是对读取前、读取后
@@ -211,5 +212,186 @@ production Round 3；现在不要扩展 multi-target overlay。
 3. Round 3 使用单一 portable `openat` walk，还是加入 optional `openat2` hardening？
 4. 30 秒 Host timeout 如何冻结？初始建议：resolver 2 秒、injector 5 秒、catch-up
    15 秒，至少 5 秒留给 supervision、kill、cleanup 和 JSON。
+
+### Round 3 默认冻结方案
+
+除非下面的 Cloud single-link gate 暴露不兼容，Round 3 按以下四项实现；出现不兼容时
+必须回到维护者重新决策，不能静默放宽安全条件：
+
+1. **Plan 输入采用 observed single-link 策略。** `task_plan.md` 和可选
+   `progress.md` 必须是由 contained/no-symlink pathname 到达的 regular file；读取前、
+   读取后和从 retained parent fd 重新打开后三次都必须观察到 `st_nlink == 1`，并把
+   `st_nlink` 纳入 device/inode/size/mtime/ctime/type identity comparison。稳定的
+   `st_nlink != 1` 映射为 `plan_unreadable`；检查期间 identity 变化映射为
+   `plan_state_changed`。`openat2` 不作为 hard-link 证明。
+2. **Parent SIGKILL 使用有界 stale cleanup。** 不依赖容器必然立即销毁，也不继承
+   ambient `TMPDIR`。每个 Hook EUID 使用显式的 `/tmp/pwf-codex-cloud-hooks-<euid>`
+   目录；创建或复用前验证它是当前 EUID 拥有、非 symlink、mode `0700` 的目录。
+   每次 `owned-plan` 调用前只扫描精确 `pwf-snapshot-*` 子目录，只删除当前 EUID
+   拥有、mode `0700`、至少 10 分钟未变化且内部只有预期 `0600` regular inputs 的
+   条目；最多检查 32 项并受 500 ms 清理预算约束。未知/不安全条目只诊断、不跟随、
+   不递归删除。每次调用仍创建随机私有子目录并以 `finally` 做正常清理。
+3. **Round 3 只要求 portable fd-rooted `openat` walk。** 保留逐组件 directory fd、
+   `O_DIRECTORY`、`O_NOFOLLOW` 和 final-file `O_NONBLOCK`；补齐 parent-directory
+   identity、task/progress cross-file consistency 及 truncate/append/delete/rename/
+   permission race。`openat2` 延后为可选 defense-in-depth，只有具备受维护的 syscall
+   wrapper、capability matrix 和语义等价 fallback 后才重新评估；它不承担 hard-link
+   策略。
+4. **所有子阶段共享 monotonic deadline。** Codex Host Hook 保持 30 秒，adapter
+   自身必须在第 27 秒前完成：`owned-plan` 总计最多 8 秒（resolver 2 秒、safe-read/
+   snapshot/injector 共用 5 秒、cleanup/result 1 秒），SessionStart 的
+   `owned-catchup` 最多 15 秒，adapter spawn/process-group termination/JSON 保留
+   4 秒，最后 3 秒留给 Host 调度和强制终止波动。每次调用实际 timeout 为
+   `min(component_cap, shared_deadline - now - required_cleanup_reserve)`，不能为每个
+   child 重新发一份完整预算；timeout 必须有 bounded process-group kill/wait。
+
+### Round 3 前置 Cloud single-link gate
+
+目的不是测试 hard-link 攻击，而是确认 Codex Cloud 普通 workspace/OverlayFS 上的真实
+planning 文件可以兼容上面的 `st_nlink == 1` fail-closed 策略。探针只读取文件元数据，
+不读取 `task_plan.md`/`progress.md` 内容，不创建文件或 hard link，也不修改 planning
+状态。应在包含正常 root 或 scoped planning 文件的全新 Cloud sandbox 中运行一次，
+并在同一沙箱 resume 后再运行一次；两次都必须 PASS。缺少任一文件名时结果是
+`INCONCLUSIVE`，需要换到同时存在 task/progress 的普通项目重测。
+
+```bash
+set -Eeuo pipefail
+
+python3 - <<'PY'
+import json
+import os
+from pathlib import Path
+import platform
+import stat
+import subprocess
+import time
+
+PROBE_VERSION = "PWF_CLOUD_ST_NLINK_PROBE_V1"
+SAMPLES = 5
+INTERVAL_SECONDS = 0.10
+
+root = Path.cwd().resolve()
+targets: list[Path] = []
+
+for name in ("task_plan.md", "progress.md"):
+    candidate = root / name
+    if os.path.lexists(candidate):
+        targets.append(candidate)
+
+planning = root / ".planning"
+if planning.is_dir() and not planning.is_symlink():
+    for directory in sorted(planning.iterdir(), key=lambda value: value.name):
+        try:
+            directory_info = os.lstat(directory)
+        except OSError:
+            continue
+        if directory.name.startswith(".") or not stat.S_ISDIR(directory_info.st_mode):
+            continue
+        for name in ("task_plan.md", "progress.md"):
+            candidate = directory / name
+            if os.path.lexists(candidate):
+                targets.append(candidate)
+
+def filesystem_type(path: Path) -> str:
+    try:
+        return subprocess.check_output(
+            ["stat", "-f", "-c", "%T", "--", str(path)],
+            text=True,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.SubprocessError):
+        return "UNKNOWN"
+
+print(f"PROBE_VERSION={PROBE_VERSION}")
+print(f"KERNEL={platform.release()}")
+print(f"WORKSPACE_FS={filesystem_type(root)}")
+print(f"TMP_FS={filesystem_type(Path('/tmp'))}")
+print(f"TARGET_COUNT={len(targets)}")
+
+results: list[dict[str, object]] = []
+seen_names: set[str] = set()
+
+for target in targets:
+    relative = os.path.relpath(target, root)
+    seen_names.add(target.name)
+    samples: list[dict[str, object]] = []
+    error = None
+    for sample_index in range(SAMPLES):
+        try:
+            info = os.lstat(target)
+        except OSError as exc:
+            error = f"{type(exc).__name__}:{exc.errno}"
+            break
+        samples.append({
+            "dev": info.st_dev,
+            "ino": info.st_ino,
+            "nlink": info.st_nlink,
+            "type": stat.S_IFMT(info.st_mode),
+            "regular": stat.S_ISREG(info.st_mode),
+            "symlink": stat.S_ISLNK(info.st_mode),
+            "uid": info.st_uid,
+            "gid": info.st_gid,
+            "mode": format(stat.S_IMODE(info.st_mode), "04o"),
+            "size": info.st_size,
+            "mtime_ns": info.st_mtime_ns,
+            "ctime_ns": info.st_ctime_ns,
+        })
+        if sample_index + 1 < SAMPLES:
+            time.sleep(INTERVAL_SECONDS)
+
+    identities = {
+        (
+            item["dev"], item["ino"], item["nlink"], item["type"], item["size"],
+            item["mtime_ns"], item["ctime_ns"],
+        )
+        for item in samples
+    }
+    regular = len(samples) == SAMPLES and all(item["regular"] for item in samples)
+    single_link = len(samples) == SAMPLES and all(item["nlink"] == 1 for item in samples)
+    stable = len(samples) == SAMPLES and len(identities) == 1
+    passed = error is None and regular and single_link and stable
+    result = {
+        "path": relative,
+        "sample_count": len(samples),
+        "nlinks": [item["nlink"] for item in samples],
+        "regular": regular,
+        "single_link": single_link,
+        "identity_stable": stable,
+        "uid": samples[0]["uid"] if samples else None,
+        "gid": samples[0]["gid"] if samples else None,
+        "mode": samples[0]["mode"] if samples else None,
+        "error": error,
+        "result": "PASS" if passed else "FAIL",
+    }
+    results.append(result)
+    print(json.dumps(result, ensure_ascii=True, separators=(",", ":")))
+
+has_both_names = {"task_plan.md", "progress.md"}.issubset(seen_names)
+if any(item["result"] == "FAIL" for item in results):
+    overall = "FAIL"
+elif not targets or not has_both_names:
+    overall = "INCONCLUSIVE"
+else:
+    overall = "PASS"
+
+print(f"HAS_TASK_AND_PROGRESS={str(has_both_names).lower()}")
+print(f"OVERALL={overall}")
+PY
+```
+
+Cloud 模型应逐字返回完整输出，并额外汇总：
+
+```text
+Fresh sandbox: PASS / FAIL / INCONCLUSIVE
+Resume same sandbox: PASS / FAIL / INCONCLUSIVE
+All observed task_plan.md nlink samples are 1: YES / NO
+All observed progress.md nlink samples are 1: YES / NO
+All observed identities are stable: YES / NO
+Round 3 single-link gate: PASS / FAIL / INCONCLUSIVE
+```
+
+只有 fresh 与 resume 都为 PASS，且两类文件的全部样本均为 1、identity 均稳定，才可
+关闭该 Cloud gate。任何 `FAIL` 都暂停 single-link 策略并带回完整元数据分析；
+`INCONCLUSIVE` 只表示测试前置文件不足，不能当成通过。
 
 更完整的实验限制、工业来源和生产 gap 见 `FEASIBILITY_REPORT.md`。

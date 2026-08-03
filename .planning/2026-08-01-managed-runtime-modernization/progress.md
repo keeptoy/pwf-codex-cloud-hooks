@@ -528,3 +528,10 @@
 - Replaced ambiguous “startup cleanup” wording with bounded preflight cleanup on every `owned-plan` invocation; container disposal remains only a secondary residual bound because resumed Cloud sandboxes can retain filesystem state.
 - Recorded the recommended policy freeze: single-link checkpoints; explicit same-EUID 0700 temp base plus bounded stale cleanup; portable fd-rooted `openat` for Round 3 with `openat2` deferred; shared 27-second adapter deadline with owned-plan 8 seconds, catch-up 15 seconds, four seconds adapter reserve, and three seconds Host reserve.
 - Primary-source calibration used Linux `openat2`/`stat` documentation and Python `tempfile`/`subprocess`/`os.killpg` documentation. Static consistency checks, Markdown fence checks, and `git diff --check` passed. Full Windows regression remains 55 registered / 45 PASS / 10 explicit Linux-only SKIP / 0 FAIL.
+
+## Round 3 default-policy README and Cloud gate handoff (2026-08-03)
+
+- Added the accepted four-part default freeze immediately after the prototype README's original four questions, preserving the question-to-decision audit trail.
+- Added a self-contained, read-only `PWF_CLOUD_ST_NLINK_PROBE_V1` and exact fresh/resume PASS criteria. The probe does not read planning contents, create files, create links, or mutate planning state.
+- Extracted the exact embedded Python from Markdown, compiled it, and executed it locally as a harness check. It found four scoped task/progress files and reported five stable `st_nlink=1` samples for each with `OVERALL=PASS`; this is syntax/logic evidence only, not a substitute for the required Cloud fresh/resume gate.
+- Final checks passed: no stale Round 2/old-confirmation wording remains in the prototype folder, Markdown fences are balanced, the embedded Cloud probe compiles, `git diff --check` is clean, and the complete Windows suite remains 55 registered / 45 PASS / 10 explicit Linux-only SKIP / 0 FAIL.

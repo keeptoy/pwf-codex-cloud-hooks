@@ -24,10 +24,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 10. The checksummed installer payload has an explicit allowlist and reproducible boundary; the bootstrap that pins its checksum must not create a self-referential archive workflow.
 
 ## Next Step
-Before starting Phase 3 Round 3 implementation, confirm and freeze the reviewed defaults: observed single-link (`st_nlink == 1`) plan inputs, bounded same-EUID invocation-time stale cleanup, portable `openat` as the required path with `openat2` deferred, and a shared 27-second adapter deadline beneath the 30-second Host limit. Then implement the inactive exact-v1 `owned-plan.py` path while keeping adapter dispatch and alpha.2 Release/bootstrap bytes unchanged.
+Run the documented `PWF_CLOUD_ST_NLINK_PROBE_V1` against normal root/scoped planning files in a fresh Codex Cloud sandbox and again after resuming that sandbox. If both runs PASS, close the only compatibility gate on the documented four Round 3 defaults and begin the inactive exact-v1 `owned-plan.py` implementation while keeping adapter dispatch and alpha.2 Release/bootstrap bytes unchanged. Any FAIL returns the single-link policy to maintainer review; INCONCLUSIVE must be rerun with both task and progress files present.
 
 ## Current Phase
-Phase 3 Round 2 feasibility review complete; Round 3 production-policy freeze/implementation is next, no production path is active, and alpha.2 remains the rollback baseline
+Phase 3 Round 2 feasibility review complete; Round 3 production defaults are documented with the fresh/resume Cloud single-link compatibility gate pending, no production path is active, and alpha.2 remains the rollback baseline
 
 ## Phases
 
@@ -283,3 +283,4 @@ Phase 3 Round 2 feasibility review complete; Round 3 production-policy freeze/im
 | First Round 3 supervisor regression failed on invalid child UTF-8 | Python text-mode capture raised inside its reader thread and left `stdout=None`. Switched the inactive supervisor to bounded binary capture followed by strict main-thread UTF-8 decoding, which deterministically maps invalid bytes to `runtime_error`. |
 | Initial Round 3 documentation sync used an English `current resolver` anchor where the UTF-8 source said `当前 resolver` | Split the combined patch by file and reapplied the project-understanding update against its exact text. |
 | A timeout inventory used Unix wildcard path arguments under PowerShell, so the second `rg` invocation exited 1 after the first search had already returned useful matches | Re-ran the inventory with `--glob` and explicit directories, then inspected the adapter's exact supervisor lines; no conclusion relies on the failed wildcard invocation. |
+| Two inline `python -c` attempts to extract the README Cloud probe were parsed incorrectly by PowerShell (`<` redirection parsing, then stripped nested quotes) | Switched to a PowerShell here-string piped to Python stdin for read-only validation; the exact embedded probe compiled and executed successfully without workspace writes. |
