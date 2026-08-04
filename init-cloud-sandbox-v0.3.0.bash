@@ -31,7 +31,7 @@ readonly HOOKS_VERSION="${HOOKS_VERSION:-v0.3.0-beta.1}"
 readonly HOOKS_PACKAGE="${HOOKS_PACKAGE:-pwf-codex-cloud-hooks-${HOOKS_VERSION}.zip}"
 readonly HOOKS_ARCHIVE_ROOT="${HOOKS_ARCHIVE_ROOT:-pwf-codex-cloud-hooks}"
 readonly HOOKS_URL="${HOOKS_URL:-https://github.com/keeptoy/pwf-codex-cloud-hooks/releases/download/${HOOKS_VERSION}/${HOOKS_PACKAGE}}"
-readonly HOOKS_SHA256="${HOOKS_SHA256:-154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528}"
+readonly HOOKS_SHA256="${HOOKS_SHA256:-c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91}"
 
 # The only mutable shared state is the disposable workspace lifecycle.
 WORK_DIR=""

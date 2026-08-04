@@ -1,5 +1,15 @@
 # Findings & Decisions: Managed Runtime Modernization
 
+## 2026-08-04 R4-C downloaded-asset self-audit failure
+
+- The reported failure is exact: `docs/v0.3.0-beta.1-cloud-hard-acceptance.md` runs `python3 "$PACKAGE_ROOT/tools/build_release.py" check`, but `contracts/release-artifact-v1.json` admits only `tools/import_upstream_runtime.py`; the downloaded 21-entry archive therefore cannot execute its documented structural self-check.
+- Minimal alternative A is to change A1 to use the checkout's external builder. That preserves the accepted bytes but makes downloaded-asset validation depend on a separate repository checkout and leaves the package non-self-auditable. Alternative B is to distribute the deterministic builder as a non-runtime audit tool. It adds one Release entry and no installed file, managed command, runtime dependency, schema, dispatch, or bootstrap-in-ZIP cycle.
+- Because the maintainer also requests an exact local packaging tutorial in README, the accepted ZIP bytes must change regardless. The coherent choice is alternative B: add `tools/build_release.py` as entry 22 with `0755` ZIP metadata, retain installed inventory 11 and external Bootstrap separation, and let the already-written A1 package-root check work as designed.
+- This is a Release boundary change. The old ZIP/Bootstrap identities and their Cloud seal are superseded before publication. Required order is: edit allowlist/builder/README/tests/current beta docs; run local suite; freeze new ZIP; write only that ZIP SHA into Bootstrap; freeze Bootstrap SHA; replace all current beta placeholders/identities; rerun the full pre-publication Cloud seal; only then publish and begin live black-box A–F.
+- Historical Round 3/R4-A/R4-B references to 21-entry development ZIP remain valid dated evidence and must not be mechanically rewritten. Current beta.1/R4-C wording changes to 22 entries.
+- Final local repair identity: `dist/pwf-codex-cloud-hooks-v0.3.0-beta.1.zip` is 22 entries / 84,316 bytes / SHA-256 `c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91`; the ZIP-external bootstrap is 17,425 bytes / SHA-256 `0c9d57f53ff980d9d207bc8291b1f055058000e45258732b19156ec93b8b1f2a`. These are local candidates only until the new Fresh Cloud exact-byte seal passes.
+- Extracting the final ZIP and invoking its own `tools/build_release.py check` against its own contract succeeds with 22 entries and the exact final size/SHA. The builder is therefore part of the distributable audit surface but not the installer-managed 11-file Hook runtime.
+
 ## 2026-08-04 R4-C Cloud importer-mode failure
 
 - The repaired fresh-Cloud rerun is a complete PASS, not a partial or inferred result. It observed all four imported paths at `100755`, importer `healthy=true`, Linux 69/69 with zero skip/fail, 22 LF-bound Release paths, exact cross-platform ZIP bytes, exact bootstrap bytes, no placeholders, and a clean checkout.
@@ -10,6 +20,14 @@
 - `git add .` from CMD and Git Bash both operate on the same Git index. On Windows, `core.filemode=false` normally prevents the filesystem from supplying executable-bit changes, so switching shells would not repair the committed index. The line-ending warnings concern worktree bytes; `.gitattributes` already reports `text=set eol=lf` for `session-catchup.py` and is unrelated to the POSIX mode comparison.
 - The smallest repair candidate is metadata-only: record executable Git index modes for the four files under the default importer destination `runtime/upstream/`, and add a cross-platform index-mode assertion so Windows cannot silently skip this boundary again. Because the deterministic Release builder already freezes these ZIP entries to `0755`, the change should not alter either sealed asset; exact SHA rechecks are mandatory before any Cloud rerun.
 - The candidate is confirmed. Four Git mode-only deltas plus the existing-test assertion are sufficient; no importer, manifest, contract, runtime content, ZIP input byte, installed inventory, or bootstrap change is required. Full Windows regression and independent dual-asset rechecks retain the exact sealed identities, so the original ZIP/bootstrap remain the only publication candidates.
+
+## 2026-08-04 beta.1 local packaging handoff
+
+- README currently provides the test commands, names `tools/build_release.py`, and gives the ten-step high-level Release workflow, but it does not provide the exact local `build --output` / `check --archive` command sequence or platform-specific SHA commands.
+- README is itself one of the 21 frozen ZIP entries. Adding a tutorial now would intentionally change the accepted ZIP SHA, require editing and rehashing the Bootstrap, and invalidate the completed pre-publication Cloud exact-byte gate. Therefore this release should keep README unchanged and provide the packaging commands in the handoff; a future release can add the tutorial before its byte freeze.
+- The official builder writes through a same-directory temporary file and atomically replaces the requested output. A safe post-seal rebuild should target a separate probe filename, run `check`, compare exact size/SHA against the accepted asset, and only then replace the ignored `dist/` release file if byte-identical.
+- The separate probe rebuild is byte-identical to the accepted local asset: 21 entries, 81,084 bytes, SHA `154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528`. The existing `dist/pwf-codex-cloud-hooks-v0.3.0-beta.1.zip` is already the correct upload artifact, so replacing it would be a no-op.
+- Bootstrap already pins that exact ZIP SHA and its own sealed bytes remain 17,425 / `a75c333cb5d11d7c084582d026d2fcbdbbcd3f65085b83d10c031c32cdf52edc`. Editing the hash to the same value is neither necessary nor meaningful; the correct outcome is verified no-change.
 
 ## 2026-08-04 R4-C sealing-audit findings
 

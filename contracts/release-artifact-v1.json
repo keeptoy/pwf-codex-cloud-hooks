@@ -20,6 +20,7 @@
     { "path": "contracts/runtime-result-v1.schema.json", "state": "present", "origin": "local_contract" },
     { "path": "contracts/release-artifact-v1.json", "state": "present", "origin": "local_contract" },
     { "path": "THIRD_PARTY_NOTICES.md", "state": "present", "origin": "local_attribution" },
+    { "path": "tools/build_release.py", "state": "present", "origin": "local_release_audit_tool" },
     { "path": "tools/import_upstream_runtime.py", "state": "present", "origin": "local_tool" },
     { "path": "runtime/owned-catchup.py", "state": "present", "origin": "local_managed_runtime" },
     { "path": "runtime/owned-plan.py", "state": "present", "origin": "local_managed_runtime" },

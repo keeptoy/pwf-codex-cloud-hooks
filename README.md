@@ -6,8 +6,9 @@ Skill 接入 Codex Cloud 会话。
 
 > **状态：**`v0.2.2` 仍是已发布的稳定基线，`v0.3.0-alpha.1` 是保留的 Phase 1
 > 预发行版本。Cloud-accepted `v0.3.0-alpha.2` 是当前 Phase 3 回滚基线。开发工作区已完成
-> R4-B plan-first 原子激活并通过本地与 Linux/Cloud gate；R4-C 已进入 `v0.3.0-beta.1`
-> 双资产封板准备。这不是 beta.1 已发布或已完成 Fresh/Resume 验收的声明。
+> R4-B plan-first 原子激活并通过本地与 Linux/Cloud gate；R4-C 的 22-entry 自校验 ZIP 与
+> ZIP 外部 bootstrap 已在本地重新封板，新的精确字节 Cloud seal、发布和 Fresh/Resume 黑盒
+> 验收仍待完成。这不是 beta.1 已发布或 Cloud-accepted 的声明。
 
 ## 从这里开始
 
@@ -94,8 +95,9 @@ alpha.2 adapter 曾按以下顺序解析项目 planning state；R4-B 开发路�
 ### 尚未实现、尚未验收或尚未激活
 
 R4-B 已在开发工作区 dispatch exact-v1 `owned-plan.py`，且 Linux/Cloud gate 已通过。R4-C
-已获授权并正在按 ZIP-first、bootstrap-second 顺序封板 beta.1；外部资产尚未发布，Fresh/Resume
-Managed Hook Cloud 验收尚未通过。因此不能把当前候选描述为 Cloud-accepted beta 行为。
+已按 ZIP-first、bootstrap-second 顺序在本地重新封板 22-entry 自校验 beta.1 候选；新的
+pre-publication Cloud seal、外部资产发布和 Fresh/Resume Managed Hook 黑盒验收尚未通过。
+因此不能把当前候选描述为 Cloud-accepted beta 行为。
 
 当前 managed runtime 还没有启用以下上游能力：
 
@@ -274,7 +276,7 @@ git diff --check
   process-group timeout、stale cleanup 和 output budget；
 - snapshot prototype handoff 与 production graph/Release/dispatch isolation；
 - deterministic Release ZIP、固定 metadata/mode、external bootstrap separation；
-- Phase 3 exact-v1 schemas、11-file installed graph、21-entry ZIP、plan-first dispatch 和旧 adapter
+- Phase 3 exact-v1 schemas、11-file installed graph、22-entry ZIP、plan-first dispatch 和旧 adapter
   plan 算法删除。
 
 测试只使用临时 Codex homes 和 projects，不会写入 live `$CODEX_HOME` 或
@@ -322,7 +324,7 @@ bash init-cloud-sandbox-v0.3.0.bash help
 bash init-cloud-sandbox-v0.3.0.bash verify
 ```
 
-beta.1 workflow 面向 `v0.3.0-beta.1`，分为两个字节冻结阶段：先冻结 ZIP 的 21 个 entries；
+beta.1 workflow 面向 `v0.3.0-beta.1`，分为两个字节冻结阶段：先冻结 ZIP 的 22 个 entries；
 ZIP 确定后，再把最终版本、包名和 ZIP SHA 封入 ZIP 外部 bootstrap。Release 封板顺序固定为：
 
 1. 冻结目标版本和 ZIP 内容；
@@ -330,6 +332,50 @@ ZIP 确定后，再把最终版本、包名和 ZIP SHA 封入 ZIP 外部 bootstr
 3. 把版本、package name 和 ZIP SHA 写入外部 bootstrap；
 4. 计算封板后 bootstrap SHA；
 5. 发布并重新下载验证两个独立资产。
+
+### 本地构建和校验 Release ZIP
+
+`contracts/release-artifact-v1.json` 决定允许进入 ZIP 的精确文件清单；不能用整个仓库的通配符
+代替它。`tools/build_release.py build` 按固定路径顺序、时间戳、权限和压缩参数生成 ZIP；
+`tools/build_release.py check` 再检查 ZIP 的内容、顺序、权限、元数据和源文件字节是否完全一致。
+打包工具本身也在 ZIP 中，因此下载后的候选包可以使用包内同一工具和合同完成自校验；它只是
+Release 审计工具，不会被 `install.js` 安装到 Hook runtime。
+
+Windows PowerShell 可直接复制：
+
+```powershell
+$version = "v0.3.0-beta.1"
+$zip = "dist/pwf-codex-cloud-hooks-$version.zip"
+
+npm test
+python tools/import_upstream_runtime.py check
+python tools/build_release.py build --output $zip
+python tools/build_release.py check --archive $zip
+
+(Get-Item $zip).Length
+(Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
+```
+
+Linux 或 Git Bash 可直接复制：
+
+```bash
+set -Eeuo pipefail
+VERSION="v0.3.0-beta.1"
+ZIP="dist/pwf-codex-cloud-hooks-${VERSION}.zip"
+
+npm test
+python3 tools/import_upstream_runtime.py check
+python3 tools/build_release.py build --output "$ZIP"
+python3 tools/build_release.py check --archive "$ZIP"
+
+wc -c < "$ZIP"
+sha256sum "$ZIP"
+```
+
+`build --output` 会原子替换指定的目标 ZIP；如果需要保留旧候选包，应换一个输出文件名。
+ZIP 内容全部冻结并得到最终 SHA-256 后，才能把版本、包名和 ZIP SHA 写入 ZIP 外部的
+`init-cloud-sandbox-v0.3.0.bash`；随后再计算 Bash 自身的 SHA-256。任何 ZIP entry 再次变化，
+都必须从 ZIP 构建开始重新封板。
 
 已发布 v0.2.2 仍是 stable-release fallback；范围更窄的 modernization/Phase 3 rollback
 baseline 是 Cloud-accepted alpha.2。
@@ -524,8 +570,8 @@ git status --short --branch
   与 adapter thinning，R4-C 是 beta.1 seal 和 Fresh/Resume Cloud acceptance；
 - R4-A 与 R4-B 均已完成并通过 Windows 与 Linux/Cloud gate；R4-B 的 plan-first activation、
   adapter thinning、exact project forwarding、69/69 Linux 和隔离 alpha.2 upgrade/doctor 均
-  PASS。R4-C 已获授权并开始 beta.1 双资产封板/Fresh+Resume 验收；在全部通过前，alpha.2
-  保持 rollback baseline。
+  PASS。R4-C 已完成 22-entry 自校验候选的本地双资产重封板，新的精确字节 Cloud seal、发布和
+  Fresh+Resume 黑盒验收 pending；在全部通过前，alpha.2 保持 rollback baseline。
 
 更详细的阶段摘要和发布路标见 `work_plan.md`；Round 4 gate 见
 `docs/phase-3-round-4-activation-plan.md`；R4-A Cloud gate 见

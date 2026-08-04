@@ -63,7 +63,7 @@ test("beta.1 bootstrap pins the sealed ZIP and leaves the global Skill pristine"
   const workflow = bootstrap.match(/install_hooks_component\(\) \{([\s\S]*?)\n\}/);
   assert.ok(workflow, "install_hooks_component was not found");
   assert.match(bootstrap, /HOOKS_VERSION="\$\{HOOKS_VERSION:-v0\.3\.0-beta\.1\}"/);
-  assert.match(bootstrap, /HOOKS_SHA256="\$\{HOOKS_SHA256:-154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528\}"/);
+  assert.match(bootstrap, /HOOKS_SHA256="\$\{HOOKS_SHA256:-c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91\}"/);
   assert.match(bootstrap, /HOOKS_SHA256 is still a placeholder/);
   assert.doesNotMatch(bootstrap, /apply_planning_skill_compat_patch|verify_patched_planning_skill|PLANNING_SKILL_PATCHED_SHA256/);
   assert.match(workflow[1], /install_managed_hooks/);

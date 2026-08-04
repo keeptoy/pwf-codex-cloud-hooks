@@ -13,8 +13,8 @@ const builder = path.join(root, "tools", "build_release.py");
 const contract = path.join(root, "contracts", "release-artifact-v1.json");
 const python = process.env.PYTHON || (process.platform === "win32" ? "python" : "python3");
 const sha256 = file => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
-const betaZipSha256 = "154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528";
-const betaBootstrapSha256 = "a75c333cb5d11d7c084582d026d2fcbdbbcd3f65085b83d10c031c32cdf52edc";
+const betaZipSha256 = "c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91";
+const betaBootstrapSha256 = "0c9d57f53ff980d9d207bc8291b1f055058000e45258732b19156ec93b8b1f2a";
 
 function run(command, archive) {
   const flag = command === "build" ? "--output" : "--archive";
@@ -31,7 +31,7 @@ test("Release ZIP build is deterministic, exact, and keeps bootstrap external", 
     const secondResult = JSON.parse(result.stdout);
     assert.equal(sha256(first), sha256(second));
     assert.equal(firstResult.sha256, secondResult.sha256);
-    assert.equal(firstResult.entries, 21);
+    assert.equal(firstResult.entries, 22);
     assert.ok(firstResult.size > 0);
     result = run("check", first); assert.equal(result.status, 0, result.stderr);
     assert.equal(JSON.parse(result.stdout).healthy, true);
@@ -39,6 +39,7 @@ test("Release ZIP build is deterministic, exact, and keeps bootstrap external", 
     const artifact = JSON.parse(fs.readFileSync(contract, "utf8"));
     const packageMetadata = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
     assert.equal(packageMetadata.version, "0.3.0-beta.1");
+    assert.equal(artifact.entries.some(entry => entry.path === "tools/build_release.py"), true);
     assert.equal(artifact.entries.some(entry => entry.path === "init-cloud-sandbox-v0.3.0.bash"), false);
     assert.deepEqual(artifact.external_release_assets.map(entry => entry.path), ["init-cloud-sandbox-v0.3.0.bash"]);
     assert.deepEqual(artifact.checksum_workflow, [

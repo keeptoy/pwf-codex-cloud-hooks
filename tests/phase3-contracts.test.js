@@ -52,7 +52,7 @@ test("Phase 3 R4-B activates the installed exact-v1 canonical plan-context path"
   assert.equal(artifact.entries.some(item => item.path === "runtime/owned-plan.py"), true);
   assert.equal(artifact.entries.some(item => item.path === "contracts/adapter-plan-context-request-v1.schema.json"), true);
   assert.equal(artifact.entries.some(item => item.path === "contracts/plan-context-result-v1.schema.json"), true);
-  assert.equal(artifact.entries.length, 21);
+  assert.equal(artifact.entries.length, 22);
   const adapter = fs.readFileSync(path.join(root, "hooks", "hook_adapter.py"), "utf8");
   assert.match(adapter, /"plan": "owned-plan\.py"/);
   assert.match(adapter, /def build_plan_context_request\(/);

@@ -1,6 +1,6 @@
 # Phase 3 Round 4 Activation Plan
 
-> Status: R4-A and R4-B complete / Linux Cloud PASS; R4-C pre-publication Cloud seal PASS, publish and live A–F pending
+> Status: R4-A and R4-B complete / Linux Cloud PASS; R4-C 22-entry local reseal complete, new pre-publication Cloud seal / publish / live A–F pending
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
@@ -192,7 +192,7 @@ R4-B is closed. That acceptance alone did not authorize R4-C; the maintainer lat
 ## R4-C — beta.1 sealing and Cloud acceptance
 
 1. Freeze `0.3.0-beta.1`, exact ZIP inventory, hashes, tests, and documentation.
-2. Build the deterministic 21-entry ZIP and record its SHA-256.
+2. Build the deterministic 22-entry self-auditable ZIP and record its SHA-256.
 3. Only then write beta version/package/ZIP SHA into the ZIP-external
    `init-cloud-sandbox-v0.3.0.bash` and hash the final Bash asset.
 4. Publish immutable beta.1 ZIP and Bash assets; verify both downloads and
@@ -201,10 +201,12 @@ R4-B is closed. That acceptance alone did not authorize R4-C; the maintainer lat
 6. Create a real planning update and long tail sentinel, resume the same task,
    verify automatic catch-up plus canonical plan context, then run doctor.
 
-Steps 1–3 and the pre-publication Cloud byte gate are complete. The repaired Fresh Cloud run reproduced
-the exact 21-entry ZIP and external bootstrap, and passed importer mode/health, Linux 69/69, LF,
-placeholder, and clean-workspace checks. Step 4 publication/download verification and steps 5–6 live
-lifecycle evidence remain pending; therefore R4-C and Phase 3 are not yet closed.
+Steps 1–3 were repeated after the downloaded-asset A1 probe exposed that the 21-entry ZIP omitted its
+declared package-local verifier. The repaired local candidate is now a 22-entry self-auditable ZIP with
+`tools/build_release.py` included only as a Release audit tool; installed runtime inventory and dispatch
+remain unchanged. The former Cloud byte seal is superseded. A new exact-byte pre-publication Cloud seal,
+step 4 publication/download verification, and steps 5–6 live lifecycle evidence remain pending; therefore
+R4-C and Phase 3 are not yet closed.
 
 Cloud acceptance includes the existing A–F installation/lifecycle checks plus
 Round 4-specific proof:
@@ -226,7 +228,7 @@ documented Cloud rollback asset and the beta candidate must not be described as
 accepted current behavior.
 
 Pre-publication sealing adds one final target-Linux checkpoint: the exact commit
-must pass 69/69 and rebuild the 21-entry ZIP byte-for-byte at the locally sealed
+must pass 69/69 and rebuild the 22-entry ZIP byte-for-byte at the locally sealed
 size/SHA while the external bootstrap hash, LF attributes, placeholders, and
 workspace cleanliness remain exact. The copyable gate is
 [`phase-3-round-4-r4c-cloud-seal-check.md`](phase-3-round-4-r4c-cloud-seal-check.md).

@@ -18,6 +18,7 @@ DEFAULT_CONTRACT = ROOT / "contracts" / "release-artifact-v1.json"
 EXECUTABLE_PATHS = {
     "install.js",
     "hooks/hook_adapter.py",
+    "tools/build_release.py",
     "tools/import_upstream_runtime.py",
     "runtime/owned-catchup.py",
     "runtime/owned-plan.py",

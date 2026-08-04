@@ -1,26 +1,24 @@
 # Phase 3 Round 4 R4-C pre-publication Cloud seal check
 
-> 状态：PASS；Fresh Linux/Cloud 精确字节复验已于 2026-08-04 完整通过
+> 状态：PENDING；22-entry 自校验候选已本地封板，等待新的 Fresh Linux/Cloud 精确字节复验
 >
-> 范围：最终 69/69 Linux、21-entry ZIP 跨平台重建、bootstrap SHA、LF 属性、无占位符、clean workspace
+> 范围：最终 69/69 Linux、22-entry ZIP 跨平台重建、bootstrap SHA、LF 属性、无占位符、clean workspace
 >
 > 禁止：本步骤不得发布资产、不得安装到 live `/opt/codex`、不得提前执行 beta.1 lifecycle A～F
 
-## 已验收结果
+## 当前候选与已作废证据
 
-修复 imported-runtime Git mode 后，唯一脚本在 Fresh Cloud 中完整运行并以
-`R4C_PREPUBLICATION_CLOUD_SEAL=PASS` 结束：
+当前待复验的本地候选是：
 
-- Python 3.14.4，zlib build/runtime 1.3；
-- imported runtime 四文件均为 `100755`，importer `healthy=true`；
-- Linux suite 69/69，0 fail，0 skipped；
-- 22 个 Release 路径 LF 检查 PASS；
-- ZIP 21 entries / 81,084 bytes / SHA `154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528`；
-- bootstrap 17,425 bytes / SHA `a75c333cb5d11d7c084582d026d2fcbdbbcd3f65085b83d10c031c32cdf52edc`；
-- placeholders absent，workspace clean。
+- ZIP 22 entries / 84,316 bytes / SHA `c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91`；
+- bootstrap 17,425 bytes / SHA `0c9d57f53ff980d9d207bc8291b1f055058000e45258732b19156ec93b8b1f2a`；
+- ZIP 新增 `tools/build_release.py`，使发布下载 A1 能在解压包内按同一合同自校验；该工具不进入
+  installed runtime 或 adapter dispatch。
 
-该结果只关闭发布前封板 gate。它授权发布两个既有资产，但不替代发布后重新下载核验，也不替代
-[`v0.3.0-beta.1-cloud-hard-acceptance.md`](v0.3.0-beta.1-cloud-hard-acceptance.md) 的 live A～F。
+先前 21-entry ZIP 的 Fresh Cloud seal 曾完整 PASS，但发布下载 A1 暴露 package-local verifier 缺失，
+因此旧 ZIP/bootstrap SHA 和旧 PASS 已作废，不再授权发布。只有本页脚本对上述新字节再次输出
+`R4C_PREPUBLICATION_CLOUD_SEAL=PASS`，才可进入发布和
+[`v0.3.0-beta.1-cloud-hard-acceptance.md`](v0.3.0-beta.1-cloud-hard-acceptance.md) 的 live 黑盒 A～F。
 
 ## 为什么在发布前增加这一关
 
@@ -30,13 +28,14 @@ Linux/Cloud Python/zlib 环境重建一次，证明最终 commit 仍得到以下
 
 | Asset | Size | SHA-256 |
 |---|---:|---|
-| `pwf-codex-cloud-hooks-v0.3.0-beta.1.zip` | 81,084 | `154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528` |
-| `init-cloud-sandbox-v0.3.0.bash` | 17,425 | `a75c333cb5d11d7c084582d026d2fcbdbbcd3f65085b83d10c031c32cdf52edc` |
+| `pwf-codex-cloud-hooks-v0.3.0-beta.1.zip` | 84,316 | `c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91` |
+| `init-cloud-sandbox-v0.3.0.bash` | 17,425 | `0c9d57f53ff980d9d207bc8291b1f055058000e45258732b19156ec93b8b1f2a` |
 
 第一次 Fresh Cloud 执行在 importer exact check 处发现 `runtime/upstream/` 四个文件的 Git index mode
 是 `100644`，而冻结合同要求 `0755`。这是提交元数据漂移，不是 CRLF、CMD 或 Git Bash 差异。
 当前脚本在 importer 前显式要求四个 package path 都是 `100755`，防止 Windows 因
-`core.filemode=false` 再次漏检；该修复不改变文件内容或上述两个已封板资产。
+`core.filemode=false` 再次漏检。旧轮中该修复没有改变候选字节；本轮新增 Release 审计工具和
+README 教程则明确改变了 ZIP，并已按 ZIP-first / bootstrap-second 顺序重新计算摘要。
 
 如果 Linux 重建 ZIP 的 inventory/content check PASS 但 SHA 不同，停止发布并保存 Python/zlib、
 size 和 SHA；不得把新 SHA 直接写回 bootstrap。先区分 source drift 与 deflate 实现差异，再决定
@@ -82,9 +81,9 @@ REPO_ROOT="$(pwd -P)"
 PROBE_ROOT="$(mktemp -d)"
 trap 'rm -rf -- "$PROBE_ROOT"' EXIT
 
-EXPECTED_ZIP_SHA256="154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528"
-EXPECTED_ZIP_SIZE=81084
-EXPECTED_BOOTSTRAP_SHA256="a75c333cb5d11d7c084582d026d2fcbdbbcd3f65085b83d10c031c32cdf52edc"
+EXPECTED_ZIP_SHA256="c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91"
+EXPECTED_ZIP_SIZE=84316
+EXPECTED_BOOTSTRAP_SHA256="0c9d57f53ff980d9d207bc8291b1f055058000e45258732b19156ec93b8b1f2a"
 EXPECTED_BOOTSTRAP_SIZE=17425
 ZIP="$PROBE_ROOT/pwf-codex-cloud-hooks-v0.3.0-beta.1.zip"
 BOOTSTRAP="$REPO_ROOT/init-cloud-sandbox-v0.3.0.bash"
@@ -161,7 +160,7 @@ for line in result.stdout.splitlines():
 assert set(observed) == set(paths), (observed.keys(), paths)
 assert all(observed[path] == 'lf' for path in paths), observed
 assert all(b'\r\n' not in Path(path).read_bytes() for path in paths), 'CRLF release input'
-print('RELEASE_LF_ATTRIBUTES=PASS paths=22')
+print('RELEASE_LF_ATTRIBUTES=PASS paths=23')
 PY
 
 python3 tools/build_release.py build --output "$ZIP" > "$PROBE_ROOT/build.json"
@@ -177,12 +176,12 @@ archive = Path(sys.argv[2])
 build = json.loads((root / 'build.json').read_text(encoding='utf-8'))
 check = json.loads((root / 'check.json').read_text(encoding='utf-8'))
 assert build['healthy'] is True and check['healthy'] is True
-assert build['entries'] == check['entries'] == 21
+assert build['entries'] == check['entries'] == 22
 content = archive.read_bytes()
 digest = hashlib.sha256(content).hexdigest()
-assert len(content) == 81084, len(content)
-assert digest == '154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528', digest
-print('ZIP_ENTRIES=21')
+assert len(content) == 84316, len(content)
+assert digest == 'c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91', digest
+print('ZIP_ENTRIES=22')
 print(f'ZIP_SIZE={len(content)}')
 print(f'ZIP_SHA256={digest}')
 print('ZIP_EXACT_CROSS_PLATFORM_MATCH=PASS')
