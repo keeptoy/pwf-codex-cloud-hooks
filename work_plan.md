@@ -2,7 +2,7 @@
 
 > 文档职责：维护 v0.3.0 的长期 Phase 路线、建议轮数、Cloud 验收节点、发布路标和阶段工作摘要。
 >
-> 当前状态：Phase 1、Phase 2 已完成；Phase 3 Round 1～3 与 R4-A/R4-B 已完成并通过 Cloud；R4-C beta.1 双资产已本地封板。首次 pre-publication Cloud seal 暴露 imported-runtime Git mode 漂移；最小元数据修复已本地 PASS，Fresh Cloud 全量重跑 pending。
+> 当前状态：Phase 1、Phase 2 已完成；Phase 3 Round 1～3 与 R4-A/R4-B 已完成并通过 Cloud；R4-C beta.1 双资产已本地封板，修复后的 pre-publication Cloud seal 完整 PASS。双资产发布、发布后下载复核与 live Fresh/Resume A～F pending。
 >
 > 当前回滚基线：Cloud-accepted `v0.3.0-alpha.2`。
 
@@ -52,7 +52,7 @@ Discovery Gate 和真实 Cloud 返修优先于维持原数字。
 | 0 / 0.5 / 0.6 | 已完成 | 仓库审计、Cloud 证据、v0.3.0 迭代初始化 | 历史证据整合 | complete |
 | 1. 契约与来源治理 | 3 | allowlist、overlay、manifest、fixtures、安装治理 | 预发行安装与兼容冒烟 | complete；alpha.1 PASS |
 | 2. Owned catch-up runtime | 4 | owned catch-up、显式 Host 契约、session/transcript 安全边界 | 完整 catch-up 专项回归 | complete；alpha.2 PASS |
-| 3. Canonical prompt injection | 4 | owned-plan、pristine snapshot invocation、瘦身 adapter、统一 project state | 完整 SessionStart/UserPrompt/Planning/Resume 回归 | Round 4；R4-A/R4-B complete / Cloud PASS；R4-C assets sealed / mode repair local PASS / Cloud rerun pending |
+| 3. Canonical prompt injection | 4 | owned-plan、pristine snapshot invocation、瘦身 adapter、统一 project state | 完整 SessionStart/UserPrompt/Planning/Resume 回归 | Round 4；R4-A/R4-B complete / Cloud PASS；R4-C pre-publication seal PASS / publish + A～F pending |
 | 4. Attestation 与 opt-in v3 模式 | 暂定 3 | 重新审计；inactive extension；opt-in activation | 隔离任务中的 tamper/cache/rollback | pending；进入前重探路 |
 | 5. Compaction 生命周期 | 3～4 | clear/compact、PreCompact、必要时 PostCompact | 实现前后各测一次 | pending |
 | 6. Tool 与 Permission Hooks | 4 | PostToolUse、去重节流、PermissionRequest、最后 PreToolUse | 每种事件单独 canary | pending |
@@ -69,7 +69,7 @@ Discovery Gate 和真实 Cloud 返修优先于维持原数字。
 | `v0.2.2` | 兼容基线 | 已发布 Cloud catch-up 兼容行为 | published / Cloud validated | 稳定历史 fallback |
 | `v0.3.0-alpha.1` | Phase 1 | 可信来源、确定性打包、安装与 doctor，不改变 Hook 语义 | complete / Cloud PASS | Phase 2 实施期历史回滚点 |
 | `v0.3.0-alpha.2` | Phase 2 | owned catch-up、pristine global Skill、真实 resume 和权限边界 | complete / Cloud PASS | 当前 Phase 3 回滚基线 |
-| `v0.3.0-beta.1` | Phase 3 | 完整 canonical plan runtime、薄 adapter、统一 owned project state | local assets sealed；Cloud pending | Phase 4～8 的预期回滚基线 |
+| `v0.3.0-beta.1` | Phase 3 | 完整 canonical plan runtime、薄 adapter、统一 owned project state | assets sealed；pre-publication Cloud PASS；publish/A～F pending | Phase 4～8 的预期回滚基线 |
 | 内部 canary/pre-release | Phase 4～8 | 每项高风险能力独立验证 | pending | 不要求每个 Phase 正式发布 |
 | `v0.3.0-rc.1` | Phase 9 | 完整候选回归 | pending | 正式版前候选 |
 | `v0.3.0` | Phase 9 | 移除临时 canary 后重新构建并验收最终字节 | pending | 正式发布 |
@@ -110,7 +110,7 @@ root/root、synthetic cross-user，以及 resume 后 doctor
 | 1 | 审计 adapter 与 pristine resolver/injector；冻结 exact-v1、managed-legacy、20,000 字符上限和两项有意输出变化 | complete |
 | 2 | 独立 controlled-snapshot feasibility spike；8 focused + 1 handoff isolation case | complete / `CONDITIONAL_GO` |
 | 3 | 冻结 hard-link、stale cleanup、portable openat、27/30 秒策略；实现/install/package inactive owned-plan | complete / Cloud PASS |
-| 4 | R4-A supervisor/type seam；R4-B 原子激活并删除平行 resolver/renderer；R4-C beta.1 + Cloud | R4-A/R4-B complete / Cloud PASS；R4-C assets sealed / Cloud pending |
+| 4 | R4-A supervisor/type seam；R4-B 原子激活并删除平行 resolver/renderer；R4-C beta.1 + Cloud | R4-A/R4-B complete / Cloud PASS；R4-C pre-publication seal PASS / publish + A～F pending |
 
 Round 3 关闭证据：
 
@@ -128,8 +128,8 @@ zero snapshot 和 clean workspace 全部 PASS。R4-B 已完成 plan-first dispat
 转交、旧 resolver/renderer 删除和独立 beta golden；Windows 为 69 registered / 51 PASS /
 18 honest SKIP / 0 FAIL，Linux/Cloud 为 69 PASS / 0 SKIP / 0 FAIL。真实双 child/跨用户、
 process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、零 snapshot 和 clean workspace
-全部 PASS。R4-C beta.1 双资产已在本地封板；pre-publication Cloud seal、发布和 Fresh/Resume
-尚未验收。
+全部 PASS。R4-C beta.1 双资产已在本地封板，修复后的 pre-publication Cloud seal 也已完整 PASS；
+发布、发布后下载复核和 live Fresh/Resume A～F 尚未验收。
 
 ## 必须停下来做 Cloud 验证的节点
 
@@ -186,7 +186,7 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
 
 - 当前执行权威：`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`；
 - 当前 Phase：Phase 3 Round 4；
-- 下一步：checkpoint imported-runtime `100755` 元数据修复后，从头重跑 R4-C pre-publication Cloud seal check；要求四文件 Git mode precheck、importer healthy、69/69、跨平台 ZIP exact match、bootstrap exact、无占位符和 clean workspace，PASS 后才发布双资产；
+- 下一步：未经重建地发布两个既有封板资产，重新下载并核对精确 size/SHA；通过后按 beta.1 A～F 文档执行 live Fresh/Resume Cloud 验收；
 - 当前禁止：在 ZIP SHA 产生前修改 bootstrap、在最终字节复核前发布、或在 Fresh/Resume PASS 前关闭 Phase 3；
 - 当前回滚：Cloud-accepted alpha.2。
 

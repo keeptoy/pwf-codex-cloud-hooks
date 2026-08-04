@@ -518,8 +518,9 @@ Phase 3 目标职责边界：
 - Round 4 入口分析与 R4-A 已完成；Windows 48 PASS / 18 honest SKIP，Cloud/Linux 66/66 PASS；
 - R4-B 已完成原子激活/adapter thinning；Windows 69 registered / 51 PASS / 18 honest SKIP /
   0 FAIL，Linux/Cloud 69/69 PASS，并通过真实双 child/跨用户、隔离升级、doctor、11/21、预算和
-  零残留门槛；R4-C beta.1 双资产已在本地封板，pre-publication Cloud seal、发布与
-  Fresh/Resume Cloud 尚待完成；
+  零残留门槛；R4-C beta.1 双资产已在本地封板，修复后的 pre-publication Cloud seal 以
+  Linux 69/69 和双资产 exact match 完整 PASS；发布、发布后下载复核与 live Fresh/Resume A～F
+  尚待完成；
 - requirements 仍只注册 adapter；发布过的 alpha.2 ZIP/bootstrap 保持不可变。
 
 若本节快照与活动 `task_plan.md` 冲突，以活动计划为准。本节只在架构基线、Phase、Cloud

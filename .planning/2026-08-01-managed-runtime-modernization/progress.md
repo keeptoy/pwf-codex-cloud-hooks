@@ -1,5 +1,13 @@
 # Progress Log: Managed Runtime Modernization
 
+## Session: 2026-08-04 — R4-C pre-publication Cloud seal PASS
+
+- Received the complete repaired Fresh Cloud output for `PWF_PHASE3_ROUND4_R4C_CLOUD_SEAL_V1`. Python 3.14.4 / zlib 1.3 compiled all Python sources; the four imported runtime Git paths reported `100755`; importer returned `healthy=true` with the four exact managed hashes.
+- Linux suite passed 69/69 with zero failures/skips. All 22 Release paths were LF-bound. The Linux build reproduced the exact 21-entry, 81,084-byte ZIP at SHA `154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528`; bootstrap reproduced 17,425 bytes at SHA `a75c333cb5d11d7c084582d026d2fcbdbbcd3f65085b83d10c031c32cdf52edc`.
+- Placeholder check passed, the Cloud checkout remained clean, and the script ended with `R4C_PREPUBLICATION_CLOUD_SEAL=PASS`. No live `/opt/codex` install or GitHub Release was performed. The exact sealed assets are now authorized for publication; published-download verification and live Fresh/Resume A–F remain pending.
+- Synchronized the programme roadmap, project understanding, Round 4 activation design, pre-publication seal record, beta.1 A–F runbook status, and active plan. README remains intentionally untouched because it is one of the frozen ZIP entries; no candidate byte or checksum changed.
+- Final post-record audit passes: all eight changed paths are outside the 21-entry ZIP, overlap count is zero, `git diff --check` passes, and the local sealed assets still match 81,084 / `154eea...d528` and 17,425 / `a75c...2edc`. Stopped before external publication as required.
+
 ## Session: 2026-08-04 — R4-C Cloud seal mode-mismatch diagnosis
 
 - The first fresh no-setup Cloud seal attempt correctly stopped at `python3 tools/import_upstream_runtime.py check` with `{"error":"runtime mode mismatch for session_catchup","healthy":false}`. Python 3.14.4 static compilation passed; the suite and all later Release gates were not run; the Cloud workspace remained clean; no live install or publication occurred.

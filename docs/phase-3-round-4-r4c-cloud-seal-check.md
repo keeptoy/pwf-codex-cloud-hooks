@@ -1,10 +1,26 @@
 # Phase 3 Round 4 R4-C pre-publication Cloud seal check
 
-> 状态：本地双资产已封板；Fresh Linux/Cloud 精确字节复验 pending
+> 状态：PASS；Fresh Linux/Cloud 精确字节复验已于 2026-08-04 完整通过
 >
 > 范围：最终 69/69 Linux、21-entry ZIP 跨平台重建、bootstrap SHA、LF 属性、无占位符、clean workspace
 >
 > 禁止：本步骤不得发布资产、不得安装到 live `/opt/codex`、不得提前执行 beta.1 lifecycle A～F
+
+## 已验收结果
+
+修复 imported-runtime Git mode 后，唯一脚本在 Fresh Cloud 中完整运行并以
+`R4C_PREPUBLICATION_CLOUD_SEAL=PASS` 结束：
+
+- Python 3.14.4，zlib build/runtime 1.3；
+- imported runtime 四文件均为 `100755`，importer `healthy=true`；
+- Linux suite 69/69，0 fail，0 skipped；
+- 22 个 Release 路径 LF 检查 PASS；
+- ZIP 21 entries / 81,084 bytes / SHA `154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528`；
+- bootstrap 17,425 bytes / SHA `a75c333cb5d11d7c084582d026d2fcbdbbcd3f65085b83d10c031c32cdf52edc`；
+- placeholders absent，workspace clean。
+
+该结果只关闭发布前封板 gate。它授权发布两个既有资产，但不替代发布后重新下载核验，也不替代
+[`v0.3.0-beta.1-cloud-hard-acceptance.md`](v0.3.0-beta.1-cloud-hard-acceptance.md) 的 live A～F。
 
 ## 为什么在发布前增加这一关
 

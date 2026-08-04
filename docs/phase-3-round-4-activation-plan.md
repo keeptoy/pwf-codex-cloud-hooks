@@ -1,6 +1,6 @@
 # Phase 3 Round 4 Activation Plan
 
-> Status: R4-A and R4-B complete / Linux Cloud PASS; R4-C beta.1 sealing in progress
+> Status: R4-A and R4-B complete / Linux Cloud PASS; R4-C pre-publication Cloud seal PASS, publish and live A–F pending
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
@@ -187,7 +187,7 @@ the adapter's parallel plan algorithm is absent, immutable alpha composition
 goldens and separate beta goldens pass, trusted hashes are synchronized, and the
 development ZIP remains 21 entries. The accepted procedure is recorded in
 [`phase-3-round-4-r4b-cloud-acceptance.md`](phase-3-round-4-r4b-cloud-acceptance.md).
-R4-B is closed. That acceptance does not authorize R4-C.
+R4-B is closed. That acceptance alone did not authorize R4-C; the maintainer later authorized the separately gated beta seal.
 
 ## R4-C — beta.1 sealing and Cloud acceptance
 
@@ -200,6 +200,11 @@ R4-B is closed. That acceptance does not authorize R4-C.
 5. Use a completely fresh Cloud task for install/startup/UserPrompt evidence.
 6. Create a real planning update and long tail sentinel, resume the same task,
    verify automatic catch-up plus canonical plan context, then run doctor.
+
+Steps 1–3 and the pre-publication Cloud byte gate are complete. The repaired Fresh Cloud run reproduced
+the exact 21-entry ZIP and external bootstrap, and passed importer mode/health, Linux 69/69, LF,
+placeholder, and clean-workspace checks. Step 4 publication/download verification and steps 5–6 live
+lifecycle evidence remain pending; therefore R4-C and Phase 3 are not yet closed.
 
 Cloud acceptance includes the existing A–F installation/lifecycle checks plus
 Round 4-specific proof:

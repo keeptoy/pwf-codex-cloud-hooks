@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Checkpoint/push the metadata-only importer-mode repair, then rerun `docs/phase-3-round-4-r4c-cloud-seal-check.md` from the beginning in a fresh no-setup Cloud sandbox. Require the new four-file `100755` precheck, importer healthy, 69/69, exact 21-entry ZIP size/SHA, exact bootstrap size/SHA/defaults, all 22 LF attributes, no placeholders, and clean workspace. Stop on any mismatch; only full PASS authorizes publishing the already-sealed local assets. Published-download and live Cloud A–F remain pending.
+Publish the two already-sealed `v0.3.0-beta.1` assets without rebuilding or editing either byte set, then redownload both published assets and verify their exact size/SHA identities. Only after published-download verification passes, run `docs/v0.3.0-beta.1-cloud-hard-acceptance.md` A–F in a completely fresh Cloud task. External publication requires explicit maintainer action; live Cloud lifecycle acceptance and Phase 3 closure remain pending.
 
 ## Current Phase
-Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PASS. Both beta.1 candidate assets remain locally sealed: ZIP 21 entries / 81,084 bytes / SHA `154eea...d528`; bootstrap 17,425 bytes / LF-only / SHA `a75c...2edc`. The first fresh-Cloud seal attempt exposed four imported source files committed as `100644` against a `0755` contract; the metadata-only repair and local 69-test/dual-asset regression are PASS, and a fresh Cloud rerun is pending. Nothing is published or Cloud lifecycle-accepted, and alpha.2 remains the rollback baseline.
+Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PASS. The repaired fresh-Cloud R4-C pre-publication seal is also PASS: importer modes/health, Linux 69/69, 22 LF paths, exact ZIP and bootstrap bytes, zero placeholders, and clean workspace all passed. The two beta.1 assets are authorized for publication but are not yet published or live lifecycle-accepted. Alpha.2 remains the rollback baseline until the published-download and Fresh/Resume A–F gates pass.
 
 ## Phases
 
@@ -123,7 +123,7 @@ Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PA
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
 | 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
 | 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | complete; Cloud PASS |
-| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | R4-A complete / Cloud PASS; R4-B complete / Cloud PASS; assets sealed / Cloud seal check pending |
+| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | R4-A complete / Cloud PASS; R4-B complete / Cloud PASS; pre-publication seal PASS / publish and A–F pending |
 
 - [x] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
 - [x] Dispatch both lifecycle events through `owned-plan.py`, which must call the verified standalone resolver, finalize one canonical contained project state, and invoke the managed-legacy upstream injector.
@@ -134,7 +134,7 @@ Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PA
 - [x] Measure Hook latency and output size in plan/no-plan cases; Cloud observed 268.37 ms plan, 241.684 ms no-plan, 370.82 ms SessionStart, with outputs 420/48/824 characters.
 - [x] Complete the target Linux/Cloud proof that prompt injection runs exclusively from the installed owned runtime bundle and no mutable global Skill script executes; real root/root and synthetic cross-user paths PASS.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Rounds 1–3 and R4-A/R4-B complete with Cloud PASS; beta.1 assets locally sealed, pre-publication Cloud seal pending
+- **Status:** Rounds 1–3 and R4-A/R4-B complete with Cloud PASS; beta.1 pre-publication Cloud seal PASS, publish/download verification and live A–F pending
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 
