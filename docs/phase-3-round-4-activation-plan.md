@@ -1,6 +1,6 @@
 # Phase 3 Round 4 Activation Plan
 
-> Status: R4-A and R4-B complete / Linux Cloud PASS; R4-C unauthorized
+> Status: R4-A and R4-B complete / Linux Cloud PASS; R4-C beta.1 sealing in progress
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
@@ -220,9 +220,17 @@ Phase 3 closes only after all of those are PASS. Until then, alpha.2 remains the
 documented Cloud rollback asset and the beta candidate must not be described as
 accepted current behavior.
 
+Pre-publication sealing adds one final target-Linux checkpoint: the exact commit
+must pass 69/69 and rebuild the 21-entry ZIP byte-for-byte at the locally sealed
+size/SHA while the external bootstrap hash, LF attributes, placeholders, and
+workspace cleanliness remain exact. The copyable gate is
+[`phase-3-round-4-r4c-cloud-seal-check.md`](phase-3-round-4-r4c-cloud-seal-check.md).
+It does not authorize a substitute Cloud-built artifact; any cross-platform
+deflate mismatch pauses publication for an explicit reproducibility decision.
+
 ## Rollback and stop conditions
 
-Stop R4-A or R4-B and do not seal beta.1 if any of the following occurs:
+Stop the active Round 4 gate and do not publish or accept beta.1 if any of the following occurs:
 
 - a schema change appears necessary;
 - adapter plan resolution/rendering must remain as a runtime fallback;

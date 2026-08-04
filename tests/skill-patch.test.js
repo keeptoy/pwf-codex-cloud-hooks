@@ -58,12 +58,12 @@ test("compatibility patch is deterministic, idempotent, and fail-closed", () => 
   }
 });
 
-test("alpha.2 bootstrap keeps the ZIP guard and leaves the global Skill pristine", () => {
+test("beta.1 bootstrap pins the sealed ZIP and leaves the global Skill pristine", () => {
   const bootstrap = fs.readFileSync(path.join(root, "init-cloud-sandbox-v0.3.0.bash"), "utf8");
   const workflow = bootstrap.match(/install_hooks_component\(\) \{([\s\S]*?)\n\}/);
   assert.ok(workflow, "install_hooks_component was not found");
-  assert.match(bootstrap, /HOOKS_VERSION="\$\{HOOKS_VERSION:-v0\.3\.0-alpha\.2\}"/);
-  assert.match(bootstrap, /HOOKS_SHA256="\$\{HOOKS_SHA256:-61f2001f3dd3934d79144d5f1be09385a55936aba9f7481ad5e2177a486059db\}"/);
+  assert.match(bootstrap, /HOOKS_VERSION="\$\{HOOKS_VERSION:-v0\.3\.0-beta\.1\}"/);
+  assert.match(bootstrap, /HOOKS_SHA256="\$\{HOOKS_SHA256:-154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528\}"/);
   assert.match(bootstrap, /HOOKS_SHA256 is still a placeholder/);
   assert.doesNotMatch(bootstrap, /apply_planning_skill_compat_patch|verify_patched_planning_skill|PLANNING_SKILL_PATCHED_SHA256/);
   assert.match(workflow[1], /install_managed_hooks/);

@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Stop at the R4-C authorization boundary. R4-B is closed with exact Linux/Cloud acceptance PASS. Do not freeze `0.3.0-beta.1`, modify the external bootstrap/version/SHA, publish assets, install to live `/opt/codex`, or begin Fresh/Resume beta acceptance until the maintainer explicitly authorizes R4-C and its sealing audit is re-read.
+Checkpoint/push the exact R4-C state, then run `docs/phase-3-round-4-r4c-cloud-seal-check.md` in a fresh no-setup Cloud sandbox. Require 69/69, exact 21-entry ZIP size/SHA match across Linux, exact bootstrap size/SHA/defaults, all 22 LF attributes, no placeholders, and clean workspace. Stop on any mismatch; only PASS authorizes publishing the already-sealed local assets. Published-download and live Cloud A–F remain pending.
 
 ## Current Phase
-Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PASS. R4-B closed at 69/69 Linux tests with real root/root and cross-user execution, process-group cleanup, isolated alpha.2 upgrade/doctor, unchanged 11/21 inventories, measured latency/output budgets, zero snapshots, and a clean workspace. R4-C is unauthorized, and alpha.2 remains the rollback baseline.
+Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PASS. Both beta.1 candidate assets are locally sealed: ZIP 21 entries / 81,084 bytes / SHA `154eea...d528`; bootstrap 17,425 bytes / LF-only / SHA `a75c...2edc`. The final local dual-asset audit is PASS; checkpoint/push and the fresh-Cloud cross-platform seal check are next. Nothing is published or Cloud lifecycle-accepted, and alpha.2 remains the rollback baseline.
 
 ## Phases
 
@@ -123,7 +123,7 @@ Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PA
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
 | 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
 | 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | complete; Cloud PASS |
-| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | R4-A complete / Cloud PASS; R4-B complete / Cloud PASS; R4-C unauthorized |
+| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | R4-A complete / Cloud PASS; R4-B complete / Cloud PASS; assets sealed / Cloud seal check pending |
 
 - [x] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
 - [x] Dispatch both lifecycle events through `owned-plan.py`, which must call the verified standalone resolver, finalize one canonical contained project state, and invoke the managed-legacy upstream injector.
@@ -134,7 +134,7 @@ Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PA
 - [x] Measure Hook latency and output size in plan/no-plan cases; Cloud observed 268.37 ms plan, 241.684 ms no-plan, 370.82 ms SessionStart, with outputs 420/48/824 characters.
 - [x] Complete the target Linux/Cloud proof that prompt injection runs exclusively from the installed owned runtime bundle and no mutable global Skill script executes; real root/root and synthetic cross-user paths PASS.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Rounds 1–3 and R4-A/R4-B complete with Cloud PASS; stop before unauthorized R4-C beta.1 sealing
+- **Status:** Rounds 1–3 and R4-A/R4-B complete with Cloud PASS; beta.1 assets locally sealed, pre-publication Cloud seal pending
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 

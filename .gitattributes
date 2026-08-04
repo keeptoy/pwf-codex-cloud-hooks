@@ -1,3 +1,10 @@
+/.gitattributes text eol=lf
+/LICENSE text eol=lf
+/README.md text eol=lf
+/package.json text eol=lf
+/install.js text eol=lf
+/hooks/hook_adapter.py text eol=lf
+/init-cloud-sandbox-v0.3.0.bash text eol=lf
 /contracts/*.json text eol=lf
 /runtime/upstream/* text eol=lf
 /runtime/owned-catchup.py text eol=lf

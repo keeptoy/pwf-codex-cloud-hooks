@@ -46,7 +46,9 @@
     "import and verify allowlisted upstream files",
     "build deterministic ZIP from this exact entry list",
     "inspect entry list and compute ZIP SHA-256",
-    "publish the immutable ZIP",
-    "publish the external bootstrap with that exact SHA-256"
+    "write the exact version, package name, and ZIP SHA-256 into the external bootstrap",
+    "compute the sealed external bootstrap SHA-256",
+    "publish both immutable assets",
+    "download both published assets and verify their SHA-256 values"
   ]
 }

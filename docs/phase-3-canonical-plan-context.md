@@ -10,7 +10,7 @@
 >
 > Cloud single-link gate: Fresh + Resume PASS; 40/40 stable regular-file observations with `st_nlink=1`
 >
-> Next gate: stop at the authorization boundary; R4-C beta sealing remains unauthorized
+> Next gate: R4-C beta.1 dual-asset sealing and Fresh/Resume Cloud acceptance in progress
 
 ## Purpose
 
