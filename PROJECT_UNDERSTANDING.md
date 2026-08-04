@@ -1,6 +1,6 @@
 # 项目理解：pwf-codex-cloud-hooks
 
-> 最后更新：2026-08-03
+> 最后更新：2026-08-04
 > 当前迭代：`v0.3.0` 开发版  
 > 已发布基线：`v0.2.2`
 > 当前 Phase 3 回滚基线：Cloud-accepted `v0.3.0-alpha.2`
@@ -407,9 +407,9 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 - 解析 Hook stdin JSON 和 `cwd`；
 - 输出 Codex `hookSpecificOutput.additionalContext` JSON；
 - 输出 rollout canary；
-- alpha.2 当前路径仍自行解析 active/newest/root plan，并读取 plan head/progress tail；
-- SessionStart 时构造严格 v1 请求并监督 sibling `owned-catchup.py`；
-- Round 4 目标是只保留 Host payload/request、共享监督器、严格结果校验、上下文组合与 Codex JSON；
+- 当前 R4-B 开发路径不再解析或读取 plan 文件；
+- 两个事件先监督 sibling `owned-plan.py`，SessionStart 再把 exact project 交给 `owned-catchup.py`；
+- 只保留 Host payload/request、共享监督器、严格结果校验、上下文组合与 Codex JSON；
 - Runtime advisory 失败时保持 Codex loop 可继续。
 
 ### `runtime/owned-catchup.py`
@@ -422,11 +422,11 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 
 ### `runtime/owned-plan.py`
 
-- Phase 3 Round 3 已安装、哈希和打包，但 adapter 尚未 dispatch；
+- Phase 3 Round 3 已安装、哈希和打包，R4-B 开发路径现已 dispatch；
 - 拥有 opt-out、session attachment、canonical plan resolution 和 fd-rooted safe reads；
 - 在私有 `0700` snapshot/`0600` 文件中调用 pristine resolver/injector；
 - 返回 exact-v1 plan context 和唯一 canonical project state；
-- Round 4 R4-B 才允许成为两个 event 的 active plan owner。
+- 当前是两个 event 的唯一 active plan owner；Linux/Cloud R4-B gate 尚待完成。
 
 ### `runtime/upstream/` 与 `contracts/`
 
@@ -447,10 +447,10 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 
 ## 11. 当前长期缺口
 
-- adapter 仍维护 alpha.2 的平行 plan resolution/rendering；inactive `owned-plan.py` 尚未成为
-  两个 lifecycle event 的唯一 canonical owner；
-- R4-A 已在本地实现共享 deadline supervisor 和分离的 catch-up/plan typed seam，但尚待
-  Linux/Cloud gate；原子激活、adapter thinning 和 beta.1 Fresh/Resume Cloud 验收仍未开始；
+- R4-B 已在开发工作区原子激活 `owned-plan.py` 并删除 adapter 的平行 plan
+  resolution/rendering；Linux/Cloud 激活 gate 尚待完成；
+- R4-A 的共享 deadline supervisor 与 typed seam 已通过 66/66 Linux/Cloud；R4-C beta.1
+  封板和 Fresh/Resume Cloud 验收仍未授权；
 - attestation、nonce、smart/structured-ledger 模式与 compact/tool/permission/Stop Managed Hooks
   仍按 Phase 4～8 延后，不能从 upstream allowlist 推断为已实现；
 - normal install 失败可通过备份恢复，但尚不是跨全部外部文件的自动事务回滚；
@@ -480,8 +480,8 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
               `-- installed-manifest.json
 ```
 
-该树表示 v0.3.0 目标职责与安装边界，不表示所有 child 已经 dispatch。当前 adapter 仍未调用
-`owned-plan.py`；只有 R4-A 通过后，R4-B 才可改变该生产行为。
+该树表示 v0.3.0 目标职责与安装边界。当前 R4-B 开发 adapter 已调用两个 child，但这项激活
+仍须通过 Linux/Cloud gate，不能提前当作已发布 beta 行为。
 
 Phase 3 目标职责边界：
 
@@ -510,13 +510,13 @@ Phase 3 目标职责边界：
 | Round 4 A/B/C 激活、超时、失败和回滚设计 | `docs/phase-3-round-4-activation-plan.md` |
 | Cloud 可复制操作 | `黑盒验证.md` 及版本/Phase 专项验收文档 |
 
-2026-08-03 状态快照：
+2026-08-04 状态快照：
 
 - Phase 1 与 Phase 2 已完成并通过各自 Cloud 验收；alpha.2 是当前 Phase 3 回滚基线；
 - Phase 3 Round 1～3 已完成，inactive owned-plan 的完整 Linux/Cloud gate 为 63/63 PASS；
-- Round 4 入口分析已完成；R4-A implementation 与 Windows gate 已通过，当前等待其
-  Linux/Cloud gate；
-- adapter 尚未 dispatch `owned-plan.py`，R4-B 激活与 R4-C beta.1/Cloud 尚未授权；
+- Round 4 入口分析与 R4-A 已完成；Windows 48 PASS / 18 honest SKIP，Cloud/Linux 66/66 PASS；
+- R4-B 已获授权并完成本地原子激活/adapter thinning；Windows 69 registered / 51 PASS /
+  18 honest SKIP / 0 FAIL，Linux/Cloud gate 尚待完成；R4-C beta.1/Cloud 尚未授权；
 - requirements 仍只注册 adapter；发布过的 alpha.2 ZIP/bootstrap 保持不可变。
 
 若本节快照与活动 `task_plan.md` 冲突，以活动计划为准。本节只在架构基线、Phase、Cloud
@@ -569,7 +569,7 @@ Phase 3 目标职责边界：
 
 1. **可选 Host 证据**：独立证明 Hook stdin `transcript_path` 所指 JSONL 的
    `session_meta.id` / `session_meta.session_id` 与 stdin `session_id` 一致。现有 runtime
-   已执行 identity 校验，因此该证据增强不阻塞当前 R4-A Linux/Cloud gate。
+   已执行 identity 校验；该证据增强未阻塞已经完成的 R4-A，也不是 R4-B 的前置条件。
 2. **Phase 4 入口复核**：开始 hard Stop 前重新审计上游 modes、attestation 与 ledger
    语义，不能沿用 Phase 3 的只读假设直接外推。
 3. **长期泛化证据**：第二个只读插件尚未验证 Host/runner/Driver 抽象；完成前不得把本仓库

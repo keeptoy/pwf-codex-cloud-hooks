@@ -121,7 +121,7 @@ test("runtime supervisor accepts one valid result and bounds every child failure
   }
 });
 
-test("R4-A plan request/result seam is exact, relational, and still inactive", () => {
+test("plan request/result seam is exact and relational across R4-B activation", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "pwf-plan-seam-"));
   try {
     const request = callHarness({
@@ -212,6 +212,21 @@ test("R4-A plan request/result seam is exact, relational, and still inactive", (
       op: "plan_validate",
       request,
       result: { ...result, diagnostic: { ...result.diagnostic, plan_id_state: "accepted" } },
+    }), false);
+    const requestedPlan = {
+      ...request,
+      project: { ...request.project, plan_id: "missing-plan" },
+    };
+    const rejectedPlan = {
+      ...result,
+      warnings: ["plan_id_rejected"],
+      diagnostic: { ...result.diagnostic, plan_id_state: "rejected" },
+    };
+    assert.equal(callHarness({ op: "plan_validate", request: requestedPlan, result: rejectedPlan }), true);
+    assert.equal(callHarness({
+      op: "plan_validate",
+      request: requestedPlan,
+      result: { ...rejectedPlan, warnings: [] },
     }), false);
     assert.equal(callHarness({
       op: "plan_validate",

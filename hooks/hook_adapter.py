@@ -101,104 +101,6 @@ def _contained(root: Path, path: Path, *, kind: str) -> Path | None:
         return None
 
 
-def _plan_candidate(root: Path, candidate: Path) -> Path | None:
-    plan = _contained(root, candidate, kind="directory")
-    if plan is None or _contained(root, plan / "task_plan.md", kind="file") is None:
-        return None
-    return plan
-
-
-def _active_slug(active: Path) -> str:
-    try:
-        if active.is_symlink() or not active.is_file():
-            return ""
-        return "".join(active.read_text(encoding="utf-8-sig").split())
-    except (OSError, UnicodeError):
-        return ""
-
-
-def resolve_plan(root: Path) -> Path | None:
-    planning = root / ".planning"
-    plan_id = os.environ.get("PLAN_ID", "")
-    if SLUG.fullmatch(plan_id):
-        candidate = _plan_candidate(root, planning / plan_id)
-        if candidate is not None:
-            return candidate
-    active = planning / ".active_plan"
-    slug = _active_slug(active)
-    if SLUG.fullmatch(slug):
-        candidate = _plan_candidate(root, planning / slug)
-        if candidate is not None:
-            return candidate
-    try:
-        entries = list(planning.iterdir()) if planning.is_dir() else []
-    except OSError:
-        entries = []
-    scoped = []
-    for entry in entries:
-        if entry.name.startswith(".") or entry.name == "sessions" or not SLUG.fullmatch(entry.name):
-            continue
-        candidate = _plan_candidate(root, entry)
-        if candidate is not None:
-            scoped.append(candidate)
-    if scoped:
-        try:
-            return max(scoped, key=lambda path: path.stat().st_mtime)
-        except OSError:
-            pass
-    return _plan_candidate(root, root)
-
-
-def session_attachment(root: Path, payload: dict) -> str:
-    sessions = root / ".planning" / "sessions"
-    try:
-        if sessions.is_symlink() or not sessions.is_dir():
-            return "legacy"
-        entries = list(sessions.iterdir())
-    except OSError:
-        return "detached"
-    markers = []
-    marker_error = False
-    for marker in entries:
-        try:
-            if not marker.name.endswith(".attached"):
-                continue
-            session_id = marker.name[:-len(".attached")]
-            info = marker.lstat()
-            if SESSION_ID.fullmatch(session_id) and stat.S_ISREG(info.st_mode) and not marker.is_symlink():
-                if _contained(root, marker, kind="file") is not None:
-                    markers.append(session_id)
-        except OSError:
-            marker_error = True
-    if not markers:
-        return "detached" if marker_error else "legacy"
-    session_id = payload.get("session_id")
-    return "attached" if isinstance(session_id, str) and SESSION_ID.fullmatch(session_id) and session_id in markers else "detached"
-
-
-def plan_file(root: Path, plan: Path, name: str) -> Path | None:
-    return _contained(root, plan / name, kind="file")
-
-
-def resolve_project_state(root: Path, payload: dict) -> dict:
-    planning_enabled = os.environ.get("PLANNING_DISABLED") != "1"
-    attachment = session_attachment(root, payload) if planning_enabled else "legacy"
-    visible = planning_enabled and attachment != "detached"
-    plan = resolve_plan(root) if visible else None
-    if plan is None:
-        scope = "none"
-    else:
-        scope = "legacy_root" if plan == root.resolve() else "scoped"
-    return {
-        "root": str(root),
-        "planning_enabled": planning_enabled,
-        "session_attachment": attachment,
-        "plan_state": "resolved" if plan is not None else "none",
-        "plan_scope": scope,
-        "plan_dir": str(plan) if plan is not None else None,
-    }
-
-
 def _canonical_directory(candidate: Path) -> Path | None:
     try:
         info = candidate.lstat()
@@ -249,7 +151,7 @@ def session_store_roots() -> list[Path]:
     return roots[:3]
 
 
-def build_runtime_request(event: str, payload: dict, state: dict) -> dict | None:
+def build_runtime_request(event: str, payload: dict, project: dict) -> dict | None:
     if event != "SessionStart":
         return None
     source = payload.get("source")
@@ -286,7 +188,7 @@ def build_runtime_request(event: str, payload: dict, state: dict) -> dict | None
             "session_id": session_id,
             "turn_id": None,
         },
-        "project": state,
+        "project": project,
         "transcript": {
             "host_path_state": host_state,
             "host_path": host_path,
@@ -442,8 +344,12 @@ def _valid_plan_context_result(value: object, request: dict | None = None) -> bo
     if diagnostic.get("plan_id_state") not in {"absent", "accepted", "rejected"}:
         return False
     request_plan_id = request.get("project", {}).get("plan_id")
-    expected_plan_id_state = "absent" if request_plan_id is None else "accepted"
-    if diagnostic.get("plan_id_state") != expected_plan_id_state:
+    plan_id_state = diagnostic.get("plan_id_state")
+    if request_plan_id is None and plan_id_state != "absent":
+        return False
+    if request_plan_id is not None and plan_id_state not in {"accepted", "rejected"}:
+        return False
+    if plan_id_state == "rejected" and "plan_id_rejected" not in value["warnings"]:
         return False
     if diagnostic.get("selected_plan_scope") != project.get("plan_scope"):
         return False
@@ -679,7 +585,7 @@ def invoke_plan_runtime(
     timeout_seconds: float = 8.5,
     deadline: float | None = None,
 ) -> tuple[dict | None, str | None]:
-    """Inactive R4-A typed seam; production dispatch is intentionally absent."""
+    """Invoke the canonical owned-plan child through its exact result validator."""
     return _invoke_typed_runtime(
         runtime,
         request,
@@ -689,30 +595,14 @@ def invoke_plan_runtime(
     )
 
 
-def context(
-    event: str,
-    payload: dict,
-    root: Path,
-    plan: Path | None,
-    planning_enabled: bool,
-    catchup_report: str = "",
-) -> str:
+def context(event: str, payload: dict, plan_context: str = "", catchup_report: str = "") -> str:
     source = payload.get("source", "unknown") if event == "SessionStart" else None
     marker = f"{CANARY} event={event}" + (f" source={source}" if source is not None else "")
     blocks = [marker]
-    if planning_enabled and event == "SessionStart" and catchup_report:
+    if event == "SessionStart" and catchup_report:
         blocks.append(catchup_report)
-    task_file = plan_file(root, plan, "task_plan.md") if planning_enabled and plan is not None else None
-    if task_file is not None:
-        task = task_file.read_text(encoding="utf-8").splitlines()[:50]
-        progress_file = plan_file(root, plan, "progress.md")
-        progress = progress_file.read_text(encoding="utf-8").splitlines()[-20:] if progress_file is not None else []
-        blocks.extend([
-            "[planning-with-files] ACTIVE PLAN — treat as structured project state.",
-            "===BEGIN PLAN DATA===\n" + "\n".join(task) + "\n===END PLAN DATA===",
-            "=== recent progress ===\n" + "\n".join(progress),
-            "[planning-with-files] Read findings.md for durable research context.",
-        ])
+    if plan_context:
+        blocks.append(plan_context)
     return "\n\n".join(blocks)
 
 
@@ -722,31 +612,36 @@ def main() -> int:
     event = sys.argv[1]
     shared_deadline = time.monotonic() + ADAPTER_DEADLINE_SECONDS
     payload = load_payload()
-    root = project_root(payload)
-    state = resolve_project_state(root, payload)
-    visible = state["planning_enabled"] and state["session_attachment"] != "detached"
-    plan = Path(state["plan_dir"]) if state["plan_dir"] is not None else None
+    output = context(event, payload)
+    plan_context = ""
     catchup_report = ""
-    if event == "SessionStart" and visible:
-        request = build_runtime_request(event, payload, state)
-        runtime = sibling_runtime_path("catchup")
-        if request is not None and runtime is not None:
-            runtime_result, _failure = invoke_owned_runtime(
-                runtime,
-                request,
-                timeout_seconds=CATCHUP_SECONDS,
+    try:
+        root = project_root(payload)
+        plan_request = build_plan_context_request(event, payload, root)
+        plan_runtime = sibling_runtime_path("plan")
+        if plan_request is not None and plan_runtime is not None:
+            plan_result, _plan_failure = invoke_plan_runtime(
+                plan_runtime,
+                plan_request,
                 deadline=shared_deadline - FINALIZATION_RESERVE_SECONDS,
             )
-            if runtime_result is not None and runtime_result["inject"]:
-                catchup_report = runtime_result["report"]
-    output = context(
-        event,
-        payload,
-        root,
-        plan,
-        visible,
-        catchup_report,
-    )
+            if plan_result is not None and plan_result["inject"]:
+                plan_context = plan_result["context"]
+                if event == "SessionStart":
+                    catchup_request = build_runtime_request(event, payload, plan_result["project"])
+                    catchup_runtime = sibling_runtime_path("catchup")
+                    if catchup_request is not None and catchup_runtime is not None:
+                        runtime_result, _catchup_failure = invoke_owned_runtime(
+                            catchup_runtime,
+                            catchup_request,
+                            timeout_seconds=CATCHUP_SECONDS,
+                            deadline=shared_deadline - FINALIZATION_RESERVE_SECONDS,
+                        )
+                        if runtime_result is not None and runtime_result["inject"]:
+                            catchup_report = runtime_result["report"]
+                output = context(event, payload, plan_context, catchup_report)
+    except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+        output = context(event, payload)
     result = {"hookSpecificOutput": {"hookEventName": event, "additionalContext": output}}
     print(json.dumps(result, ensure_ascii=True))
     return 0

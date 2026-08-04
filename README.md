@@ -5,9 +5,8 @@
 Skill 接入 Codex Cloud 会话。
 
 > **状态：**`v0.2.2` 仍是已发布的稳定基线，`v0.3.0-alpha.1` 是保留的 Phase 1
-> 预发行版本。`v0.3.0-alpha.2` 已激活 owned SessionStart catch-up runtime，并通过完整的
-> Fresh Cloud Phase 2 硬验收。Alpha.2 是下一步 Phase 3 canonical UserPrompt injection
-> 工作的回滚基线。
+> 预发行版本。Cloud-accepted `v0.3.0-alpha.2` 是当前 Phase 3 回滚基线。开发工作区已完成
+> R4-B plan-first 原子激活的本地实现，Linux/Cloud gate 尚待完成；这不是 beta.1 已发布或已验收声明。
 
 ## 从这里开始
 
@@ -43,7 +42,17 @@ Codex Cloud 需要一套经过集中审查的部署方式：
 
 ## 当前行为
 
-### 已验收的 `v0.3.0-alpha.2` 行为
+### 当前开发工作区的 R4-B 行为
+
+Managed requirements 仍只注册一个 adapter 命令。两个事件先调用 sibling `owned-plan.py`；
+只有严格校验通过且 `inject=true` 的结果才能提供 planning context。SessionStart 随后把该结果的
+六字段 `project` 原样交给 `owned-catchup.py`，最终输出顺序固定为 canary、可选 catch-up、plan。
+plan 失败或非注入结果只保留 canary；catch-up 失败不抑制已经验证的 plan context。
+
+这条开发路径已通过 Windows R4-B 本地回归，仍需 Linux/Cloud gate。发布过的 alpha.2 行为和
+资产保持不可变，仍是外部回滚点。
+
+### 已验收的 `v0.3.0-alpha.2` 回滚行为
 
 工作区保留 v0.2.2 已证明的两个事件；Phase 2 已接管 SessionStart catch-up 的执行边界：
 
@@ -71,7 +80,8 @@ Hook 进程缺少 `CODEX_HOME` 时，adapter 可以从自身位于
 `$CODEX_HOME/hooks/planning-with-files/` 下的安装路径推导 session-store root。因此 setup
 shell 的 export 不是隐藏的 runtime 依赖，`/opt/codex` 也不被视为永久平台常量。
 
-alpha.2 adapter 按以下顺序解析项目 planning state：
+alpha.2 adapter 曾按以下顺序解析项目 planning state；R4-B 开发路径已把这项职责移入
+`owned-plan.py`：
 
 1. `.planning/.active_plan` 指向的有效 scoped plan；
 2. `.planning/` 下修改时间最新的有效 plan；
@@ -80,11 +90,11 @@ alpha.2 adapter 按以下顺序解析项目 planning state：
 存在 plan 时，当前 legacy-style 路径注入 `task_plan.md` 前 50 行、`progress.md` 后 20 行，
 并提示读取 `findings.md`。不存在 plan 时，只输出 event canary。
 
-### 尚未实现或尚未激活
+### 尚未实现、尚未验收或尚未激活
 
-exact-v1 `owned-plan.py` 已在开发版 Round 3 trusted graph 中实现、安装并打包，但 adapter
-刻意尚未 dispatch 它。当前 Hook 行为仍保持 Cloud-accepted alpha.2 路径，直到 Round 4
-激活门槛通过。
+R4-B 已在开发工作区 dispatch exact-v1 `owned-plan.py`，但 Linux/Cloud gate 尚未完成，R4-C
+beta.1 封板、外部资产和 Fresh/Resume Cloud 验收尚未授权。因此不能把当前开发字节描述为
+已发布或 Cloud-accepted beta 行为。
 
 当前 managed runtime 还没有启用以下上游能力：
 
@@ -106,7 +116,7 @@ Codex Cloud setup/maintenance
   v
 install.js
   |-- 验证 pristine global Skill 和 hash-pinned owned bundle
-  |-- 安装 adapter、owned-catchup、inactive owned-plan、schemas 和 upstream files
+  |-- 安装 adapter、owned-catchup、owned-plan、schemas 和 upstream files
   |-- 记录 $CODEX_HOME/hooks/planning-with-files/installed-manifest.json
   `-- 把 owned Hook definitions 合并到 /etc/codex/requirements.toml
           |
@@ -114,9 +124,9 @@ install.js
      /usr/bin/python3 <absolute-managed-path>/hook_adapter.py <event>
           |
           |-- 解析 Codex stdin JSON
-          |-- SessionStart 调用 sibling owned-catchup.py
-          |-- 当前仍在 adapter 内渲染 plan context（alpha.2 行为）
-          |-- activation gates 通过前不 dispatch installed owned-plan.py
+          |-- 两个事件先调用 sibling owned-plan.py
+          |-- SessionStart 再把 exact project 交给 sibling owned-catchup.py
+          |-- 不再解析或渲染 plan 文件
           `-- 返回 Codex hookSpecificOutput.additionalContext JSON
 ```
 
@@ -169,21 +179,22 @@ install.js
 |---|---|
 | `AGENTS.md` | 智能体进入仓库后的阅读顺序、文档权威关系、稳定边界和验证规则 |
 | `install.js` | Managed installer CLI：install、doctor、repair、uninstall |
-| `hooks/hook_adapter.py` | 只读 Codex 协议 adapter、SessionStart supervisor，以及仍在本地实现的 UserPrompt injection |
+| `hooks/hook_adapter.py` | 只读 Codex 协议 adapter、两个 typed child 的共享 supervisor、严格结果校验与上下文组合 |
 | `patches/patch_planning_skill.py` | 历史 overlay 复现/审计工具；alpha.2 不发布、不执行 |
 | `tools/import_upstream_runtime.py` | 固定 archive、仅 allowlist 的 runtime 导入与 drift 检查 |
 | `tools/build_release.py` | 确定性、精确 allowlist 的 Release ZIP 构建与验证 |
 | `runtime/owned-catchup.py` | Active Phase 2 SessionStart catch-up 入口和 transcript trust boundary |
-| `runtime/owned-plan.py` | Inactive Phase 3 exact-v1 canonical plan-context runtime 和 controlled-snapshot boundary |
+| `runtime/owned-plan.py` | R4-B active exact-v1 canonical plan-context runtime 和 controlled-snapshot boundary |
 | `runtime/upstream/` | 四个已验证 runtime 文件；catch-up active，prompt/ledger 文件按阶段使用 |
 | `THIRD_PARTY_NOTICES.md` | 再分发 runtime code 的完整 upstream MIT attribution |
 | `upstream-manifest.json` | Manifest v3：archive、contracts、importer、license、source paths、modes 和 hashes |
 | `contracts/` | Versioned runtime allowlist、overlay ledger、adapter/runtime schemas 和 Release ZIP boundary |
 | `docs/phase-1-runtime-contracts.md` | Phase 1 contract 和 ownership 的可读说明 |
 | `docs/phase-2-owned-catchup.md` | Active SessionStart owned-runtime boundary 和安全策略 |
-| `docs/phase-3-canonical-plan-context.md` | Phase 3 已选架构、inactive trusted-graph lifecycle、兼容决策、预算和 round gates |
+| `docs/phase-3-canonical-plan-context.md` | Phase 3 已选架构、exact-v1 lifecycle、兼容决策、预算和 round gates |
 | `docs/phase-3-round-4-activation-plan.md` | Round 4 A/B/C 激活顺序、共享 deadline、failure matrix、rollback boundary 和 beta.1 Cloud exit gate |
 | `docs/phase-3-round-4-r4a-cloud-acceptance.md` | R4-A bounded supervisor/type seam 的 Linux/Cloud 可复制验收；明确保持 plan dispatch inactive |
+| `docs/phase-3-round-4-r4b-cloud-acceptance.md` | R4-B plan-first、adapter thinning、isolated upgrade、latency/output 和 69/69 Linux/Cloud gate |
 | `docs/phase-3-upstream-invocation-options.md` | overlay/snapshot/其他路线比较、实证和长期 Host/Driver 标准化边界 |
 | `docs/phase-3-round-3-cloud-acceptance.md` | Inactive Round 3 Linux/Cloud、隔离安装、inventory、direct runtime 和 no-dispatch gate |
 | `docs/v0.3.0-alpha.1-cloud-smoke.md` | Phase 1 预发行发布与 Cloud smoke 验收记录 |
@@ -203,7 +214,7 @@ install.js
 | `tests/release-package.test.js` | 确定性 ZIP inventory、metadata、mode 和 bootstrap separation 测试 |
 | `tests/owned-runtime.test.js` | Owned catch-up request/result、Host transcript、fallback、identity 和 containment 测试 |
 | `tests/owned-plan-runtime.test.js` | Owned plan exact-v1、snapshot、safe-read、timeout 和 cleanup 测试 |
-| `tests/phase3-contracts.test.js` | Inactive Phase 3 prompt contracts 和 alpha.2 trusted-graph exclusion 测试 |
+| `tests/phase3-contracts.test.js` | Phase 3 exact-v1 trusted graph、R4-B dispatch 和旧 adapter 算法删除测试 |
 | `tests/snapshot-prototype-handoff.test.js` | 把八个独立 feasibility cases 纳入父 suite，并证明 production-graph isolation |
 | `tests/fixtures/planning-with-files/` | 自包含 pinned Skill fixture；不是第二套 production Skill |
 | `planning-with-files-3.8.2/` | 开发用、Git 忽略的上游参考树；不得打包 |
@@ -239,12 +250,12 @@ bash -n init-cloud-sandbox-v0.3.0.bash
 git diff --check
 ```
 
-当前开发版 Node suite 注册 66 个**测试案例**，不等于 66 个原子产品功能：
+当前开发版 Node suite 注册 69 个**测试案例**，不等于 69 个原子产品功能：
 
-- Windows R4-A：48 PASS、18 个如实标记的 POSIX/Linux-only SKIP、0 FAIL；
-- 最近一次已关闭的 Cloud/Linux gate 是 Round 3 的 63 PASS、0 SKIP、0 FAIL；
-- R4-A 新增的 Linux process-group 和 inactive typed-seam 回归须按
-  `docs/phase-3-round-4-r4a-cloud-acceptance.md` 跑到 66/66，当前仍待 Cloud 证据；
+- Windows R4-B：51 PASS、18 个如实标记的 POSIX/Linux-only SKIP、0 FAIL；
+- R4-B Linux/Cloud 完整执行尚待 gate；
+- Cloud/Linux R4-A：66 PASS、0 SKIP、0 FAIL；process-group、inactive typed seam、隔离安装、
+  doctor、11/21 inventory、no-dispatch 和 clean-workspace gate 全部通过；
 - 已封板 alpha.2 快照仍是 45 registered、42 PASS、3 Linux-only SKIP。
 
 这些案例覆盖：
@@ -507,12 +518,14 @@ git status --short --branch
   single-link policy、inactive trusted graph 和 63/63 Linux/Cloud gate 已关闭；
 - Round 4 入口分析 complete：R4-A 是 bounded supervisor/type seam，R4-B 是 atomic activation
   与 adapter thinning，R4-C 是 beta.1 seal 和 Fresh/Resume Cloud acceptance；
-- R4-A implementation 与 Windows gate 已完成，Linux/Cloud gate 待执行；owned-plan production
-  dispatch 仍为 inactive，R4-B、R4-C 和 beta.1 发布仍未授权；alpha.2 保持 rollback baseline。
+- R4-A 已完成并通过 Windows 与 Linux/Cloud gate；R4-B 本地 plan-first activation、adapter
+  thinning 和 69-case Windows gate 已通过，Linux/Cloud gate 待执行。R4-C 和 beta.1 发布仍未
+  授权；alpha.2 保持 rollback baseline。
 
 更详细的阶段摘要和发布路标见 `work_plan.md`；Round 4 gate 见
 `docs/phase-3-round-4-activation-plan.md`；R4-A Cloud gate 见
-`docs/phase-3-round-4-r4a-cloud-acceptance.md`。prototype branch/commit 中的 beta.1 字样只是实验
+`docs/phase-3-round-4-r4a-cloud-acceptance.md`，R4-B Cloud gate 见
+`docs/phase-3-round-4-r4b-cloud-acceptance.md`。prototype branch/commit 中的 beta.1 字样只是实验
 metadata，不代表 beta Release 已成立。新的 lifecycle events 继续延后，直到该 runtime boundary
 和 diagnostic contract 完成。
 

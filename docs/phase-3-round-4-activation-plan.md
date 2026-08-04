@@ -1,6 +1,6 @@
 # Phase 3 Round 4 Activation Plan
 
-> Status: R4-A implementation and Windows gate PASS; Linux/Cloud gate pending; production dispatch is still unchanged
+> Status: R4-A complete / Linux Cloud PASS; R4-B local implementation PASS, Linux/Cloud gate pending
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
@@ -147,10 +147,12 @@ Gate: the full local suite passes, existing alpha.2 goldens remain byte-exact,
 adapter dispatch still excludes owned-plan, and installed/ZIP counts remain
 11/21.
 
-Current evidence: Windows completed 66 registered / 48 PASS / 18 honest Linux-only
-SKIP / 0 FAIL. Close R4-A only after the copyable Linux/Cloud gate in
+Accepted evidence: Windows completed 66 registered / 48 PASS / 18 honest Linux-only
+SKIP / 0 FAIL. The copyable Linux/Cloud gate in
 [`phase-3-round-4-r4a-cloud-acceptance.md`](phase-3-round-4-r4a-cloud-acceptance.md)
-reaches 66 PASS / 0 SKIP / 0 FAIL. That acceptance does not authorize R4-B.
+completed 66 PASS / 0 SKIP / 0 FAIL with both process-group layers, isolated install,
+doctor, 11/21 inventories, inactive plan dispatch, zero snapshots, and a clean workspace.
+R4-A is closed. That acceptance does not authorize R4-B.
 
 ## R4-B — atomic activation and adapter thinning
 
@@ -174,6 +176,15 @@ Gate: no parallel plan algorithm remains in the adapter; full Windows tests pass
 with honest POSIX skips; full Linux tests pass with zero skips/failures; direct
 adapter latency and output-size measurements fit the frozen budgets; doctor is
 healthy after an isolated install and upgrade rehearsal.
+
+Local evidence: 69 registered / 51 PASS / 18 honest Linux-only SKIP / 0 FAIL;
+the adapter's parallel plan algorithm is absent, immutable alpha composition
+goldens and separate beta goldens pass, trusted hashes are synchronized, and the
+development ZIP remains 21 entries. The remaining gate is the exact Linux/Cloud
+procedure in
+[`phase-3-round-4-r4b-cloud-acceptance.md`](phase-3-round-4-r4b-cloud-acceptance.md),
+including 69/69, real both-child identities, isolated alpha.2 upgrade/doctor,
+latency/output measurements, and zero snapshot residue.
 
 ## R4-C — beta.1 sealing and Cloud acceptance
 

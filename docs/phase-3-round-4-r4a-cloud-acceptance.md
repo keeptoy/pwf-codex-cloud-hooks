@@ -1,10 +1,20 @@
 # Phase 3 Round 4 R4-A Linux/Cloud 验收
 
-> 状态：待执行；R4-A 本地 Windows gate 已通过，Linux/Cloud gate 尚未关闭
+> 状态：complete；精确 R4-A commit 的 Linux/Cloud gate PASS
 >
 > 范围：bounded supervisor、typed protocol seam、inactive plan dispatch
 >
 > 禁止：不得安装到 live `/opt/codex`，不得激活 `owned-plan.py`，不得进入 R4-B/R4-C 或发布 beta.1
+
+## 已接受结果
+
+2026-08-03 的 Fresh Cloud 执行完整通过：static checks PASS；Linux suite 为
+66 tests / 66 PASS / 0 FAIL / 0 SKIP；两层 POSIX process-group cleanup PASS；isolated install
+与 doctor PASS；installed inventory 11、development ZIP 21；catch-up production dispatch active；
+plan typed seam PASS 但 production dispatch inactive；snapshot leftovers 0；workspace clean。
+最终标记为 `R4A_CLOUD_ACCEPTANCE=PASS`。
+
+R4-A 因此关闭。该结果仍不授权 R4-B、live `/opt/codex` 安装或 beta.1 Release。
 
 ## 这轮验证什么
 

@@ -8,7 +8,7 @@ const test = require("node:test");
 const root = path.resolve(__dirname, "..");
 const readJson = relative => JSON.parse(fs.readFileSync(path.join(root, relative), "utf8"));
 
-test("Phase 3 Round 3 installs the exact-v1 canonical plan-context path without dispatching it", () => {
+test("Phase 3 R4-B activates the installed exact-v1 canonical plan-context path", () => {
   const request = readJson("contracts/adapter-plan-context-request-v1.schema.json");
   const result = readJson("contracts/plan-context-result-v1.schema.json");
   const bundle = readJson("contracts/runtime-bundle-v1.json");
@@ -26,8 +26,8 @@ test("Phase 3 Round 3 installs the exact-v1 canonical plan-context path without 
   assert.equal(request.properties.output_budget.properties.max_progress_lines.const, 20);
   assert.equal(Object.hasOwn(request.properties, "transcript"), false);
   assert.equal(JSON.stringify(request).includes('"prompt"'), false);
-  assert.match(request.$comment, /implemented and installed by inactive Round 3/);
-  assert.match(request.$comment, /excluded from adapter dispatch/);
+  assert.match(request.$comment, /implemented and installed by Round 3/);
+  assert.match(request.$comment, /activated by Phase 3 R4-B/);
 
   assert.equal(result.properties.schema_version.const, 1);
   assert.ok(result.properties.outcome.enum.includes("context_emitted"));
@@ -35,14 +35,15 @@ test("Phase 3 Round 3 installs the exact-v1 canonical plan-context path without 
   assert.ok(result.properties.outcome.enum.includes("output_budget_exceeded"));
   assert.equal(result.properties.context.maxLength, 20000);
   assert.deepEqual(result.properties.project.properties.session_attachment.enum, ["legacy", "attached", "detached"]);
-  assert.match(result.$comment, /implemented and installed by inactive Round 3/);
+  assert.match(result.$comment, /implemented and installed by Round 3/);
+  assert.match(result.$comment, /activated by Phase 3 R4-B/);
 
   assert.match(guide, /runs for both SessionStart and UserPromptSubmit/);
   assert.match(guide, /forces? `managed_legacy`/);
   assert.match(guide, /upstream scripts remain pristine/);
   assert.match(guide, /does not require a multi-target importer\/ledger upgrade/);
   assert.match(guide, /filenames intentionally do not carry a `candidate` suffix/);
-  assert.match(guide, /inactive Round 3 trusted graph/);
+  assert.match(guide, /current trusted graph installs, packages, and dispatches/);
   assert.match(options, /Phase 3 使用路线 B/);
   assert.match(options, /Integration Driver ABI/);
 
@@ -61,6 +62,13 @@ test("Phase 3 Round 3 installs the exact-v1 canonical plan-context path without 
   assert.match(adapter, /CATCHUP_SECONDS = 15\.0/);
   assert.match(adapter, /FINALIZATION_RESERVE_SECONDS = 1\.0/);
   assert.doesNotMatch(adapter, /subprocess\.run\(/);
+  assert.match(adapter, /sibling_runtime_path\("plan"\)/);
   assert.match(adapter, /sibling_runtime_path\("catchup"\)/);
-  assert.doesNotMatch(adapter, /sibling_runtime_path\("plan"\)/);
+  const main = adapter.slice(adapter.indexOf("def main()"));
+  assert.ok(main.indexOf('sibling_runtime_path("plan")') < main.indexOf('sibling_runtime_path("catchup")'));
+  for (const retired of [
+    "def _plan_candidate(", "def _active_slug(", "def resolve_plan(",
+    "def session_attachment(", "def plan_file(", "def resolve_project_state(",
+  ]) assert.doesNotMatch(adapter, new RegExp(retired.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.doesNotMatch(adapter, /task_file\.read_text|progress_file\.read_text/);
 });

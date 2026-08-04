@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://keeptoy.github.io/pwf-codex-cloud-hooks/contracts/plan-context-result-v1.schema.json",
   "title": "planning-with-files owned plan-context result v1",
-  "$comment": "Phase 3 exact-v1 contract, implemented and installed by inactive Round 3. It remains excluded from adapter dispatch; the published v0.3.0-alpha.2 asset and bootstrap stay unchanged until separately reviewed Round 4 activation.",
+  "$comment": "Phase 3 exact-v1 contract, implemented and installed by Round 3 and activated by Phase 3 R4-B. The published v0.3.0-alpha.2 asset and bootstrap remain immutable rollback evidence.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schema_version", "outcome", "inject", "context", "project", "warnings", "diagnostic"],

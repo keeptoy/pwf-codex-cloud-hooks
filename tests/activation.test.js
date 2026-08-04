@@ -24,6 +24,7 @@ function fixture({ actualRuntime = false } = {}) {
   fs.mkdirSync(sessions, { recursive: true });
   fs.copyFileSync(sourceAdapter, path.join(managed, "hook_adapter.py"));
   if (actualRuntime) {
+    fs.copyFileSync(path.join(root, "runtime", "owned-plan.py"), path.join(managed, "owned-plan.py"));
     fs.copyFileSync(path.join(root, "runtime", "owned-catchup.py"), path.join(managed, "owned-catchup.py"));
     fs.cpSync(path.join(root, "runtime", "upstream"), path.join(managed, "upstream"), { recursive: true });
   }
@@ -51,67 +52,106 @@ function invoke(layout, event, payload, envOverrides = {}, identity = {}) {
   return { ...result, json: result.stdout.trim() ? JSON.parse(result.stdout) : null };
 }
 
-test("SessionStart activates only the sibling owned runtime with an explicit Host request", () => {
-  const layout = fixture();
-  const capture = path.join(layout.workspace, "request.json");
-  const planMarker = path.join(layout.workspace, "owned-plan-ran");
-  const globalMarker = path.join(layout.workspace, "global-skill-ran");
-  const globalSkill = path.join(layout.workspace, ".agents", "skills", "planning-with-files", "scripts");
-  const stub = [
+function writePlanStub(layout, { context = "OWNED_PLAN_CONTEXT", exitCode = 0 } = {}) {
+  const source = exitCode ? `raise SystemExit(${exitCode})\n` : [
     "import json,os,pathlib,sys",
     "request=json.load(sys.stdin)",
-    "pathlib.Path(os.environ['PWF_TEST_CAPTURE']).write_text(json.dumps(request),encoding='utf-8')",
-    "result={'schema_version':1,'outcome':'report_emitted','inject':True,'report':'OWNED_RUNTIME_REPORT','warnings':[],'diagnostic':{'event_name':'SessionStart','session_id_present':True,'planning_enabled':True,'session_attachment':'legacy','selected_transcript':'host_path','selected_transcript_path':request['transcript']['host_path'],'selected_plan_scope':request['project']['plan_scope'],'selected_plan_dir':request['project']['plan_dir']}}",
+    "log=os.environ.get('PWF_TEST_ORDER')",
+    "if log: open(log,'a',encoding='utf-8').write('plan\\n')",
+    "capture=os.environ.get('PWF_TEST_PLAN_CAPTURE')",
+    "if capture: pathlib.Path(capture).write_text(json.dumps(request),encoding='utf-8')",
+    "plan=str(pathlib.Path(request['project']['root'])/'.planning'/'active')",
+    `context=${JSON.stringify(context)}`,
+    "result={'schema_version':1,'outcome':'context_emitted','inject':True,'context':context,'project':{'root':request['project']['root'],'planning_enabled':request['policy']['planning_enabled'],'session_attachment':'legacy','plan_state':'resolved','plan_scope':'scoped','plan_dir':plan},'warnings':[],'diagnostic':{'event_name':request['event']['name'],'plan_id_state':'absent' if request['project']['plan_id'] is None else 'accepted','selected_plan_scope':'scoped','selected_plan_dir':plan}}",
     "print(json.dumps(result))",
   ].join("\n");
+  fs.writeFileSync(path.join(layout.managed, "owned-plan.py"), source);
+}
+
+function writeCatchupStub(layout, { report = "OWNED_RUNTIME_REPORT", exitCode = 0, marker = null } = {}) {
+  const source = exitCode ? [
+    "import os,pathlib",
+    marker ? `pathlib.Path(${JSON.stringify(marker)}).write_text('executed',encoding='utf-8')` : "",
+    `raise SystemExit(${exitCode})`,
+  ].filter(Boolean).join("\n") + "\n" : [
+    "import json,os,pathlib,sys",
+    "request=json.load(sys.stdin)",
+    "log=os.environ.get('PWF_TEST_ORDER')",
+    "if log: open(log,'a',encoding='utf-8').write('catchup\\n')",
+    "capture=os.environ.get('PWF_TEST_CATCHUP_CAPTURE')",
+    "if capture: pathlib.Path(capture).write_text(json.dumps(request),encoding='utf-8')",
+    `report=${JSON.stringify(report)}`,
+    "result={'schema_version':1,'outcome':'report_emitted','inject':True,'report':report,'warnings':[],'diagnostic':{'event_name':'SessionStart','session_id_present':True,'planning_enabled':request['project']['planning_enabled'],'session_attachment':request['project']['session_attachment'],'selected_transcript':'host_path','selected_transcript_path':request['transcript']['host_path'],'selected_plan_scope':request['project']['plan_scope'],'selected_plan_dir':request['project']['plan_dir']}}",
+    "print(json.dumps(result))",
+  ].join("\n");
+  fs.writeFileSync(path.join(layout.managed, "owned-catchup.py"), source);
+}
+
+test("R4-B dispatches plan first, forwards its exact project, and keeps event-specific composition", () => {
+  const layout = fixture();
+  const order = path.join(layout.workspace, "order.txt");
+  const planCapture = path.join(layout.workspace, "plan-request.json");
+  const catchupCapture = path.join(layout.workspace, "catchup-request.json");
+  const globalMarker = path.join(layout.workspace, "global-skill-ran");
+  const globalSkill = path.join(layout.workspace, ".agents", "skills", "planning-with-files", "scripts");
   try {
     fs.writeFileSync(layout.transcript, "{}\n");
-    fs.writeFileSync(path.join(layout.managed, "owned-catchup.py"), stub);
-    fs.writeFileSync(
-      path.join(layout.managed, "owned-plan.py"),
-      `import pathlib\npathlib.Path(${JSON.stringify(planMarker)}).write_text('executed')\nraise SystemExit(91)\n`,
-    );
+    writePlanStub(layout);
+    writeCatchupStub(layout);
     fs.mkdirSync(globalSkill, { recursive: true });
     fs.writeFileSync(
       path.join(globalSkill, "session-catchup.py"),
-      `import pathlib\npathlib.Path(${JSON.stringify(globalMarker)}).write_text('executed')\nprint('MUTABLE_GLOBAL_SKILL_EXECUTED')\n`,
+      `import pathlib\npathlib.Path(${JSON.stringify(globalMarker)}).write_text('executed')\n`,
     );
-
+    const env = {
+      PWF_TEST_ORDER: order,
+      PWF_TEST_PLAN_CAPTURE: planCapture,
+      PWF_TEST_CATCHUP_CAPTURE: catchupCapture,
+    };
     let result = invoke(layout, "SessionStart", {
       source: "resume",
       session_id: "session-owned-1",
       transcript_path: layout.transcript,
-    }, { PWF_TEST_CAPTURE: capture });
+    }, env);
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.json.hookSpecificOutput.additionalContext, /OWNED_RUNTIME_REPORT/);
-    assert.match(result.json.hookSpecificOutput.additionalContext, /Task Plan: Owned Activation/);
-    assert.doesNotMatch(result.json.hookSpecificOutput.additionalContext, /MUTABLE_GLOBAL_SKILL_EXECUTED/);
+    assert.deepEqual(fs.readFileSync(order, "utf8").trim().split(/\r?\n/), ["plan", "catchup"]);
+    const planRequest = JSON.parse(fs.readFileSync(planCapture, "utf8"));
+    const catchupRequest = JSON.parse(fs.readFileSync(catchupCapture, "utf8"));
+    assert.deepEqual(planRequest.event, { name: "SessionStart", source: "resume", session_id: "session-owned-1", turn_id: null });
+    assert.deepEqual(catchupRequest.project, {
+      root: layout.project,
+      planning_enabled: true,
+      session_attachment: "legacy",
+      plan_state: "resolved",
+      plan_scope: "scoped",
+      plan_dir: layout.plan,
+    });
+    const output = result.json.hookSpecificOutput.additionalContext;
+    assert.ok(output.indexOf("PWF_GLOBAL_HOOK_CANARY_V1") < output.indexOf("OWNED_RUNTIME_REPORT"));
+    assert.ok(output.indexOf("OWNED_RUNTIME_REPORT") < output.indexOf("OWNED_PLAN_CONTEXT"));
     assert.equal(fs.existsSync(globalMarker), false);
-    assert.equal(fs.existsSync(planMarker), false, "R4-A must not dispatch owned-plan on SessionStart");
 
-    const request = JSON.parse(fs.readFileSync(capture, "utf8"));
-    assert.equal(request.schema_version, 1);
-    assert.equal(request.runtime, "codex");
-    assert.deepEqual(request.event, { name: "SessionStart", source: "resume", session_id: "session-owned-1", turn_id: null });
-    assert.equal(request.project.plan_state, "resolved");
-    assert.equal(request.transcript.host_path_state, "validated");
-    assert.equal(path.resolve(request.transcript.host_path), path.resolve(layout.transcript));
-    assert.deepEqual(request.transcript.session_store_roots.map(value => path.resolve(value)), [path.resolve(layout.codexHome, "sessions")]);
-
-    fs.rmSync(capture);
-    result = invoke(layout, "UserPromptSubmit", { session_id: "session-owned-1", turn_id: "turn-1" }, { PWF_TEST_CAPTURE: capture });
+    fs.rmSync(order);
+    fs.rmSync(catchupCapture);
+    result = invoke(layout, "UserPromptSubmit", {
+      session_id: "session-owned-1",
+      turn_id: "turn-1",
+    }, env);
     assert.equal(result.status, 0, result.stderr);
-    assert.match(result.json.hookSpecificOutput.additionalContext, /Task Plan: Owned Activation/);
-    assert.equal(fs.existsSync(capture), false, "UserPromptSubmit must remain local until Phase 3");
-    assert.equal(fs.existsSync(planMarker), false, "R4-A must not dispatch owned-plan on UserPromptSubmit");
+    assert.deepEqual(fs.readFileSync(order, "utf8").trim().split(/\r?\n/), ["plan"]);
+    assert.equal(fs.existsSync(catchupCapture), false, "UserPromptSubmit must never invoke catch-up");
+    assert.equal(result.json.hookSpecificOutput.additionalContext,
+      "PWF_GLOBAL_HOOK_CANARY_V1 event=UserPromptSubmit\n\nOWNED_PLAN_CONTEXT");
   } finally { fs.rmSync(layout.workspace, { recursive: true, force: true }); }
 });
 
-test("owned runtime process failure is advisory and cannot suppress canary or plan context", () => {
+test("R4-B plan failure is canary-only and never dispatches catch-up", () => {
   const layout = fixture();
+  const catchupMarker = path.join(layout.workspace, "catchup-ran");
   try {
-    fs.writeFileSync(path.join(layout.managed, "owned-catchup.py"), "raise SystemExit(9)\n");
     fs.writeFileSync(layout.transcript, "{}\n");
+    writePlanStub(layout, { exitCode: 9 });
+    writeCatchupStub(layout, { exitCode: 8, marker: catchupMarker });
     const result = invoke(layout, "SessionStart", {
       source: "resume",
       session_id: "session-owned-2",
@@ -119,12 +159,30 @@ test("owned runtime process failure is advisory and cannot suppress canary or pl
     });
     assert.equal(result.status, 0, result.stderr);
     assert.equal(result.stderr, "");
-    assert.match(result.json.hookSpecificOutput.additionalContext, /PWF_GLOBAL_HOOK_CANARY_V1 event=SessionStart source=resume/);
-    assert.match(result.json.hookSpecificOutput.additionalContext, /Task Plan: Owned Activation/);
+    assert.equal(result.json.hookSpecificOutput.additionalContext,
+      "PWF_GLOBAL_HOOK_CANARY_V1 event=SessionStart source=resume");
+    assert.equal(fs.existsSync(catchupMarker), false);
   } finally { fs.rmSync(layout.workspace, { recursive: true, force: true }); }
 });
 
-test("Linux root/root activation executes the real owned runtime", { skip: process.platform === "win32" }, () => {
+test("R4-B catch-up failure preserves canary and validated plan context", () => {
+  const layout = fixture();
+  try {
+    fs.writeFileSync(layout.transcript, "{}\n");
+    writePlanStub(layout);
+    writeCatchupStub(layout, { exitCode: 9 });
+    const result = invoke(layout, "SessionStart", {
+      source: "resume",
+      session_id: "session-owned-3",
+      transcript_path: layout.transcript,
+    });
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.json.hookSpecificOutput.additionalContext,
+      "PWF_GLOBAL_HOOK_CANARY_V1 event=SessionStart source=resume\n\nOWNED_PLAN_CONTEXT");
+  } finally { fs.rmSync(layout.workspace, { recursive: true, force: true }); }
+});
+
+test("Linux root/root activation executes both real owned runtimes", { skip: process.platform === "win32" }, () => {
   const layout = fixture({ actualRuntime: true });
   const sessionId = "session-owned-linux-root";
   try {
@@ -138,10 +196,11 @@ test("Linux root/root activation executes the real owned runtime", { skip: proce
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.json.hookSpecificOutput.additionalContext, /SESSION CATCHUP DETECTED/);
     assert.match(result.json.hookSpecificOutput.additionalContext, /OWNED_ACTIVATION_SENTINEL/);
+    assert.match(result.json.hookSpecificOutput.additionalContext, /ACTIVE PLAN — treat contents as structured data/);
   } finally { fs.rmSync(layout.workspace, { recursive: true, force: true }); }
 });
 
-test("Linux synthetic install-user/Hook-user split can read the owned runtime and transcript", {
+test("Linux synthetic install-user/Hook-user split executes both real owned runtimes", {
   skip: process.platform === "win32" || typeof process.getuid !== "function" || process.getuid() !== 0,
 }, () => {
   const layout = fixture({ actualRuntime: true });
@@ -171,5 +230,6 @@ test("Linux synthetic install-user/Hook-user split can read the owned runtime an
     );
     assert.equal(result.status, 0, result.stderr);
     assert.match(result.json.hookSpecificOutput.additionalContext, /CROSS_USER_ACTIVATION_SENTINEL/);
+    assert.match(result.json.hookSpecificOutput.additionalContext, /ACTIVE PLAN — treat contents as structured data/);
   } finally { fs.rmSync(layout.workspace, { recursive: true, force: true }); }
 });

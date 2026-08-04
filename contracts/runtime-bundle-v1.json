@@ -71,14 +71,14 @@
       "package_path": "contracts/adapter-plan-context-request-v1.schema.json",
       "installed_path": "hooks/planning-with-files/contracts/adapter-plan-context-request-v1.schema.json",
       "mode": "0644",
-      "sha256": "3d6378959768241aae7cb07fc76cf7a66086dc122fbe07799e964c35a1b59dd5"
+      "sha256": "7e5fc7e6f478a24f56fa1e878324f10ea09cf8f382ccef6dcf9d451307fab9e6"
     },
     {
       "id": "plan_context_result",
       "package_path": "contracts/plan-context-result-v1.schema.json",
       "installed_path": "hooks/planning-with-files/contracts/plan-context-result-v1.schema.json",
       "mode": "0644",
-      "sha256": "c76772d5d6ae22a75ffb792cd9c48b0212bff42f28926d386f8cbcd712e70b32"
+      "sha256": "2f5c436a983ace70518d5913c9829c26578e986725f8ad901458de16cf07ba86"
     }
   ],
   "files": [

@@ -2,7 +2,7 @@
 
 > Phase status: Rounds 1–3 complete; Round 3 inactive Cloud acceptance PASS
 >
-> Runtime status: exact-v1 owned path implemented, installed, and packaged in the inactive Round 3 trusted graph; not dispatched
+> Runtime status: exact-v1 owned path implemented/installed by Round 3 and activated in the R4-B development adapter; Linux/Cloud gate pending
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
@@ -10,7 +10,7 @@
 >
 > Cloud single-link gate: Fresh + Resume PASS; 40/40 stable regular-file observations with `st_nlink=1`
 >
-> Next gate: Round 4 entry analysis complete; R4-A bounded-supervisor/type seam is next, with no adapter dispatch yet
+> Next gate: complete the R4-B Linux/Cloud activation gate; R4-C beta sealing remains unauthorized
 
 ## Purpose
 
@@ -27,16 +27,15 @@ Those remain Phase 4 scope.
 
 The Round 1 filenames intentionally do not carry a `candidate` suffix. The
 architecture is selected, and the two schemas already have stable versioned
-protocol identities. Their lifecycle is now **implemented/installed but
-inactive**: the published alpha.2 asset does not contain them, while the Round 3
-development trusted graph installs and packages the same v1 identities without
-adapter dispatch. A filename or schema-version change is reserved for an
-incompatible contract change, not for ordinary inactive-to-active promotion.
+protocol identities. Their lifecycle is now **implemented/installed and active in
+the R4-B development adapter**: the published alpha.2 asset does not contain them,
+while the current trusted graph installs, packages, and dispatches the same v1
+identities. A filename or schema-version change is reserved for an incompatible
+contract change, not for ordinary inactive-to-active promotion.
 
 `tests/phase3-contracts.test.js` is likewise a permanent lifecycle regression,
-not a disposable candidate test: it now proves inactive trusted-graph inclusion
-and adapter-dispatch exclusion, and Round 4 must update it atomically with
-activation state.
+not a disposable candidate test: it proves trusted-graph inclusion, R4-B
+plan-first dispatch, and deletion of the adapter's parallel plan algorithm.
 
 ## Target flow
 
@@ -65,7 +64,7 @@ continue to register only `hook_adapter.py`.
 
 ## Request contract
 
-The installed inactive machine contract is
+The installed active-development machine contract is
 `contracts/adapter-plan-context-request-v1.schema.json`.
 
 The request contains:
@@ -85,7 +84,7 @@ enable isolation, it cannot attach the session.
 
 ## Result contract
 
-The installed inactive machine contract is
+The installed active-development machine contract is
 `contracts/plan-context-result-v1.schema.json`.
 
 The result carries:
@@ -139,8 +138,8 @@ lines, static BEGIN/END delimiters, at most 20 raw progress lines, no-plan
 silence beyond the canary, and read-only behavior. Context above 20,000
 characters is suppressed whole; it is never partially injected.
 
-The v0.2.2/alpha.2 goldens remain immutable rollback evidence. Round 3 adds a
-new beta golden fixture that records the intentional textual differences.
+The v0.2.2/alpha.2 golden remains immutable rollback evidence. R4-B adds a
+separate beta golden fixture that records the intentional textual differences.
 
 ## Four-round delivery
 
@@ -221,9 +220,10 @@ frozen in `docs/phase-3-round-4-activation-plan.md`.
 ## Release boundary
 
 The published alpha.2 asset remains immutable and does not contain the Round 3
-files. The development inactive Round 3 trusted graph now atomically includes
-the approved schemas, `owned-plan.py`, its controlled-snapshot contract, and the
-existing pristine resolver/injector dependencies in the runtime manifest,
-installer inventory, 21-entry Release allowlist, LF rules, and exact-count
-tests. The injector hash, compatibility-overlay ledger, adapter dispatch,
-published alpha.2 ZIP, and external bootstrap remain unchanged.
+files. The R4-B development trusted graph includes and dispatches the approved
+schemas, `owned-plan.py`, its controlled-snapshot contract, and the existing
+pristine resolver/injector dependencies in the runtime manifest, installer
+inventory, 21-entry Release allowlist, LF rules, and exact-count tests. The
+injector hash and compatibility-overlay ledger remain unchanged; adapter dispatch
+changed only in development, while the published alpha.2 ZIP and external
+bootstrap remain immutable.
