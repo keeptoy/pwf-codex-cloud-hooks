@@ -1,10 +1,10 @@
 # Phase 3 Round 4 Activation Plan
 
-> Status: R4-A and R4-B complete / Linux Cloud PASS; R4-C 22-entry pre-publication Cloud seal PASS, publish / download verification / live A–F pending
+> Status: complete; R4-A/R4-B Linux Cloud PASS, R4-C 22-entry seal PASS, published-download verification PASS, live A–F PASS
 >
-> Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
+> Current rollback baseline: published and Cloud-accepted `v0.3.0-beta.1`
 >
-> Target candidate: `v0.3.0-beta.1`, only after local/Linux gates pass
+> Historical fallback: immutable Cloud-accepted `v0.3.0-alpha.2`
 
 ## Conclusion
 
@@ -202,17 +202,18 @@ R4-B is closed. That acceptance alone did not authorize R4-C; the maintainer lat
    verify automatic catch-up plus canonical plan context, then run doctor.
 
 Steps 1–3 were repeated after the downloaded-asset A1 probe exposed that the 21-entry ZIP omitted its
-declared package-local verifier. The repaired local candidate is now a 22-entry self-auditable ZIP with
+declared package-local verifier. The repaired artifact is a 22-entry self-auditable ZIP with
 `tools/build_release.py` included only as a Release audit tool; installed runtime inventory and dispatch
 remain unchanged. The former Cloud byte seal is superseded, and the new exact-byte Fresh Cloud seal passed
-69/69 with both asset identities reproduced exactly. Step 4 publication/download verification and steps 5–6
-live lifecycle evidence remain pending; therefore R4-C and Phase 3 are not yet closed.
+69/69 with both asset identities reproduced exactly. Publication and downloaded-asset verification then
+passed, followed by the complete live Fresh/Resume A–F lifecycle. R4-C and Phase 3 are closed; beta.1 is the
+rollback baseline for the Phase 4–8 development line.
 
 Cloud acceptance includes the existing A–F installation/lifecycle checks plus
 Round 4-specific proof:
 
 - adapter-only managed policy and pristine global Skill;
-- installed inventory 11 and Release inventory 21;
+- installed payload inventory 11 (plus `installed-manifest.json`) and Release inventory 22;
 - automatic startup and UserPrompt canaries before any manual file read;
 - pristine owned-plan wording for scoped and legacy context;
 - no-plan, opt-out, and detached-session canary-only behavior;

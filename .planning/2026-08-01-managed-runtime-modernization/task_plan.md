@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Rerun beta.1 F with the corrected historical inventory convention: exclude `installed-manifest.json` from the 11 managed payload paths, compare those paths exactly with `manifest.runtime_files`, and retain the separate manifest/version check. Then reconcile the complete A1–F evidence before closing R4-C or replacing alpha.2 as rollback baseline.
+Checkpoint the Phase 3 closure, then begin Phase 4 Round 1 as a discovery-only gate: recover the accepted beta.1 evidence; re-audit upstream attestation, mode, nonce, ledger, projection, and cache semantics against the current adapter/owned runtime and dated Cloud facts; compare feasible protocol and fallback options; and freeze non-goals, trusted-graph impact, Cloud/rollback gates, round count, and exit/stop conditions. Do not implement or activate Phase 4 behavior in this first round.
 
 ## Current Phase
-Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PASS. The self-auditable 22-entry ZIP and external bootstrap now also pass the replacement Fresh Cloud byte seal: Linux 69/69, Python 3.14.4/zlib 1.3, imported modes, LF attributes, exact cross-platform ZIP/bootstrap identities, placeholders, and clean workspace all PASS. No live install or publication occurred. The old 21-entry identities remain invalid; alpha.2 remains the rollback baseline until published-download verification and live black-box A–F pass.
+Phase 3 is complete. The self-auditable 22-entry beta.1 ZIP and external bootstrap passed the replacement Fresh Cloud byte seal, were published, passed downloaded-asset verification, and passed the complete live Fresh/Resume A–F lifecycle. The corrected F convention reports 11 managed payloads plus the separately validated `installed-manifest.json`, with exact agreement to `manifest.runtime_files` and zero snapshot residue. Published / Cloud-accepted beta.1 is now the Phase 4–8 rollback baseline; alpha.2 remains an immutable historical fallback. Phase 4 has not started.
 
 ## Phases
 
@@ -123,7 +123,7 @@ Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PA
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
 | 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
 | 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | complete; Cloud PASS |
-| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | R4-A complete / Cloud PASS; R4-B complete / Cloud PASS; 22-entry pre-publication Cloud seal PASS / publish and A–F pending |
+| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | complete; published / Cloud A–F PASS |
 
 - [x] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
 - [x] Dispatch both lifecycle events through `owned-plan.py`, which must call the verified standalone resolver, finalize one canonical contained project state, and invoke the managed-legacy upstream injector.
@@ -134,14 +134,14 @@ Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PA
 - [x] Measure Hook latency and output size in plan/no-plan cases; Cloud observed 268.37 ms plan, 241.684 ms no-plan, 370.82 ms SessionStart, with outputs 420/48/824 characters.
 - [x] Complete the target Linux/Cloud proof that prompt injection runs exclusively from the installed owned runtime bundle and no mutable global Skill script executes; real root/root and synthetic cross-user paths PASS.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Rounds 1–3 and R4-A/R4-B complete with Cloud PASS; beta.1 22-entry pre-publication Cloud seal PASS, publish / download verification / live black-box A–F pending
+- **Status:** complete; beta.1 published, downloaded-asset verification PASS, live Fresh/Resume A–F PASS, and promoted to the Phase 4–8 rollback baseline
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 
 #### Provisional round shape — re-audit before Phase 4 starts
 | Round | Scope | Status |
 |---|---|---|
-| 1 | Re-audit upstream attestation/mode/nonce/ledger semantics; freeze projection, protocol, fallback, and Cloud gates | pending |
+| 1 | Re-audit upstream attestation/mode/nonce/ledger semantics; freeze projection, protocol, fallback, and Cloud gates | pending; next authorized discovery-only gate |
 | 2 | Implement and install the inactive opt-in extension with legacy mode unchanged | pending |
 | 3 | Activate opt-in modes only; complete tamper/cache/rollback and fresh-Cloud acceptance | pending |
 

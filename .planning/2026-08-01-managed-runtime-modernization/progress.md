@@ -782,3 +782,11 @@
 - Final R4-B static/status gate passes: current-authority stale scan is empty, contract/manifest/beta fixture JSON parses, changed Python/JavaScript compiles, and `git diff --check` is clean apart from expected Windows line-ending notices.
 - Final post-documentation full Windows suite remains 69 registered / 51 PASS / 18 honest Linux-only SKIP / 0 FAIL. Local R4-B is complete; the only remaining R4-B acceptance step is the exact isolated Linux/Cloud runbook. R4-C remains unauthorized.
 - A combined PowerShell status/source scan printed the correct 651-line adapter count and worktree inventory but misparsed an unescaped regex alternation as a pipeline command. No file changed from the error; repeat the no-parallel source scan with `Select-String` or single-quoted arguments.
+
+# Phase 3 beta.1 Cloud acceptance closure (2026-08-04)
+
+- Maintainer reported the complete beta.1 A–F runbook PASS after the corrected F rerun. Published-download verification, setup, Fresh lifecycle/context, real Resume catch-up, post-resume doctor, exact 11-payload manifest comparison, and zero snapshot residue are therefore closed.
+- Promoted published / Cloud-accepted beta.1 to the Phase 4–8 rollback baseline and retained alpha.2 as an immutable historical fallback.
+- Synchronized only ZIP-external architecture, roadmap, acceptance, governance, and active planning documents. No published ZIP/bootstrap input was edited and no Phase 4 behavior was implemented.
+- Set the only next authorized work to Phase 4 Round 1 Discovery Gate; production changes remain prohibited until that gate freezes scope, contracts, trust impact, Cloud/rollback checks, and stop conditions.
+- Post-sync verification passes: `git diff --check` has no errors; all eight changed paths have zero overlap with the 22-entry Release allowlist; `build_release.py check` reports the existing ZIP healthy at 22 entries / 84,316 bytes / SHA `c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91`; and the unchanged bootstrap remains SHA `0c9d57f53ff980d9d207bc8291b1f055058000e45258732b19156ec93b8b1f2a`.

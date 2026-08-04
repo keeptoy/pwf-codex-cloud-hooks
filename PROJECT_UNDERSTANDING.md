@@ -3,7 +3,7 @@
 > 最后更新：2026-08-04
 > 当前迭代：`v0.3.0` 开发版  
 > 已发布基线：`v0.2.2`
-> 当前 Phase 3 回滚基线：Cloud-accepted `v0.3.0-alpha.2`
+> 当前 Phase 4～8 回滚基线：published / Cloud-accepted `v0.3.0-beta.1`
 
 ## 1. 这份文档的用途
 
@@ -447,10 +447,9 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 
 ## 11. 当前长期缺口
 
-- R4-B 已在开发工作区原子激活 `owned-plan.py`、删除 adapter 的平行 plan
-  resolution/rendering，并通过 69/69 Linux/Cloud 激活 gate；
-- R4-A 的共享 deadline supervisor 与 typed seam 已通过 66/66 Linux/Cloud；R4-C beta.1
-  双资产封板和 Fresh/Resume Cloud 验收已获授权、正在进行但尚未通过；
+- Phase 3 已完成：R4-A 的共享 deadline supervisor/typed seam、R4-B 的 canonical
+  `owned-plan.py` 激活和 adapter thinning、R4-C 的 beta.1 双资产发布与 Fresh/Resume A～F
+  均通过 Linux/Cloud 门槛；
 - attestation、nonce、smart/structured-ledger 模式与 compact/tool/permission/Stop Managed Hooks
   仍按 Phase 4～8 延后，不能从 upstream allowlist 推断为已实现；
 - normal install 失败可通过备份恢复，但尚不是跨全部外部文件的自动事务回滚；
@@ -480,9 +479,9 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
               `-- installed-manifest.json
 ```
 
-该树表示 v0.3.0 目标职责与安装边界。当前 R4-B 开发 adapter 已调用两个 child，且激活已通过
-Linux/Cloud gate；R4-C 封板和 Fresh/Resume Managed Hook 黑盒已获授权但尚未完成，不能提前
-当作已发布或 Cloud-accepted beta 行为。
+该树表示当前 beta.1 已发布、Cloud-accepted 的职责与安装边界。adapter 调用两个 owned child，
+canonical 激活、封板和 Fresh/Resume Managed Hook A～F 已全部通过。Phase 4 只能在新的 Discovery
+Gate 中扩展该边界，不能从 upstream 文件存在推断 attestation、nonce 或 ledger 模式已经启用。
 
 Phase 3 目标职责边界：
 
@@ -513,15 +512,15 @@ Phase 3 目标职责边界：
 
 2026-08-04 状态快照：
 
-- Phase 1 与 Phase 2 已完成并通过各自 Cloud 验收；alpha.2 是当前 Phase 3 回滚基线；
+- Phase 1～3 已完成并通过各自 Cloud 验收；beta.1 是当前 Phase 4～8 回滚基线；
 - Phase 3 Round 1～3 已完成，inactive owned-plan 的完整 Linux/Cloud gate 为 63/63 PASS；
 - Round 4 入口分析与 R4-A 已完成；Windows 48 PASS / 18 honest SKIP，Cloud/Linux 66/66 PASS；
 - R4-B 已完成原子激活/adapter thinning；Windows 69 registered / 51 PASS / 18 honest SKIP /
   0 FAIL，Linux/Cloud 69/69 PASS，并通过真实双 child/跨用户、隔离升级、doctor、11/21、预算和
-  零残留门槛；R4-C beta.1 已重封板为 22-entry 自校验 ZIP 和外部 bootstrap，新的精确字节
-  pre-publication Cloud seal 以 Linux 69/69 和双资产 exact match 完整 PASS；发布、发布后下载复核
-  与 live Fresh/Resume 黑盒 A～F 尚待完成；
-- requirements 仍只注册 adapter；发布过的 alpha.2 ZIP/bootstrap 保持不可变。
+  零残留门槛；R4-C beta.1 的 22-entry 自校验 ZIP 和外部 bootstrap 通过精确字节 Cloud seal，
+  已发布并通过下载复核与 live Fresh/Resume 黑盒 A～F；
+- requirements 仍只注册 adapter；beta.1 是当前回滚基线，alpha.2 ZIP/bootstrap 保持不可变并
+  作为历史 fallback；Phase 4 尚未开始，唯一下一步是 Round 1 Discovery Gate。
 
 若本节快照与活动 `task_plan.md` 冲突，以活动计划为准。本节只在架构基线、Phase、Cloud
 验收或 Release 状态变化时更新；轮内 next step 和测试计数留在 planning/work plan，避免
@@ -539,8 +538,9 @@ Phase 3 目标职责边界：
 
 ## 15. 已确认决策
 
-1. **版本基线**：v0.2.2 是已发布、Cloud 验证的稳定 fallback；Cloud-accepted alpha.2
-   是当前 Phase 3 rollback baseline；v0.3.0 仍是未正式发布的 modernization 迭代。
+1. **版本基线**：v0.2.2 是已发布、Cloud 验证的稳定历史 fallback；alpha.2 是不可变历史
+   fallback；published / Cloud-accepted beta.1 是当前 Phase 4～8 rollback baseline；最终
+   v0.3.0 仍是未正式发布的 modernization 迭代。
 2. **路径不是契约**：`/opt/codex` 是当前默认和已验证路径，不是不可变平台常量。
    沙箱初始化阶段可以没有 `CODEX_HOME`，Codex Runtime 当前会向 agent/Hook 提供
    `/opt/codex`；实现必须同时支持显式参数、运行时变量和安全探测。
