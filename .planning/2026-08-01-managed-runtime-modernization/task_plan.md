@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Checkpoint/push the exact R4-C state, then run `docs/phase-3-round-4-r4c-cloud-seal-check.md` in a fresh no-setup Cloud sandbox. Require 69/69, exact 21-entry ZIP size/SHA match across Linux, exact bootstrap size/SHA/defaults, all 22 LF attributes, no placeholders, and clean workspace. Stop on any mismatch; only PASS authorizes publishing the already-sealed local assets. Published-download and live Cloud A–F remain pending.
+Checkpoint/push the metadata-only importer-mode repair, then rerun `docs/phase-3-round-4-r4c-cloud-seal-check.md` from the beginning in a fresh no-setup Cloud sandbox. Require the new four-file `100755` precheck, importer healthy, 69/69, exact 21-entry ZIP size/SHA, exact bootstrap size/SHA/defaults, all 22 LF attributes, no placeholders, and clean workspace. Stop on any mismatch; only full PASS authorizes publishing the already-sealed local assets. Published-download and live Cloud A–F remain pending.
 
 ## Current Phase
-Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PASS. Both beta.1 candidate assets are locally sealed: ZIP 21 entries / 81,084 bytes / SHA `154eea...d528`; bootstrap 17,425 bytes / LF-only / SHA `a75c...2edc`. The final local dual-asset audit is PASS; checkpoint/push and the fresh-Cloud cross-platform seal check are next. Nothing is published or Cloud lifecycle-accepted, and alpha.2 remains the rollback baseline.
+Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PASS. Both beta.1 candidate assets remain locally sealed: ZIP 21 entries / 81,084 bytes / SHA `154eea...d528`; bootstrap 17,425 bytes / LF-only / SHA `a75c...2edc`. The first fresh-Cloud seal attempt exposed four imported source files committed as `100644` against a `0755` contract; the metadata-only repair and local 69-test/dual-asset regression are PASS, and a fresh Cloud rerun is pending. Nothing is published or Cloud lifecycle-accepted, and alpha.2 remains the rollback baseline.
 
 ## Phases
 

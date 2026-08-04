@@ -17,6 +17,11 @@ Linux/Cloud Python/zlib 环境重建一次，证明最终 commit 仍得到以下
 | `pwf-codex-cloud-hooks-v0.3.0-beta.1.zip` | 81,084 | `154eea0641f454a1e6c05a55ef7998eb0442656b1e632595442af4d16365d528` |
 | `init-cloud-sandbox-v0.3.0.bash` | 17,425 | `a75c333cb5d11d7c084582d026d2fcbdbbcd3f65085b83d10c031c32cdf52edc` |
 
+第一次 Fresh Cloud 执行在 importer exact check 处发现 `runtime/upstream/` 四个文件的 Git index mode
+是 `100644`，而冻结合同要求 `0755`。这是提交元数据漂移，不是 CRLF、CMD 或 Git Bash 差异。
+当前脚本在 importer 前显式要求四个 package path 都是 `100755`，防止 Windows 因
+`core.filemode=false` 再次漏检；该修复不改变文件内容或上述两个已封板资产。
+
 如果 Linux 重建 ZIP 的 inventory/content check PASS 但 SHA 不同，停止发布并保存 Python/zlib、
 size 和 SHA；不得把新 SHA 直接写回 bootstrap。先区分 source drift 与 deflate 实现差异，再决定
 canonical build environment 或调整可复现压缩合同。
@@ -36,6 +41,7 @@ canonical build environment 或调整可复现压缩合同。
 Linux suite: PASS 或 FAIL
 Tests: tests/pass/fail/skipped
 Python/zlib: 实际值
+Imported runtime Git modes: PASS 或 FAIL
 Release LF attributes: PASS 或 FAIL
 ZIP entries: 实际数字
 ZIP size: 实际数字
@@ -87,6 +93,27 @@ for root in ('hooks', 'runtime', 'tools'):
     for path in Path(root).rglob('*.py'):
         compile(path.read_text(encoding='utf-8'), str(path), 'exec')
 print('PYTHON_STATIC=PASS')
+PY
+python3 - <<'PY'
+import json
+import subprocess
+from pathlib import Path
+
+bundle = json.loads(Path('contracts/runtime-bundle-v1.json').read_text(encoding='utf-8'))
+paths = [item['package_path'] for item in bundle['files']]
+result = subprocess.run(
+    ['git', 'ls-files', '--stage', '--', *paths],
+    check=True,
+    text=True,
+    capture_output=True,
+)
+observed = {}
+for line in result.stdout.splitlines():
+    metadata, path = line.split('\t', 1)
+    observed[path] = metadata.split()[0]
+assert set(observed) == set(paths), (observed.keys(), paths)
+assert all(observed[path] == '100755' for path in paths), observed
+print('IMPORTED_RUNTIME_GIT_MODES=PASS files=4 mode=100755')
 PY
 python3 tools/import_upstream_runtime.py check
 

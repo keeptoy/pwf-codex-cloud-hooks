@@ -100,6 +100,23 @@ function runImporter(fixture, command, extra = []) {
 }
 
 test("runtime import is allowlisted, deterministic, idempotent, and checkable", () => {
+  const repositoryBundle = JSON.parse(fs.readFileSync(bundlePath, "utf8"));
+  const importedPaths = repositoryBundle.files.map(item => item.package_path);
+  const index = spawnSync("git", ["ls-files", "--stage", "--", ...importedPaths], {
+    cwd: root,
+    encoding: "utf8",
+  });
+  assert.equal(index.status, 0, index.stderr);
+  const indexedModes = new Map(index.stdout.trim().split(/\r?\n/).map(line => {
+    const match = line.match(/^(\d{6}) [0-9a-f]+ \d+\t(.+)$/);
+    assert.ok(match, `unexpected git ls-files output: ${line}`);
+    return [match[2].replaceAll("\\", "/"), match[1]];
+  }));
+  assert.deepEqual([...indexedModes.keys()].sort(), [...importedPaths].sort());
+  for (const importedPath of importedPaths) {
+    assert.equal(indexedModes.get(importedPath), "100755", importedPath);
+  }
+
   const fixture = createFixture();
   try {
     let result = runImporter(fixture, "import");

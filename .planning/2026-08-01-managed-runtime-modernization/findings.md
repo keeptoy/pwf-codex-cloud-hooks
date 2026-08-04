@@ -1,5 +1,13 @@
 # Findings & Decisions: Managed Runtime Modernization
 
+## 2026-08-04 R4-C Cloud importer-mode failure
+
+- Root cause is evidenced in the committed Git index, not in CMD versus Git Bash and not in CRLF conversion. All four `runtime/upstream/*` package files are recorded as `100644`, while `upstream-manifest.json` freezes each managed runtime mode as `0755`; on POSIX, `import_upstream_runtime.py check` compares the checked-out destination mode to that contract and stops at the first file, `session_catchup`.
+- Both local runtime source files (`runtime/owned-catchup.py` and `runtime/owned-plan.py`) are also indexed as `100644` while their managed package mode is `0755`, but they are not the default importer destination. Their contract mode is applied by installer/Release builders, so no evidence currently classifies their source-tree mode as defective. The repair must target only the four files whose checked-in directory is explicitly verified as imported output.
+- `git add .` from CMD and Git Bash both operate on the same Git index. On Windows, `core.filemode=false` normally prevents the filesystem from supplying executable-bit changes, so switching shells would not repair the committed index. The line-ending warnings concern worktree bytes; `.gitattributes` already reports `text=set eol=lf` for `session-catchup.py` and is unrelated to the POSIX mode comparison.
+- The smallest repair candidate is metadata-only: record executable Git index modes for the four files under the default importer destination `runtime/upstream/`, and add a cross-platform index-mode assertion so Windows cannot silently skip this boundary again. Because the deterministic Release builder already freezes these ZIP entries to `0755`, the change should not alter either sealed asset; exact SHA rechecks are mandatory before any Cloud rerun.
+- The candidate is confirmed. Four Git mode-only deltas plus the existing-test assertion are sufficient; no importer, manifest, contract, runtime content, ZIP input byte, installed inventory, or bootstrap change is required. Full Windows regression and independent dual-asset rechecks retain the exact sealed identities, so the original ZIP/bootstrap remain the only publication candidates.
+
 ## 2026-08-04 R4-C sealing-audit findings
 
 - Entry checkpoint is clean at `848b4f39d0a7a3cde093606c216d5bab67195cf4`; R4-B already proved the active 11-file installed graph and deterministic 21-entry development ZIP in Linux/Cloud.
