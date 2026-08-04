@@ -1,6 +1,6 @@
 # Phase 3 Round 4 Activation Plan
 
-> Status: R4-A complete / Linux Cloud PASS; R4-B local implementation PASS, Linux/Cloud gate pending
+> Status: R4-A and R4-B complete / Linux Cloud PASS; R4-C unauthorized
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
@@ -177,14 +177,17 @@ with honest POSIX skips; full Linux tests pass with zero skips/failures; direct
 adapter latency and output-size measurements fit the frozen budgets; doctor is
 healthy after an isolated install and upgrade rehearsal.
 
-Local evidence: 69 registered / 51 PASS / 18 honest Linux-only SKIP / 0 FAIL;
+Accepted evidence: Windows completed 69 registered / 51 PASS / 18 honest
+Linux-only SKIP / 0 FAIL. The exact Linux/Cloud procedure completed 69 PASS /
+0 SKIP / 0 FAIL; real both-child root/root and synthetic cross-user execution,
+both process-group layers, plan-first/exact-project ordering, isolated alpha.2
+upgrade, healthy doctor, adapter-only policy, 11/21 inventories, latency/output
+budgets, zero snapshots, and a clean workspace all passed. In particular,
 the adapter's parallel plan algorithm is absent, immutable alpha composition
 goldens and separate beta goldens pass, trusted hashes are synchronized, and the
-development ZIP remains 21 entries. The remaining gate is the exact Linux/Cloud
-procedure in
-[`phase-3-round-4-r4b-cloud-acceptance.md`](phase-3-round-4-r4b-cloud-acceptance.md),
-including 69/69, real both-child identities, isolated alpha.2 upgrade/doctor,
-latency/output measurements, and zero snapshot residue.
+development ZIP remains 21 entries. The accepted procedure is recorded in
+[`phase-3-round-4-r4b-cloud-acceptance.md`](phase-3-round-4-r4b-cloud-acceptance.md).
+R4-B is closed. That acceptance does not authorize R4-C.
 
 ## R4-C — beta.1 sealing and Cloud acceptance
 

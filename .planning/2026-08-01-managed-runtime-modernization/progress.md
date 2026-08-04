@@ -1,5 +1,15 @@
 # Progress Log: Managed Runtime Modernization
 
+## Session: 2026-08-04 — R4-B Cloud closure
+
+- Received the exact R4-B Fresh Cloud acceptance result. The unmodified runbook completed successfully with static PASS and 69/69 Linux tests, including real both-child root/root and synthetic cross-user execution plus both process-group cleanup layers.
+- The isolated alpha.2-to-current upgrade passed; doctor reported healthy, Managed policy remained adapter-only, installed/runtime inventories stayed 11/21, direct plan/no-plan/SessionStart latency and output measurements stayed within their frozen budgets, snapshot leftovers were zero, and the Cloud workspace remained clean.
+- Closed R4-B and moved the activity plan to an intentional stop at the R4-C authorization boundary. No executable, schema, manifest, installer, bootstrap, version, checksum, live `/opt/codex`, or Release asset was changed by this evidence-recording step.
+- Two combined planning patches failed because the terminal rendered a valid UTF-8 en dash in the Phase 3 status line as mojibake, so the attempted literal anchor did not match. The stable fields were updated separately; an ASCII-escaped byte inspection confirmed the actual `U+2013`, and the whole status line was then corrected successfully. No product file changed in either failed attempt.
+- A later stale-wording scan again passed a Unix-style wildcard as a PowerShell path. The explicit-file results before that argument were useful, but the combined command exited 1 on the invalid Windows path. Kept the historical R4-A count lines, updated the dated R4-B test inventory separately, and used enumerated files for subsequent checks.
+- Post-closure consistency checks pass: the nine changed paths are documentation/planning only, executable diff is empty, `git diff --check` exits 0, and the current-authority stale R4-B-pending scan is empty. The focused Phase 3 lifecycle contract test passes 1/1 outside the known Windows worker-spawn restriction.
+- Final documentation structure review passes for all nine changed files: UTF-8 has zero replacement characters, Markdown fences are balanced, and every relative link resolves. Full diff review confirms the closure preserves alpha.2 as rollback, distinguishes R4-B isolated Cloud acceptance from R4-C Fresh/Resume Managed Hook acceptance, and makes no product or Release claim.
+
 ## Session: 2026-08-01
 
 ### Current Status

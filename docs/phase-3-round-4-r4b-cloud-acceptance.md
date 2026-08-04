@@ -1,10 +1,27 @@
 # Phase 3 Round 4 R4-B Linux/Cloud 验收
 
-> 状态：R4-B 本地实现与 Windows 回归 PASS；Linux/Cloud gate pending
+> 状态：R4-B 本地、Windows 与 Linux/Cloud gate 全部 PASS；R4-B 已关闭
 >
 > 范围：plan-first production dispatch、exact project forwarding、adapter thinning、真实双 child、isolated alpha.2 upgrade
 >
 > 禁止：不得安装到 live `/opt/codex`，不得修改 bootstrap/版本/SHA，不得进入 R4-C 或发布 beta.1
+
+## 已接受的 Cloud 结果（2026-08-04）
+
+`PWF_PHASE3_ROUND4_R4B_CLOUD_V1` 按本文件唯一脚本原样执行并退出 0：
+
+- static checks PASS；Linux suite 为 69 tests / 69 pass / 0 fail / 0 skipped；
+- real root/root、synthetic cross-user 与两层 POSIX process-group cleanup 全部 PASS；
+- `PLAN_FIRST_PRODUCTION_DISPATCH=ACTIVE`、`PARALLEL_ADAPTER_PLAN_ALGORITHM=ABSENT`、
+  `EXACT_PROJECT_FORWARDING_ORDER=PASS`；
+- alpha.2 ZIP 校验、隔离安装和 current checkout 原地升级 PASS；doctor healthy，Managed policy
+  adapter-only，installed runtime 11，development ZIP 21；
+- plan/no-plan/SessionStart 延迟分别为 268.37 / 241.684 / 370.82 ms，输出分别为
+  420 / 48 / 824 字符；
+- snapshot leftovers 为 0，测试后 Cloud workspace clean。
+
+该结果只关闭 R4-B。脚本没有安装到 live `/opt/codex`，没有修改或发布 bootstrap、版本、SHA
+或 Release 资产，也没有执行 R4-C 的 Fresh/Resume Managed Hook 黑盒。
 
 ## 这轮比 R4-A 多验证什么
 

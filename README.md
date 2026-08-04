@@ -6,7 +6,7 @@ Skill 接入 Codex Cloud 会话。
 
 > **状态：**`v0.2.2` 仍是已发布的稳定基线，`v0.3.0-alpha.1` 是保留的 Phase 1
 > 预发行版本。Cloud-accepted `v0.3.0-alpha.2` 是当前 Phase 3 回滚基线。开发工作区已完成
-> R4-B plan-first 原子激活的本地实现，Linux/Cloud gate 尚待完成；这不是 beta.1 已发布或已验收声明。
+> R4-B plan-first 原子激活已通过本地与 Linux/Cloud gate；R4-C 仍未授权，这不是 beta.1 已发布或已完成 Fresh/Resume 验收的声明。
 
 ## 从这里开始
 
@@ -49,8 +49,8 @@ Managed requirements 仍只注册一个 adapter 命令。两个事件先调用 s
 六字段 `project` 原样交给 `owned-catchup.py`，最终输出顺序固定为 canary、可选 catch-up、plan。
 plan 失败或非注入结果只保留 canary；catch-up 失败不抑制已经验证的 plan context。
 
-这条开发路径已通过 Windows R4-B 本地回归，仍需 Linux/Cloud gate。发布过的 alpha.2 行为和
-资产保持不可变，仍是外部回滚点。
+这条开发路径已通过 Windows 与 Linux/Cloud R4-B gate。发布过的 alpha.2 行为和资产保持
+不可变，仍是外部回滚点。
 
 ### 已验收的 `v0.3.0-alpha.2` 回滚行为
 
@@ -92,9 +92,9 @@ alpha.2 adapter 曾按以下顺序解析项目 planning state；R4-B 开发路�
 
 ### 尚未实现、尚未验收或尚未激活
 
-R4-B 已在开发工作区 dispatch exact-v1 `owned-plan.py`，但 Linux/Cloud gate 尚未完成，R4-C
-beta.1 封板、外部资产和 Fresh/Resume Cloud 验收尚未授权。因此不能把当前开发字节描述为
-已发布或 Cloud-accepted beta 行为。
+R4-B 已在开发工作区 dispatch exact-v1 `owned-plan.py`，且 Linux/Cloud gate 已通过；R4-C
+beta.1 封板、外部资产和 Fresh/Resume Managed Hook Cloud 验收尚未授权。因此不能把当前开发
+字节描述为已发布或 Cloud-accepted beta 行为。
 
 当前 managed runtime 还没有启用以下上游能力：
 
@@ -253,7 +253,8 @@ git diff --check
 当前开发版 Node suite 注册 69 个**测试案例**，不等于 69 个原子产品功能：
 
 - Windows R4-B：51 PASS、18 个如实标记的 POSIX/Linux-only SKIP、0 FAIL；
-- R4-B Linux/Cloud 完整执行尚待 gate；
+- R4-B Linux/Cloud：69 PASS、0 SKIP、0 FAIL；真实双 child/跨用户、process-group、隔离升级、
+  doctor、11/21 inventory、延迟/输出预算和零 snapshot 残留全部通过；
 - Cloud/Linux R4-A：66 PASS、0 SKIP、0 FAIL；process-group、inactive typed seam、隔离安装、
   doctor、11/21 inventory、no-dispatch 和 clean-workspace gate 全部通过；
 - 已封板 alpha.2 快照仍是 45 registered、42 PASS、3 Linux-only SKIP。
@@ -518,9 +519,9 @@ git status --short --branch
   single-link policy、inactive trusted graph 和 63/63 Linux/Cloud gate 已关闭；
 - Round 4 入口分析 complete：R4-A 是 bounded supervisor/type seam，R4-B 是 atomic activation
   与 adapter thinning，R4-C 是 beta.1 seal 和 Fresh/Resume Cloud acceptance；
-- R4-A 已完成并通过 Windows 与 Linux/Cloud gate；R4-B 本地 plan-first activation、adapter
-  thinning 和 69-case Windows gate 已通过，Linux/Cloud gate 待执行。R4-C 和 beta.1 发布仍未
-  授权；alpha.2 保持 rollback baseline。
+- R4-A 与 R4-B 均已完成并通过 Windows 与 Linux/Cloud gate；R4-B 的 plan-first activation、
+  adapter thinning、exact project forwarding、69/69 Linux 和隔离 alpha.2 upgrade/doctor 均
+  PASS。R4-C 和 beta.1 发布仍未授权；alpha.2 保持 rollback baseline。
 
 更详细的阶段摘要和发布路标见 `work_plan.md`；Round 4 gate 见
 `docs/phase-3-round-4-activation-plan.md`；R4-A Cloud gate 见

@@ -2,7 +2,7 @@
 
 > 文档职责：维护 v0.3.0 的长期 Phase 路线、建议轮数、Cloud 验收节点、发布路标和阶段工作摘要。
 >
-> 当前状态：Phase 1、Phase 2 已完成；Phase 3 Round 1～3 与 R4-A 已完成并通过 Cloud；R4-B 本地实现完成，等待 Linux/Cloud gate。
+> 当前状态：Phase 1、Phase 2 已完成；Phase 3 Round 1～3 与 R4-A/R4-B 已完成并通过 Cloud；停在 R4-C 授权点。
 >
 > 当前回滚基线：Cloud-accepted `v0.3.0-alpha.2`。
 
@@ -52,7 +52,7 @@ Discovery Gate 和真实 Cloud 返修优先于维持原数字。
 | 0 / 0.5 / 0.6 | 已完成 | 仓库审计、Cloud 证据、v0.3.0 迭代初始化 | 历史证据整合 | complete |
 | 1. 契约与来源治理 | 3 | allowlist、overlay、manifest、fixtures、安装治理 | 预发行安装与兼容冒烟 | complete；alpha.1 PASS |
 | 2. Owned catch-up runtime | 4 | owned catch-up、显式 Host 契约、session/transcript 安全边界 | 完整 catch-up 专项回归 | complete；alpha.2 PASS |
-| 3. Canonical prompt injection | 4 | owned-plan、pristine snapshot invocation、瘦身 adapter、统一 project state | 完整 SessionStart/UserPrompt/Planning/Resume 回归 | Round 4；R4-A complete，R4-B local PASS / Cloud pending |
+| 3. Canonical prompt injection | 4 | owned-plan、pristine snapshot invocation、瘦身 adapter、统一 project state | 完整 SessionStart/UserPrompt/Planning/Resume 回归 | Round 4；R4-A/R4-B complete / Cloud PASS；R4-C unauthorized |
 | 4. Attestation 与 opt-in v3 模式 | 暂定 3 | 重新审计；inactive extension；opt-in activation | 隔离任务中的 tamper/cache/rollback | pending；进入前重探路 |
 | 5. Compaction 生命周期 | 3～4 | clear/compact、PreCompact、必要时 PostCompact | 实现前后各测一次 | pending |
 | 6. Tool 与 Permission Hooks | 4 | PostToolUse、去重节流、PermissionRequest、最后 PreToolUse | 每种事件单独 canary | pending |
@@ -110,7 +110,7 @@ root/root、synthetic cross-user，以及 resume 后 doctor
 | 1 | 审计 adapter 与 pristine resolver/injector；冻结 exact-v1、managed-legacy、20,000 字符上限和两项有意输出变化 | complete |
 | 2 | 独立 controlled-snapshot feasibility spike；8 focused + 1 handoff isolation case | complete / `CONDITIONAL_GO` |
 | 3 | 冻结 hard-link、stale cleanup、portable openat、27/30 秒策略；实现/install/package inactive owned-plan | complete / Cloud PASS |
-| 4 | R4-A supervisor/type seam；R4-B 原子激活并删除平行 resolver/renderer；R4-C beta.1 + Cloud | R4-A complete / Cloud PASS；R4-B local PASS / Cloud pending |
+| 4 | R4-A supervisor/type seam；R4-B 原子激活并删除平行 resolver/renderer；R4-C beta.1 + Cloud | R4-A/R4-B complete / Cloud PASS；R4-C unauthorized |
 
 Round 3 关闭证据：
 
@@ -124,9 +124,11 @@ Round 3 关闭证据：
 Round 4 入口分析已冻结在 `docs/phase-3-round-4-activation-plan.md`。R4-A 已完成：Windows 为
 66 registered / 48 PASS / 18 honest Linux SKIP / 0 FAIL；Cloud/Linux 为 66 PASS / 0 SKIP /
 0 FAIL，隔离安装、doctor、11/21 inventory、process-group cleanup、inactive typed seam、
-zero snapshot 和 clean workspace 全部 PASS。R4-B 已完成本地 plan-first dispatch、exact project
+zero snapshot 和 clean workspace 全部 PASS。R4-B 已完成 plan-first dispatch、exact project
 转交、旧 resolver/renderer 删除和独立 beta golden；Windows 为 69 registered / 51 PASS /
-18 honest SKIP / 0 FAIL。Linux/Cloud R4-B gate 尚待完成；R4-C beta.1/Cloud 仍未授权。
+18 honest SKIP / 0 FAIL，Linux/Cloud 为 69 PASS / 0 SKIP / 0 FAIL。真实双 child/跨用户、
+process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、零 snapshot 和 clean workspace
+全部 PASS。R4-C beta.1/Cloud 仍未授权。
 
 ## 必须停下来做 Cloud 验证的节点
 
@@ -183,8 +185,8 @@ zero snapshot 和 clean workspace 全部 PASS。R4-B 已完成本地 plan-first 
 
 - 当前执行权威：`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`；
 - 当前 Phase：Phase 3 Round 4；
-- 下一步：暂停；获得明确授权后才开始 R4-B atomic activation gate；
-- 当前禁止：owned-plan production dispatch、R4-B adapter thinning、beta.1 SHA/发布、Cloud 外部安装；
+- 下一步：暂停；获得明确授权并重读封板设计后才开始 R4-C beta.1 sealing gate；
+- 当前禁止：beta.1 版本/ZIP/bootstrap/SHA/发布、live `/opt/codex` 安装和 Fresh/Resume beta 黑盒；
 - 当前回滚：Cloud-accepted alpha.2。
 
 ## Release 封板顺序

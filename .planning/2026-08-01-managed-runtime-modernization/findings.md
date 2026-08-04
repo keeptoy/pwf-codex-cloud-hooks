@@ -1,5 +1,14 @@
 # Findings & Decisions: Managed Runtime Modernization
 
+## 2026-08-04 R4-B Cloud acceptance closure
+
+- The exact `PWF_PHASE3_ROUND4_R4B_CLOUD_V1` run completed with `69 tests / 69 pass / 0 fail / 0 skipped`; static checks, real root/root and synthetic cross-user execution, and both POSIX process-group cleanup layers all passed.
+- Production semantics were observed as frozen: `PLAN_FIRST_PRODUCTION_DISPATCH=ACTIVE`, `PARALLEL_ADAPTER_PLAN_ALGORITHM=ABSENT`, and `EXACT_PROJECT_FORWARDING_ORDER=PASS`.
+- The immutable alpha.2 ZIP checksum verified before an isolated alpha.2 install and current-checkout upgrade. Post-upgrade doctor was healthy, Managed policy remained adapter-only, and the trusted inventories remained 11 installed files / 21 development ZIP entries.
+- Measured direct adapter latency was 268.37 ms with a plan, 241.684 ms with no plan, and 370.82 ms for SessionStart. Corresponding output sizes were 420, 48, and 824 characters, all within the frozen 27-second and output budgets.
+- Snapshot leftovers were zero and the Cloud checkout was clean after the run. The script did not install to live `/opt/codex` and did not modify or publish any Release asset.
+- Conclusion: R4-B is formally closed. This evidence does not authorize R4-C, does not make beta.1 published or Cloud lifecycle-accepted, and does not replace alpha.2 as the rollback baseline.
+
 ## Requirements
 - Confirm whether repository behavior and README claims are synchronized.
 - Explain the meaning of the current forty tests, while preserving historical nine-, twelve-, thirteen-, sixteen-, twenty-five-, thirty-, and thirty-five-test snapshots and without equating test cases to product features.

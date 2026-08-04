@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Run the exact isolated Linux/Cloud R4-B gate in `docs/phase-3-round-4-r4b-cloud-acceptance.md`; require 69/69, real both-child/root/cross-user execution, alpha.2 upgrade/doctor, 11/21 inventories, latency/output budgets, zero snapshots, and clean workspace. Stop after recording the result; R4-C beta.1 sealing remains unauthorized.
+Stop at the R4-C authorization boundary. R4-B is closed with exact Linux/Cloud acceptance PASS. Do not freeze `0.3.0-beta.1`, modify the external bootstrap/version/SHA, publish assets, install to live `/opt/codex`, or begin Fresh/Resume beta acceptance until the maintainer explicitly authorizes R4-C and its sealing audit is re-read.
 
 ## Current Phase
-Phase 3 Round 3 and Round 4 R4-A are complete with full Cloud acceptance PASS. R4-B audit, implementation, Windows suite, static/provenance, and development ZIP gates pass; the exact Linux/Cloud gate is pending. R4-C is unauthorized, and alpha.2 remains the rollback baseline.
+Phase 3 Round 3 and Round 4 R4-A/R4-B are complete with full Cloud acceptance PASS. R4-B closed at 69/69 Linux tests with real root/root and cross-user execution, process-group cleanup, isolated alpha.2 upgrade/doctor, unchanged 11/21 inventories, measured latency/output budgets, zero snapshots, and a clean workspace. R4-C is unauthorized, and alpha.2 remains the rollback baseline.
 
 ## Phases
 
@@ -123,7 +123,7 @@ Phase 3 Round 3 and Round 4 R4-A are complete with full Cloud acceptance PASS. R
 | 1 | Audit local/upstream semantics; freeze migration, output, supervision, inventory, and test contracts | complete |
 | 2 | Build/review isolated controlled-snapshot feasibility spike; prove hard Linux/Cloud primitives without entering trusted graph | complete; conditional GO |
 | 3 | Freeze production policies; implement/install inactive exact-v1 owned plan-context path and prove golden/safety/trusted-graph compatibility | complete; Cloud PASS |
-| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | R4-A complete / Cloud PASS; R4-B local PASS / Cloud pending |
+| 4 | R4-A supervisor/type seam; R4-B atomic canonical activation and adapter thinning; R4-C beta.1 seal and Cloud acceptance | R4-A complete / Cloud PASS; R4-B complete / Cloud PASS; R4-C unauthorized |
 
 - [x] Reduce the local Python adapter to Codex payload parsing, explicit request construction, event dispatch, subprocess supervision, canary emission, and Codex JSON output conversion.
 - [x] Dispatch both lifecycle events through `owned-plan.py`, which must call the verified standalone resolver, finalize one canonical contained project state, and invoke the managed-legacy upstream injector.
@@ -131,10 +131,10 @@ Phase 3 Round 3 and Round 4 R4-A are complete with full Cloud acceptance PASS. R
 - [x] Pass the exact canonical project state returned by `owned-plan.py` to `owned-catchup.py` on SessionStart; do not resolve the plan independently in the adapter or catch-up child.
 - [x] Preserve current legacy-mode output semantics through immutable alpha goldens plus a separate beta golden for the two approved differences.
 - [x] Normalize diagnostics so upstream stderr cannot corrupt Hook JSON stdout.
-- [ ] Measure Hook latency and output size in plan/no-plan cases.
-- [ ] Complete the target Linux/Cloud proof that prompt injection runs exclusively from the owned runtime bundle and no mutable global Skill script executes; local hostile-global and trusted-sibling tests already PASS.
+- [x] Measure Hook latency and output size in plan/no-plan cases; Cloud observed 268.37 ms plan, 241.684 ms no-plan, 370.82 ms SessionStart, with outputs 420/48/824 characters.
+- [x] Complete the target Linux/Cloud proof that prompt injection runs exclusively from the installed owned runtime bundle and no mutable global Skill script executes; real root/root and synthetic cross-user paths PASS.
 - **Exit criteria:** Planning behavior has one canonical implementation and the adapter contains no parallel plan-resolution or injection algorithm.
-- **Status:** Rounds 1–3 and R4-A complete with Cloud PASS; R4-B Windows/local PASS, exact Linux/Cloud gate pending
+- **Status:** Rounds 1–3 and R4-A/R4-B complete with Cloud PASS; stop before unauthorized R4-C beta.1 sealing
 
 ### Phase 4: Attestation and opt-in v3 injection modes
 
@@ -212,7 +212,7 @@ Phase 3 Round 3 and Round 4 R4-A are complete with full Cloud acceptance PASS. R
 | Preserve legacy behavior by default | Existing plans must not be forced into attestation, ledger, or gating without an explicit migration/mode. |
 | Roll out lifecycle events incrementally | Managed Hooks are globally trusted, can coexist and run concurrently with other sources, and are harder for users to disable. |
 | Add hard Stop gating last | It has the greatest recursion, concurrency, and runaway risk and requires real host verification. |
-| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 added one inactive-contract case for forty-six; Round 2 added eight feasibility cases plus one parent isolation case for fifty-five; Round 3 added eight production owned-plan cases for sixty-three. R4-A adds three supervisor/seam/identity cases for sixty-six. Several cases cover multiple guarantees. Windows runs 48 and honestly skips 18 production-POSIX cases; the completed R4-A Cloud/Linux gate runs all 66 with zero skips. |
+| Treat test count as a dated inventory, not a feature count | The Phase 0 suite had nine cases; compatibility work raised it to twelve, Phase 1 Round 1 to thirteen, Round 2 to sixteen, Round 3 to twenty-five, Phase 2 Round 1 to thirty, Round 2 to thirty-five, Round 3 to forty, and Round 4 to forty-five registered cases. Phase 3 Round 1 added one inactive-contract case for forty-six; Round 2 added eight feasibility cases plus one parent isolation case for fifty-five; Round 3 added eight production owned-plan cases for sixty-three. R4-A added three supervisor/seam/identity cases for sixty-six; R4-B raised the suite to sixty-nine. Several cases cover multiple guarantees. Windows runs 51 and honestly skips 18 production-POSIX cases; the completed R4-B Cloud/Linux gate runs all 69 with zero skips. |
 | Treat the v0.2.2 catch-up patch as a temporary compatibility overlay | It is valuable Cloud-proven behavior, but mutating and executing a global Skill conflicts with the owned-runtime trust boundary. |
 | Make the host/runtime contract explicit | `.agents` placement, initialization/runtime environment differences, absent Hook-time `CODEX_THREAD_ID`, and the Host-provided transcript path prove that script-path and setup-shell inference are not stable Cloud interfaces. |
 | Add reason-coded diagnostics without injecting them by default | Silent early returns made black-box failures expensive to localize, while stderr or debug text must not contaminate Hook JSON/context. |

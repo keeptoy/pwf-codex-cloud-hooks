@@ -2,7 +2,7 @@
 
 > Phase status: Rounds 1–3 complete; Round 3 inactive Cloud acceptance PASS
 >
-> Runtime status: exact-v1 owned path implemented/installed by Round 3 and activated in the R4-B development adapter; Linux/Cloud gate pending
+> Runtime status: exact-v1 owned path implemented/installed and activated; R4-B Linux/Cloud acceptance PASS
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
@@ -10,7 +10,7 @@
 >
 > Cloud single-link gate: Fresh + Resume PASS; 40/40 stable regular-file observations with `st_nlink=1`
 >
-> Next gate: complete the R4-B Linux/Cloud activation gate; R4-C beta sealing remains unauthorized
+> Next gate: stop at the authorization boundary; R4-C beta sealing remains unauthorized
 
 ## Purpose
 

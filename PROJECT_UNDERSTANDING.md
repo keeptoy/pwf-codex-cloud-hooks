@@ -426,7 +426,7 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 - 拥有 opt-out、session attachment、canonical plan resolution 和 fd-rooted safe reads；
 - 在私有 `0700` snapshot/`0600` 文件中调用 pristine resolver/injector；
 - 返回 exact-v1 plan context 和唯一 canonical project state；
-- 当前是两个 event 的唯一 active plan owner；Linux/Cloud R4-B gate 尚待完成。
+- 当前是两个 event 的唯一 active plan owner；Linux/Cloud R4-B gate 已以 69/69 PASS 关闭。
 
 ### `runtime/upstream/` 与 `contracts/`
 
@@ -447,8 +447,8 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 
 ## 11. 当前长期缺口
 
-- R4-B 已在开发工作区原子激活 `owned-plan.py` 并删除 adapter 的平行 plan
-  resolution/rendering；Linux/Cloud 激活 gate 尚待完成；
+- R4-B 已在开发工作区原子激活 `owned-plan.py`、删除 adapter 的平行 plan
+  resolution/rendering，并通过 69/69 Linux/Cloud 激活 gate；
 - R4-A 的共享 deadline supervisor 与 typed seam 已通过 66/66 Linux/Cloud；R4-C beta.1
   封板和 Fresh/Resume Cloud 验收仍未授权；
 - attestation、nonce、smart/structured-ledger 模式与 compact/tool/permission/Stop Managed Hooks
@@ -480,8 +480,9 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
               `-- installed-manifest.json
 ```
 
-该树表示 v0.3.0 目标职责与安装边界。当前 R4-B 开发 adapter 已调用两个 child，但这项激活
-仍须通过 Linux/Cloud gate，不能提前当作已发布 beta 行为。
+该树表示 v0.3.0 目标职责与安装边界。当前 R4-B 开发 adapter 已调用两个 child，且激活已通过
+Linux/Cloud gate；但 R4-C 封板和 Fresh/Resume Managed Hook 黑盒尚未授权，不能提前当作已发布
+beta 行为。
 
 Phase 3 目标职责边界：
 
@@ -515,8 +516,9 @@ Phase 3 目标职责边界：
 - Phase 1 与 Phase 2 已完成并通过各自 Cloud 验收；alpha.2 是当前 Phase 3 回滚基线；
 - Phase 3 Round 1～3 已完成，inactive owned-plan 的完整 Linux/Cloud gate 为 63/63 PASS；
 - Round 4 入口分析与 R4-A 已完成；Windows 48 PASS / 18 honest SKIP，Cloud/Linux 66/66 PASS；
-- R4-B 已获授权并完成本地原子激活/adapter thinning；Windows 69 registered / 51 PASS /
-  18 honest SKIP / 0 FAIL，Linux/Cloud gate 尚待完成；R4-C beta.1/Cloud 尚未授权；
+- R4-B 已完成原子激活/adapter thinning；Windows 69 registered / 51 PASS / 18 honest SKIP /
+  0 FAIL，Linux/Cloud 69/69 PASS，并通过真实双 child/跨用户、隔离升级、doctor、11/21、预算和
+  零残留门槛；R4-C beta.1/Fresh+Resume Cloud 尚未授权；
 - requirements 仍只注册 adapter；发布过的 alpha.2 ZIP/bootstrap 保持不可变。
 
 若本节快照与活动 `task_plan.md` 冲突，以活动计划为准。本节只在架构基线、Phase、Cloud
