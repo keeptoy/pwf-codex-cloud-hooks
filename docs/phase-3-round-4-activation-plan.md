@@ -1,6 +1,6 @@
 # Phase 3 Round 4 Activation Plan
 
-> Status: R4-A and R4-B complete / Linux Cloud PASS; R4-C 22-entry local reseal complete, new pre-publication Cloud seal / publish / live A–F pending
+> Status: R4-A and R4-B complete / Linux Cloud PASS; R4-C 22-entry pre-publication Cloud seal PASS, publish / download verification / live A–F pending
 >
 > Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
 >
@@ -204,9 +204,9 @@ R4-B is closed. That acceptance alone did not authorize R4-C; the maintainer lat
 Steps 1–3 were repeated after the downloaded-asset A1 probe exposed that the 21-entry ZIP omitted its
 declared package-local verifier. The repaired local candidate is now a 22-entry self-auditable ZIP with
 `tools/build_release.py` included only as a Release audit tool; installed runtime inventory and dispatch
-remain unchanged. The former Cloud byte seal is superseded. A new exact-byte pre-publication Cloud seal,
-step 4 publication/download verification, and steps 5–6 live lifecycle evidence remain pending; therefore
-R4-C and Phase 3 are not yet closed.
+remain unchanged. The former Cloud byte seal is superseded, and the new exact-byte Fresh Cloud seal passed
+69/69 with both asset identities reproduced exactly. Step 4 publication/download verification and steps 5–6
+live lifecycle evidence remain pending; therefore R4-C and Phase 3 are not yet closed.
 
 Cloud acceptance includes the existing A–F installation/lifecycle checks plus
 Round 4-specific proof:

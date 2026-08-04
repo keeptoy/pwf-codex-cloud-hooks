@@ -1,30 +1,33 @@
 # Phase 3 Round 4 R4-C pre-publication Cloud seal check
 
-> 状态：PENDING；22-entry 自校验候选已本地封板，等待新的 Fresh Linux/Cloud 精确字节复验
+> 状态：PASS；22-entry 自校验候选已于 2026-08-04 通过新的 Fresh Linux/Cloud 精确字节复验
 >
 > 范围：最终 69/69 Linux、22-entry ZIP 跨平台重建、bootstrap SHA、LF 属性、无占位符、clean workspace
 >
 > 禁止：本步骤不得发布资产、不得安装到 live `/opt/codex`、不得提前执行 beta.1 lifecycle A～F
 
-## 当前候选与已作废证据
+## 已验收的新候选与已作废证据
 
-当前待复验的本地候选是：
+唯一执行脚本以退出码 0 和 `R4C_PREPUBLICATION_CLOUD_SEAL=PASS` 完整结束。实际证据为：
 
+- Python 3.14.4，zlib build/runtime 1.3；
+- imported runtime Git modes PASS；Linux suite 69/69，0 fail，0 skipped；
+- 23 个 Release 路径 LF 属性 PASS；placeholders absent，workspace clean；
 - ZIP 22 entries / 84,316 bytes / SHA `c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91`；
 - bootstrap 17,425 bytes / SHA `0c9d57f53ff980d9d207bc8291b1f055058000e45258732b19156ec93b8b1f2a`；
 - ZIP 新增 `tools/build_release.py`，使发布下载 A1 能在解压包内按同一合同自校验；该工具不进入
   installed runtime 或 adapter dispatch。
 
 先前 21-entry ZIP 的 Fresh Cloud seal 曾完整 PASS，但发布下载 A1 暴露 package-local verifier 缺失，
-因此旧 ZIP/bootstrap SHA 和旧 PASS 已作废，不再授权发布。只有本页脚本对上述新字节再次输出
-`R4C_PREPUBLICATION_CLOUD_SEAL=PASS`，才可进入发布和
+因此旧 ZIP/bootstrap SHA 和旧 PASS 已作废，不再授权发布。本次 PASS 只授权发布上述两个精确资产；
+它不替代发布后下载复核，也不替代
 [`v0.3.0-beta.1-cloud-hard-acceptance.md`](v0.3.0-beta.1-cloud-hard-acceptance.md) 的 live 黑盒 A～F。
 
 ## 为什么在发布前增加这一关
 
 R4-C-A 已证明没有显式 LF 属性时，Windows autocrlf checkout 会改变五个 ZIP 输入和最终 SHA。
-修复后，Windows fresh checkout 与当前 checkout 已构建出相同 ZIP。正式发布前还必须在目标
-Linux/Cloud Python/zlib 环境重建一次，证明最终 commit 仍得到以下精确资产：
+修复后，Windows fresh checkout 与当前 checkout 已构建出相同 ZIP。本次又在目标 Linux/Cloud
+Python/zlib 环境重建并证明最终 commit 得到以下精确资产：
 
 | Asset | Size | SHA-256 |
 |---|---:|---|
