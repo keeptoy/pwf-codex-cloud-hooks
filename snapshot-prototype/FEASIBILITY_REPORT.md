@@ -7,7 +7,8 @@
 > dispatched
 >
 > Historical outcome: the production translation and activation later passed
-> Phase 3 Rounds 3–4 and shipped in Cloud-accepted beta.1. Future-tense Round 3
+> Phase 3 Rounds 3–4 and shipped in Cloud-accepted beta.1; the same runtime later
+> shipped in the beta.2 publication synchronization. Future-tense Round 3
 > requirements below are preserved as the original handoff record, not current authorization.
 
 ## Question and decision

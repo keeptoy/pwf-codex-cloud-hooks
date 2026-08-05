@@ -1,9 +1,10 @@
 # 项目理解：pwf-codex-cloud-hooks
 
-> 最后更新：2026-08-04
+> 最后更新：2026-08-05
 > 当前迭代：`v0.3.0` 开发版  
 > 已发布基线：`v0.2.2`
-> 当前 Phase 4～8 回滚基线：published / Cloud-accepted `v0.3.0-beta.1`
+> 当前 Phase 4～8 回滚基线：published / accepted `v0.3.0-beta.2`
+> 历史 fallback：不可变 `v0.3.0-beta.1`、`v0.3.0-alpha.2` 和 `v0.2.2`
 
 ## 1. 这份文档的用途
 
@@ -409,7 +410,7 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 - 解析 Hook stdin JSON 和 `cwd`；
 - 输出 Codex `hookSpecificOutput.additionalContext` JSON；
 - 输出 rollout canary；
-- beta.1 active path 不再解析或读取 plan 文件；
+- beta.2 active path（与 beta.1 相同）不再解析或读取 plan 文件；
 - 两个事件先监督 sibling `owned-plan.py`，SessionStart 再把 exact project 交给 `owned-catchup.py`；
 - 只保留 Host payload/request、共享监督器、严格结果校验、上下文组合与 Codex JSON；
 - Runtime advisory 失败时保持 Codex loop 可继续。
@@ -424,7 +425,7 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 
 ### `runtime/owned-plan.py`
 
-- Phase 3 Round 3 已安装、哈希和打包，beta.1 active path 已 dispatch；
+- Phase 3 Round 3 已安装、哈希和打包，beta.2 active path（与 beta.1 相同）已 dispatch；
 - 拥有 opt-out、session attachment、canonical plan resolution 和 fd-rooted safe reads；
 - 在私有 `0700` snapshot/`0600` 文件中调用 pristine resolver/injector；
 - 返回 exact-v1 plan context 和唯一 canonical project state；
@@ -459,7 +460,7 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
   契约和兼容失败语义；
 - 当前只有 PWF 这一项垂直集成；通用 Host/Driver 抽象必须等第二个只读插件验证后再提取。
 
-## 12. beta.1 已落地、v0.3.0 延续的目标架构
+## 12. beta.2 当前已落地、v0.3.0 延续的目标架构
 
 ```text
 /etc/codex/requirements.toml
@@ -481,7 +482,7 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
               `-- installed-manifest.json
 ```
 
-该树表示当前 beta.1 已发布、Cloud-accepted 的职责与安装边界。adapter 调用两个 owned child，
+该树表示当前 beta.2 已发布、accepted 的职责与安装边界；runtime 行为与 beta.1 相同。adapter 调用两个 owned child，
 canonical 激活、封板和 Fresh/Resume Managed Hook A～F 已全部通过。Phase 4 只能在新的 Discovery
 Gate 中扩展该边界，不能从 upstream 文件存在推断 attestation、nonce 或 ledger 模式已经启用。
 
@@ -512,17 +513,19 @@ Phase 3 目标职责边界：
 | Round 4 A/B/C 激活、超时、失败和回滚设计 | `docs/phase-3-round-4-activation-plan.md` |
 | Cloud 可复制操作 | `黑盒验证.md` 及版本/Phase 专项验收文档 |
 
-2026-08-04 状态快照：
+2026-08-05 状态快照：
 
-- Phase 1～3 已完成并通过各自 Cloud 验收；beta.1 是当前 Phase 4～8 回滚基线；
+- Phase 1～3 已完成并通过各自 Cloud 验收；beta.2 是当前 Phase 4～8 回滚基线；
 - Phase 3 Round 1～3 已完成，inactive owned-plan 的完整 Linux/Cloud gate 为 63/63 PASS；
 - Round 4 入口分析与 R4-A 已完成；Windows 48 PASS / 18 honest SKIP，Cloud/Linux 66/66 PASS；
 - R4-B 已完成原子激活/adapter thinning；Windows 69 registered / 51 PASS / 18 honest SKIP /
   0 FAIL，Linux/Cloud 69/69 PASS，并通过真实双 child/跨用户、隔离升级、doctor、11/21、预算和
   零残留门槛；R4-C beta.1 的 22-entry 自校验 ZIP 和外部 bootstrap 通过精确字节 Cloud seal，
   已发布并通过下载复核与 live Fresh/Resume 黑盒 A～F；
-- requirements 仍只注册 adapter；beta.1 是当前回滚基线，alpha.2 ZIP/bootstrap 保持不可变并
-  作为历史 fallback；Phase 4 尚未开始，等待维护者明确授权后才能进入 Round 1 Discovery Gate。
+- requirements 仍只注册 adapter；beta.2 只同步 package/README/发布文档，不改变 runtime、
+  contract、installer 或 Managed policy，已按独立资产身份发布并通过验收，成为当前回滚基线；
+  beta.1 与 alpha.2 保持不可变并作为历史 fallback；Phase 4 尚未开始，也未因 beta.2 发布维护
+  而获得授权。
 
 若本节快照与活动 `task_plan.md` 冲突，以活动计划为准。本节只在架构基线、Phase、Cloud
 验收或 Release 状态变化时更新；轮内 next step 和测试计数留在 planning/work plan，避免
@@ -540,9 +543,9 @@ Phase 3 目标职责边界：
 
 ## 15. 已确认决策
 
-1. **版本基线**：v0.2.2 是已发布、Cloud 验证的稳定历史 fallback；alpha.2 是不可变历史
-   fallback；published / Cloud-accepted beta.1 是当前 Phase 4～8 rollback baseline；最终
-   v0.3.0 仍是未正式发布的 modernization 迭代。
+1. **版本基线**：v0.2.2、alpha.2 和 beta.1 是不可变历史 fallback；published / accepted
+   beta.2 是当前 Phase 4～8 rollback baseline。beta.2 沿用 beta.1 已验证的 runtime 行为，
+   但拥有独立资产和 SHA；最终 v0.3.0 仍是未正式发布的 modernization 迭代。
 2. **路径不是契约**：`/opt/codex` 是当前默认和已验证路径，不是不可变平台常量。
    沙箱初始化阶段可以没有 `CODEX_HOME`，Codex Runtime 当前会向 agent/Hook 提供
    `/opt/codex`；实现必须同时支持显式参数、运行时变量和安全探测。

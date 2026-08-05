@@ -13,8 +13,8 @@ const builder = path.join(root, "tools", "build_release.py");
 const contract = path.join(root, "contracts", "release-artifact-v1.json");
 const python = process.env.PYTHON || (process.platform === "win32" ? "python" : "python3");
 const sha256 = file => crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
-const betaZipSha256 = "c9dd8bf5dea0f50662df0a15d653584b7d9a6f1f0329dfc3c2d55fe33a366f91";
-const betaBootstrapSha256 = "0c9d57f53ff980d9d207bc8291b1f055058000e45258732b19156ec93b8b1f2a";
+const betaZipSha256 = "812cc9cdcafa93b5fcc47cc763fd743f11be77958b75eea1fa4cf0508dd391ab";
+const betaBootstrapSha256 = "d572b77d920b34c34c7912ba364376ae3668216f00ce350251bd7c8b336abcd6";
 
 function run(command, archive) {
   const flag = command === "build" ? "--output" : "--archive";
@@ -38,7 +38,7 @@ test("Release ZIP build is deterministic, exact, and keeps bootstrap external", 
 
     const artifact = JSON.parse(fs.readFileSync(contract, "utf8"));
     const packageMetadata = JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8"));
-    assert.equal(packageMetadata.version, "0.3.0-beta.1");
+    assert.equal(packageMetadata.version, "0.3.0-beta.2");
     assert.equal(artifact.entries.some(entry => entry.path === "tools/build_release.py"), true);
     assert.equal(artifact.entries.some(entry => entry.path === "init-cloud-sandbox-v0.3.0.bash"), false);
     assert.deepEqual(artifact.external_release_assets.map(entry => entry.path), ["init-cloud-sandbox-v0.3.0.bash"]);
@@ -57,10 +57,10 @@ test("Release ZIP build is deterministic, exact, and keeps bootstrap external", 
       betaBootstrapSha256,
     );
     const betaAcceptance = fs.readFileSync(
-      path.join(root, "docs", "v0.3.0-beta.1-cloud-hard-acceptance.md"),
+      path.join(root, "docs", "v0.3.0-beta.2-cloud-hard-acceptance.md"),
       "utf8",
     );
-    assert.doesNotMatch(betaAcceptance, /__PWF_BETA1_/);
+    assert.doesNotMatch(betaAcceptance, /__PWF_BETA2_/);
     assert.match(betaAcceptance, new RegExp(betaZipSha256, "g"));
     assert.match(betaAcceptance, new RegExp(betaBootstrapSha256, "g"));
 

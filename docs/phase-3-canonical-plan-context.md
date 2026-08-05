@@ -2,9 +2,9 @@
 
 > Phase status: complete; Rounds 1–4 and beta.1 live A–F PASS
 >
-> Runtime status: exact-v1 owned path active in published / Cloud-accepted `v0.3.0-beta.1`
+> Runtime status: exact-v1 owned path active in published / accepted `v0.3.0-beta.2`; behavior unchanged from beta.1
 >
-> Current rollback baseline: published / Cloud-accepted `v0.3.0-beta.1`; alpha.2 is historical fallback
+> Current rollback baseline: published / accepted `v0.3.0-beta.2`; beta.1 and alpha.2 are historical fallbacks
 >
 > Prototype gate: Round 2 feasibility spike reviewed; controlled snapshot is conditional GO
 >

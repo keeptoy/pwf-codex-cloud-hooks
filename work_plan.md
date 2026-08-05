@@ -2,9 +2,10 @@
 
 > 文档职责：维护 v0.3.0 的长期 Phase 路线、建议轮数、Cloud 验收节点、发布路标和阶段工作摘要。
 >
-> 当前状态：Phase 1～3 已完成。`v0.3.0-beta.1` 22-entry ZIP 与外部 bootstrap 已发布，发布后下载复核和 live Fresh/Resume A～F 全部 PASS。Phase 4 尚未开始，等待维护者明确授权后进入 Round 1 Discovery Gate。
+> 当前状态：Phase 1～3 已完成。`v0.3.0-beta.2` 不改变 beta.1 已通过 live Fresh/Resume A～F
+> 的 runtime 行为，已完成发布同步、封板和验收。Phase 4 尚未开始，也未因本次发布维护获得授权。
 >
-> 当前回滚基线：published / Cloud-accepted `v0.3.0-beta.1`；alpha.2 保留为历史 fallback。
+> 当前回滚基线：published / accepted `v0.3.0-beta.2`；beta.1 与 alpha.2 保留为历史 fallback。
 
 ## 与活动 `task_plan.md` 的分工
 
@@ -69,13 +70,14 @@ Discovery Gate 和真实 Cloud 返修优先于维持原数字。
 | `v0.2.2` | 兼容基线 | 已发布 Cloud catch-up 兼容行为 | published / Cloud validated | 稳定历史 fallback |
 | `v0.3.0-alpha.1` | Phase 1 | 可信来源、确定性打包、安装与 doctor，不改变 Hook 语义 | complete / Cloud PASS | Phase 2 实施期历史回滚点 |
 | `v0.3.0-alpha.2` | Phase 2 | owned catch-up、pristine global Skill、真实 resume 和权限边界 | complete / Cloud PASS | 历史 fallback |
-| `v0.3.0-beta.1` | Phase 3 | 完整 canonical plan runtime、薄 adapter、统一 owned project state | published / Cloud A～F PASS | 当前 Phase 4～8 回滚基线 |
+| `v0.3.0-beta.1` | Phase 3 | 完整 canonical plan runtime、薄 adapter、统一 owned project state | published / Cloud A～F PASS | 历史 fallback |
+| `v0.3.0-beta.2` | Phase 3 发布维护 | 同一 runtime 行为、最新 README/文档治理、独立不可变资产 | published / accepted | 当前 Phase 4～8 回滚基线 |
 | 内部 canary/pre-release | Phase 4～8 | 每项高风险能力独立验证 | pending | 不要求每个 Phase 正式发布 |
 | `v0.3.0-rc.1` | Phase 9 | 完整候选回归 | pending | 正式版前候选 |
 | `v0.3.0` | Phase 9 | 移除临时 canary 后重新构建并验收最终字节 | pending | 正式发布 |
 
-原型分支或 commit 中出现 `beta.1` 字样不代表 beta Release 已成立；只有 R4-C 完成不可变资产、
-SHA 和 Fresh/Resume Cloud 验收后才能晋级。
+版本名出现在分支、源码或包内不代表 Release 已成立；beta.2 按维护者授权以不变 runtime 行为
+继承 beta.1 的行为验收，但使用自己独立的不可变 ZIP/bootstrap 和 SHA，不能复用 beta.1 资产。
 
 ## 已完成与当前 Phase 工作摘要
 
@@ -157,7 +159,8 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
 - 27 秒共享 deadline、进程清理、零 snapshot 残留和 plan/no-plan latency 通过；
 - Fresh startup/UserPrompt、真实 planning update、长尾 sentinel、Resume catch-up、post-resume doctor 全部通过。
 
-结果：全部门槛 PASS；`v0.3.0-beta.1` 已发布并成为 Phase 4～8 的当前回滚基线。
+结果：全部门槛 PASS；`v0.3.0-beta.1` 完成 Phase 3 行为验收，随后同 runtime 行为的
+`v0.3.0-beta.2` 完成发布同步并成为 Phase 4～8 当前回滚基线。
 
 ### Phase 5：实现前后各测一次
 
@@ -188,9 +191,9 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
 
 - 当前执行权威：`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`；
 - 当前 Phase：Phase 3 已关闭；Phase 4 尚未开始；
-- 下一步：完成本轮文档治理并 checkpoint；随后等待维护者明确授权 Phase 4 Round 1 Discovery Gate；
-- 当前禁止：在 Discovery Gate 关闭前实施 Phase 4 production behavior、扩展 trusted graph、激活 opt-in 模式或封板新资产；
-- 当前回滚：published / Cloud-accepted beta.1；alpha.2 为历史 fallback。
+- 下一步：等待维护者明确授权 Phase 4 Round 1 Discovery Gate；若 beta.2 后续 Cloud 复验出现意外，回退 beta.1 并重新评估发布身份；
+- 当前禁止：在 Discovery Gate 关闭前实施 Phase 4 production behavior、扩展 trusted graph 或激活 opt-in 模式；
+- 当前回滚：published / accepted beta.2；beta.1 与 alpha.2 为历史 fallback。
 
 ## Release 封板顺序
 

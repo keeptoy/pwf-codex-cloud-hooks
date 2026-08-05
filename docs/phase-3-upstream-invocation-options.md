@@ -4,7 +4,7 @@
 >
 > 当前集成：`OthmanAdi/planning-with-files` v3.8.2
 >
-> 当前发布基线：published / Cloud-accepted `v0.3.0-beta.1`；alpha.2 为历史 fallback
+> 当前发布基线：published / accepted `v0.3.0-beta.2`；beta.1 与 alpha.2 为历史 fallback
 
 ## 1. 项目定位
 

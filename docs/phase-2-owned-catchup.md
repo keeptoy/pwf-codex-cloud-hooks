@@ -4,12 +4,12 @@
 >
 > Accepted release: `v0.3.0-alpha.2` fresh-Cloud hard acceptance PASS
 >
-> Historical role: `v0.3.0-alpha.2` was the accepted Phase 3 rollback baseline; published / Cloud-accepted beta.1 is current
+> Historical role: `v0.3.0-alpha.2` was the accepted Phase 3 rollback baseline; published / accepted beta.2 is current
 >
 > Historical predecessor: retained `v0.3.0-alpha.1`, no longer the active baseline
 
 This document freezes the Phase 2/alpha.2 boundary. Present-tense lifecycle statements below describe that
-accepted version at its Phase 2 checkpoint; the current beta.1 chain is documented in the root README and
+accepted version at its Phase 2 checkpoint; the current beta.2 chain is documented in the root README and
 the Phase 3 canonical plan-context guide.
 
 ## Owned-runtime boundary

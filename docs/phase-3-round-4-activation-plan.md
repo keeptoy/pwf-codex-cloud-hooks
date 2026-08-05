@@ -2,9 +2,9 @@
 
 > Status: complete; R4-A/R4-B Linux Cloud PASS, R4-C 22-entry seal PASS, published-download verification PASS, live A–F PASS
 >
-> Current rollback baseline: published and Cloud-accepted `v0.3.0-beta.1`
+> Current rollback baseline: published and accepted `v0.3.0-beta.2` (same Phase 3 runtime behavior)
 >
-> Historical fallback: immutable Cloud-accepted `v0.3.0-alpha.2`
+> Historical fallbacks: immutable Cloud-accepted `v0.3.0-beta.1` and `v0.3.0-alpha.2`
 
 ## Conclusion
 

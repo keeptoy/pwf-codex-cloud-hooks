@@ -1,5 +1,14 @@
 # Findings & Decisions: Managed Runtime Modernization
 
+## 2026-08-05 beta.2 Release-maintenance gate
+
+- The maintainer selected a new `v0.3.0-beta.2` identity instead of overwriting published beta.1. This satisfies the immutable-asset rule because README is a ZIP entry and its post-beta.1 governance changes necessarily produce new archive bytes.
+- Beta.2 is a synchronization release, not a new Phase or runtime activation: `hooks/`, `runtime/`, installer behavior, contracts, managed inventory, lifecycle events, trusted graph, and Phase 4 authorization remain unchanged.
+- Historical beta.1 R4-C/seal/A–F documents, hashes, test fixtures, and golden names remain dated evidence. Only current package/bootstrap defaults, current Release assertions, current macro status, and a new beta.2 acceptance record move forward.
+- The maintainer explicitly chose release-state-first sealing: because beta.2 changes no runtime/installer/contract/policy behavior, its behavior acceptance is inherited from beta.1 and the packaged README is frozen directly in the final published/accepted state. This avoids a guaranteed post-test README edit and checksum cycle. Beta.2 still receives its own immutable ZIP/bootstrap identity; if later Cloud re-verification contradicts the inherited evidence, rollback to beta.1 and issue a new version rather than rewrite beta.2.
+- Pre-final beta.2 builds of 84,482, 84,616, and 84,564 bytes were intentionally discarded as README status wording evolved. None of those intermediate ZIP/bootstrap identities may be uploaded.
+- Final publication-state-first identity: ZIP 22 entries / 84,572 bytes / SHA-256 `812cc9cdcafa93b5fcc47cc763fd743f11be77958b75eea1fa4cf0508dd391ab`; external bootstrap 17,425 bytes / SHA-256 `d572b77d920b34c34c7912ba364376ae3668216f00ce350251bd7c8b336abcd6`.
+
 ## 2026-08-04 R4-C downloaded-asset self-audit failure
 
 - The first live F output is product-healthy but exposes an acceptance counting defect: doctor is fully healthy, beta.1 version and zero snapshot residue are correct, and the reported 12 physical paths exactly equal the 11 managed payloads plus `installed-manifest.json`. R3/R4-A/R4-B intentionally excluded the manifest from filesystem inventory and separately asserted its 11 `runtime_files`; F accidentally counted all physical files while expecting 11. Keep the established convention and repair only the ZIP-external F code/documentation—never add the manifest to its self-described payload list or alter installer/runtime/assets.

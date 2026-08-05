@@ -2,7 +2,8 @@
 
 > **当前角色：历史 feasibility evidence。**本目录记录 Phase 3 Round 2 交接时的决策现场；
 > 后续 Round 3 已把受控快照翻译为 production `runtime/owned-plan.py`，Round 4 已完成激活、
-> beta.1 发布和 Cloud A～F。下文“Round 3 应当/待决”的措辞按历史原貌保留，不是当前 Next Step。
+> beta.1 发布和 Cloud A～F；同 runtime 行为的 beta.2 后续完成发布同步并成为当前回滚基线。
+> 下文“Round 3 应当/待决”的措辞按历史原貌保留，不是当前 Next Step。
 
 这个目录是 Phase 3“受控 pristine snapshot”路线的**独立、未发布原型交接包**。
 第三方只读本目录即可理解设计、运行测试和复现实验；不需要先理解父仓库。它不是生产
