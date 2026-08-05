@@ -1,16 +1,16 @@
 # Phase 3 Canonical Plan Context
 
-> Phase status: Rounds 1–3 complete; Round 3 inactive Cloud acceptance PASS
+> Phase status: complete; Rounds 1–4 and beta.1 live A–F PASS
 >
-> Runtime status: exact-v1 owned path implemented/installed and activated; R4-B Linux/Cloud acceptance PASS
+> Runtime status: exact-v1 owned path active in published / Cloud-accepted `v0.3.0-beta.1`
 >
-> Rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
+> Current rollback baseline: published / Cloud-accepted `v0.3.0-beta.1`; alpha.2 is historical fallback
 >
 > Prototype gate: Round 2 feasibility spike reviewed; controlled snapshot is conditional GO
 >
 > Cloud single-link gate: Fresh + Resume PASS; 40/40 stable regular-file observations with `st_nlink=1`
 >
-> Next gate: R4-C beta.1 dual-asset sealing and Fresh/Resume Cloud acceptance in progress
+> Next product gate: Phase 4 Round 1 Discovery Gate, awaiting explicit maintainer authorization
 
 ## Purpose
 
@@ -28,9 +28,9 @@ Those remain Phase 4 scope.
 The Round 1 filenames intentionally do not carry a `candidate` suffix. The
 architecture is selected, and the two schemas already have stable versioned
 protocol identities. Their lifecycle is now **implemented/installed and active in
-the R4-B development adapter**: the published alpha.2 asset does not contain them,
-while the current trusted graph installs, packages, and dispatches the same v1
-identities. A filename or schema-version change is reserved for an incompatible
+published beta.1**: the published alpha.2 asset does not contain them,
+while the current trusted graph installs, packages, and dispatches the same v1 identities through beta.1.
+A filename or schema-version change is reserved for an incompatible
 contract change, not for ordinary inactive-to-active promotion.
 
 `tests/phase3-contracts.test.js` is likewise a permanent lifecycle regression,
@@ -64,7 +64,7 @@ continue to register only `hook_adapter.py`.
 
 ## Request contract
 
-The installed active-development machine contract is
+The installed beta.1 machine contract is
 `contracts/adapter-plan-context-request-v1.schema.json`.
 
 The request contains:
@@ -84,7 +84,7 @@ enable isolation, it cannot attach the session.
 
 ## Result contract
 
-The installed active-development machine contract is
+The installed beta.1 machine contract is
 `contracts/plan-context-result-v1.schema.json`.
 
 The result carries:
@@ -200,6 +200,9 @@ adapter dispatch remains unchanged.
 - Update exact installer/manifest/Release inventories, seal beta.1, and perform
   complete Cloud acceptance before Phase 4.
 
+Round 4 is complete: R4-A/R4-B Linux gates, beta.1 exact-byte sealing, publication/download verification,
+and live Fresh/Resume A–F all passed. This closure does not authorize Phase 4 implementation.
+
 The detailed sequence, relational result validation, failure matrix, shared
 27-second deadline interpretation, rollback boundary, and stop conditions are
 frozen in `docs/phase-3-round-4-activation-plan.md`.
@@ -219,11 +222,10 @@ frozen in `docs/phase-3-round-4-activation-plan.md`.
 
 ## Release boundary
 
-The published alpha.2 asset remains immutable and does not contain the Round 3
-files. The R4-B development trusted graph includes and dispatches the approved
-schemas, `owned-plan.py`, its controlled-snapshot contract, and the existing
-pristine resolver/injector dependencies in the runtime manifest, installer
-inventory, 21-entry Release allowlist, LF rules, and exact-count tests. The
-injector hash and compatibility-overlay ledger remain unchanged; adapter dispatch
-changed only in development, while the published alpha.2 ZIP and external
-bootstrap remain immutable.
+The published alpha.2 asset remains immutable and does not contain the Round 3 files. Published beta.1
+includes and dispatches the approved schemas, `owned-plan.py`, its controlled-snapshot contract, and the
+existing pristine resolver/injector dependencies. Its installed inventory is 11 managed payloads plus the
+separately validated `installed-manifest.json`; its self-auditable Release ZIP has 22 entries. The injector
+hash and compatibility-overlay ledger remain unchanged. Exact beta.1 assets and final A–F evidence are in
+`docs/v0.3.0-beta.1-cloud-hard-acceptance.md`; future working-tree changes require a new asset identity and
+do not mutate either published alpha.2 or beta.1 bytes.

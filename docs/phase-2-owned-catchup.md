@@ -4,9 +4,13 @@
 >
 > Accepted release: `v0.3.0-alpha.2` fresh-Cloud hard acceptance PASS
 >
-> Current Phase 3 rollback baseline: Cloud-accepted `v0.3.0-alpha.2`
+> Historical role: `v0.3.0-alpha.2` was the accepted Phase 3 rollback baseline; published / Cloud-accepted beta.1 is current
 >
 > Historical predecessor: retained `v0.3.0-alpha.1`, no longer the active baseline
+
+This document freezes the Phase 2/alpha.2 boundary. Present-tense lifecycle statements below describe that
+accepted version at its Phase 2 checkpoint; the current beta.1 chain is documented in the root README and
+the Phase 3 canonical plan-context guide.
 
 ## Owned-runtime boundary
 
@@ -115,11 +119,12 @@ equivalence only, not a supported managed target.
 ## Round 4 acceptance result
 
 The sealed alpha.2 acceptance snapshot registers 45 cases. On Windows, 42 pass
-and three Linux-only runtime/permission cases skip. The current development tree
-adds one inactive Phase 3 contract regression and tracks it separately. Fresh
+and three Linux-only runtime/permission cases skip. The then-current development tree
+added one inactive Phase 3 contract regression and tracked it separately. Fresh
 Linux Codex Cloud acceptance proved the
 exact ZIP SHA and inventory, pristine global Skill, healthy doctor, real owned
 catch-up under root/root, synthetic install-user / Hook-user readability, Host
 transcript selection, tail-sentinel preservation, UserPrompt remaining local,
 automatic P2-A through P2-D lifecycle behavior, and healthy P2-E doctor after
-resume. Phase 2 is complete and alpha.2 is the Phase 3 rollback baseline.
+resume. Phase 2 is complete, and alpha.2 became the Phase 3 rollback baseline; beta.1 later superseded that
+current-role assignment without changing the immutable alpha.2 evidence.

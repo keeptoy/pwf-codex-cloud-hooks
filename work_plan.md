@@ -2,7 +2,7 @@
 
 > 文档职责：维护 v0.3.0 的长期 Phase 路线、建议轮数、Cloud 验收节点、发布路标和阶段工作摘要。
 >
-> 当前状态：Phase 1～3 已完成。`v0.3.0-beta.1` 22-entry ZIP 与外部 bootstrap 已发布，发布后下载复核和 live Fresh/Resume A～F 全部 PASS。下一步仅为 Phase 4 Round 1 Discovery Gate。
+> 当前状态：Phase 1～3 已完成。`v0.3.0-beta.1` 22-entry ZIP 与外部 bootstrap 已发布，发布后下载复核和 live Fresh/Resume A～F 全部 PASS。Phase 4 尚未开始，等待维护者明确授权后进入 Round 1 Discovery Gate。
 >
 > 当前回滚基线：published / Cloud-accepted `v0.3.0-beta.1`；alpha.2 保留为历史 fallback。
 
@@ -53,7 +53,7 @@ Discovery Gate 和真实 Cloud 返修优先于维持原数字。
 | 1. 契约与来源治理 | 3 | allowlist、overlay、manifest、fixtures、安装治理 | 预发行安装与兼容冒烟 | complete；alpha.1 PASS |
 | 2. Owned catch-up runtime | 4 | owned catch-up、显式 Host 契约、session/transcript 安全边界 | 完整 catch-up 专项回归 | complete；alpha.2 PASS |
 | 3. Canonical prompt injection | 4 | owned-plan、pristine snapshot invocation、瘦身 adapter、统一 project state | 完整 SessionStart/UserPrompt/Planning/Resume 回归 | complete；beta.1 published / Cloud A～F PASS |
-| 4. Attestation 与 opt-in v3 模式 | 暂定 3 | 重新审计；inactive extension；opt-in activation | 隔离任务中的 tamper/cache/rollback | pending；Round 1 Discovery Gate 是唯一下一步 |
+| 4. Attestation 与 opt-in v3 模式 | 暂定 3 | 重新审计；inactive extension；opt-in activation | 隔离任务中的 tamper/cache/rollback | pending；Round 1 Discovery Gate 待明确授权 |
 | 5. Compaction 生命周期 | 3～4 | clear/compact、PreCompact、必要时 PostCompact | 实现前后各测一次 | pending |
 | 6. Tool 与 Permission Hooks | 4 | PostToolUse、去重节流、PermissionRequest、最后 PreToolUse | 每种事件单独 canary | pending |
 | 7. Advisory completion | 2 | 非阻断 Stop 提示 | 不递归、不误继续 | pending |
@@ -188,7 +188,7 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
 
 - 当前执行权威：`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`；
 - 当前 Phase：Phase 3 已关闭；Phase 4 尚未开始；
-- 下一步：Phase 4 Round 1 Discovery Gate，只恢复证据、重审 upstream/本仓库/Cloud 事实并冻结范围、合同、风险和退出条件；
+- 下一步：完成本轮文档治理并 checkpoint；随后等待维护者明确授权 Phase 4 Round 1 Discovery Gate；
 - 当前禁止：在 Discovery Gate 关闭前实施 Phase 4 production behavior、扩展 trusted graph、激活 opt-in 模式或封板新资产；
 - 当前回滚：published / Cloud-accepted beta.1；alpha.2 为历史 fallback。
 

@@ -4,7 +4,7 @@
 >
 > 当前集成：`OthmanAdi/planning-with-files` v3.8.2
 >
-> 当前发布基线：Cloud 已验收的 `v0.3.0-alpha.2`
+> 当前发布基线：published / Cloud-accepted `v0.3.0-beta.1`；alpha.2 为历史 fallback
 
 ## 1. 项目定位
 
@@ -229,16 +229,19 @@ store 和协议差异，本仓库应优先迁移、缩小或退役，而不是�
 - alpha.2 的 adapter dispatch、ZIP 和 bootstrap 在 inactive Round 3 保持不变；
 - Round 4 激活后完成新的 beta golden、fresh Cloud lifecycle/resume 和 post-resume doctor。
 
-## 9. Round 3 当前落地状态
+## 9. Round 3 落地历史状态
 
 受控快照已经从 Round 2 原型翻译为独立的 production `runtime/owned-plan.py`，并与两个
 exact-v1 schema 一起进入开发版 manifest、installer、11-file installed inventory 和
 21-entry Release contract。实现采用冻结的 single-link、bounded stale cleanup、portable
-`openat` 与共享 deadline 策略；adapter 仍无任何 owned-plan 引用，因此当前 Hook 行为仍是
-alpha.2 基线。
+`openat` 与共享 deadline 策略；adapter 当时仍无任何 owned-plan 引用，因此该 checkpoint 的
+Hook 行为仍是 alpha.2 基线。
 
 Windows 完整回归为 63 registered / 46 PASS / 17 明确 POSIX/Linux SKIP / 0 FAIL。
 `docs/phase-3-round-3-cloud-acceptance.md` 的 Linux/Codex Cloud 门槛也已完整通过：63/63、
 隔离安装/doctor、11-file inventory、direct exact-v1、21-entry ZIP、零 snapshot 残留与
 adapter no-dispatch 全部 PASS。Round 3 已关闭；该证据没有激活 lifecycle，也没有发布
 beta.1。
+
+后续 Round 4 已按本路线完成 canonical activation、beta.1 封板、发布下载复核和 live A～F；
+受控快照因此成为当前 beta.1 PWF Driver 的已验收实现。Phase 4+ 仍须重新经过 Discovery Gate。

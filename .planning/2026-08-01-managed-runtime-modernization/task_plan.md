@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Checkpoint the Phase 3 closure, then begin Phase 4 Round 1 as a discovery-only gate: recover the accepted beta.1 evidence; re-audit upstream attestation, mode, nonce, ledger, projection, and cache semantics against the current adapter/owned runtime and dated Cloud facts; compare feasible protocol and fallback options; and freeze non-goals, trusted-graph impact, Cloud/rollback gates, round count, and exit/stop conditions. Do not implement or activate Phase 4 behavior in this first round.
+Checkpoint the completed post-Phase-3 documentation-governance changes, then stop and await explicit maintainer authorization before entering Phase 4. Once authorized, Phase 4 Round 1 must be a discovery-only gate: recover accepted beta.1 evidence; re-audit upstream attestation, mode, nonce, ledger, projection, and cache semantics against the current adapter/owned runtime and dated Cloud facts; compare feasible protocol/fallback options; and freeze non-goals, trusted-graph impact, Cloud/rollback gates, round count, and exit/stop conditions. Do not implement or activate Phase 4 behavior in that first round.
 
 ## Current Phase
-Phase 3 is complete. The self-auditable 22-entry beta.1 ZIP and external bootstrap passed the replacement Fresh Cloud byte seal, were published, passed downloaded-asset verification, and passed the complete live Fresh/Resume A–F lifecycle. The corrected F convention reports 11 managed payloads plus the separately validated `installed-manifest.json`, with exact agreement to `manifest.runtime_files` and zero snapshot residue. Published / Cloud-accepted beta.1 is now the Phase 4–8 rollback baseline; alpha.2 remains an immutable historical fallback. Phase 4 has not started.
+Phase 3 is complete. The self-auditable 22-entry beta.1 ZIP and external bootstrap passed the replacement Fresh Cloud byte seal, were published, passed downloaded-asset verification, and passed the complete live Fresh/Resume A–F lifecycle. The corrected F convention reports 11 managed payloads plus the separately validated `installed-manifest.json`, with exact agreement to `manifest.runtime_files` and zero snapshot residue. Published / Cloud-accepted beta.1 is now the Phase 4–8 rollback baseline; alpha.2 remains an immutable historical fallback. Post-Phase-3 documentation governance is complete and awaiting checkpoint; Phase 4 has not started or been authorized.
 
 ## Phases
 
@@ -141,7 +141,7 @@ Phase 3 is complete. The self-auditable 22-entry beta.1 ZIP and external bootstr
 #### Provisional round shape — re-audit before Phase 4 starts
 | Round | Scope | Status |
 |---|---|---|
-| 1 | Re-audit upstream attestation/mode/nonce/ledger semantics; freeze projection, protocol, fallback, and Cloud gates | pending; next authorized discovery-only gate |
+| 1 | Re-audit upstream attestation/mode/nonce/ledger semantics; freeze projection, protocol, fallback, and Cloud gates | pending; explicit maintainer authorization required |
 | 2 | Implement and install the inactive opt-in extension with legacy mode unchanged | pending |
 | 3 | Activate opt-in modes only; complete tamper/cache/rollback and fresh-Cloud acceptance | pending |
 

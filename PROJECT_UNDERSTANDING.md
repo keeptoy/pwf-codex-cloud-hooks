@@ -95,7 +95,7 @@ Codex 可以依据上述触发条件主动暂停；若路线选择需要维护�
 
 因此本仓库同时需要 Cloud 部署适配层和仅位于 owned copy 的临时上游兼容 overlay。
 
-## 4. 当前已验收的 v0.3.0-alpha.2 运行链
+## 4. Phase 2 已验收的 v0.3.0-alpha.2 历史运行链
 
 ```text
 init-cloud-sandbox-v0.3.0.bash
@@ -113,14 +113,16 @@ init-cloud-sandbox-v0.3.0.bash
               `-- 只导入 owned upstream/session-catchup.py
 ```
 
-当前只启用两个 Managed Hook：
+alpha.2 只启用两个 Managed Hook；beta.1 保留相同事件集合，但把 plan 语义迁入
+`owned-plan.py`：
 
-| Event | 当前行为 |
+| Event | alpha.2 行为 |
 |---|---|
 | `SessionStart` | 输出 canary；运行 catch-up；注入 planning context |
 | `UserPromptSubmit` | 输出 canary；注入 planning context |
 
-当前两条路径都是只读的。其他上游 Hook 暂未作为 Managed Hook 启用。
+这两条路径都是只读的。beta.1 仍只启用这两个 Managed Hook；其他上游事件须按后续 Phase
+逐项探路、实现和验收。
 
 ## 5. 初始化脚本与 Release 的边界
 
@@ -407,7 +409,7 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 - 解析 Hook stdin JSON 和 `cwd`；
 - 输出 Codex `hookSpecificOutput.additionalContext` JSON；
 - 输出 rollout canary；
-- 当前 R4-B 开发路径不再解析或读取 plan 文件；
+- beta.1 active path 不再解析或读取 plan 文件；
 - 两个事件先监督 sibling `owned-plan.py`，SessionStart 再把 exact project 交给 `owned-catchup.py`；
 - 只保留 Host payload/request、共享监督器、严格结果校验、上下文组合与 Codex JSON；
 - Runtime advisory 失败时保持 Codex loop 可继续。
@@ -422,7 +424,7 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
 
 ### `runtime/owned-plan.py`
 
-- Phase 3 Round 3 已安装、哈希和打包，R4-B 开发路径现已 dispatch；
+- Phase 3 Round 3 已安装、哈希和打包，beta.1 active path 已 dispatch；
 - 拥有 opt-out、session attachment、canonical plan resolution 和 fd-rooted safe reads；
 - 在私有 `0700` snapshot/`0600` 文件中调用 pristine resolver/injector；
 - 返回 exact-v1 plan context 和唯一 canonical project state；
@@ -457,7 +459,7 @@ v0.3.0 不能继承该验收结论，最终包必须重新验证。
   契约和兼容失败语义；
 - 当前只有 PWF 这一项垂直集成；通用 Host/Driver 抽象必须等第二个只读插件验证后再提取。
 
-## 12. v0.3.0 目标架构
+## 12. beta.1 已落地、v0.3.0 延续的目标架构
 
 ```text
 /etc/codex/requirements.toml
@@ -520,7 +522,7 @@ Phase 3 目标职责边界：
   零残留门槛；R4-C beta.1 的 22-entry 自校验 ZIP 和外部 bootstrap 通过精确字节 Cloud seal，
   已发布并通过下载复核与 live Fresh/Resume 黑盒 A～F；
 - requirements 仍只注册 adapter；beta.1 是当前回滚基线，alpha.2 ZIP/bootstrap 保持不可变并
-  作为历史 fallback；Phase 4 尚未开始，唯一下一步是 Round 1 Discovery Gate。
+  作为历史 fallback；Phase 4 尚未开始，等待维护者明确授权后才能进入 Round 1 Discovery Gate。
 
 若本节快照与活动 `task_plan.md` 冲突，以活动计划为准。本节只在架构基线、Phase、Cloud
 验收或 Release 状态变化时更新；轮内 next step 和测试计数留在 planning/work plan，避免
@@ -574,8 +576,9 @@ Phase 3 目标职责边界：
 1. **可选 Host 证据**：独立证明 Hook stdin `transcript_path` 所指 JSONL 的
    `session_meta.id` / `session_meta.session_id` 与 stdin `session_id` 一致。现有 runtime
    已执行 identity 校验；该证据增强未阻塞已经完成的 R4-A，也不是 R4-B 的前置条件。
-2. **Phase 4 入口复核**：开始 hard Stop 前重新审计上游 modes、attestation 与 ledger
-   语义，不能沿用 Phase 3 的只读假设直接外推。
+2. **Phase 4 入口复核**：开始 attestation 与 opt-in v3 mode 工作前，重新审计上游 modes、
+   nonce、attestation、ledger、projection 和 cache 语义；不能沿用 Phase 3 的 managed-legacy
+   只读假设直接外推。hard Stop 仍属于更后的独立高风险 Phase。
 3. **长期泛化证据**：第二个只读插件尚未验证 Host/runner/Driver 抽象；完成前不得把本仓库
    描述为通用技能转换器。
 

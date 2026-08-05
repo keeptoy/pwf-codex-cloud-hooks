@@ -5,6 +5,8 @@
 > 范围：最终 69/69 Linux、22-entry ZIP 跨平台重建、bootstrap SHA、LF 属性、无占位符、clean workspace
 >
 > 禁止：本步骤不得发布资产、不得安装到 live `/opt/codex`、不得提前执行 beta.1 lifecycle A～F
+>
+> 后续状态：上述精确资产已发布，下载复核与 live A～F 已 PASS；本文件保留 pre-publication gate 的历史边界
 
 ## 已验收的新候选与已作废证据
 

@@ -5,6 +5,10 @@
 >
 > Status: prototype evidence only; not trusted, installed, packaged, or
 > dispatched
+>
+> Historical outcome: the production translation and activation later passed
+> Phase 3 Rounds 3–4 and shipped in Cloud-accepted beta.1. Future-tense Round 3
+> requirements below are preserved as the original handoff record, not current authorization.
 
 ## Question and decision
 

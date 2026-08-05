@@ -4,7 +4,9 @@
 >
 > Phase status: Phase 1 complete; `v0.3.0-alpha.1` Cloud acceptance PASS
 >
-> Behavior status: runtime installed as an inactive verified inventory, but not executed; current Hook behavior is unchanged
+> Phase 1 checkpoint behavior: runtime installed as an inactive verified inventory, but not executed; Hook behavior was unchanged at that checkpoint
+>
+> Current role: historical provenance/installer contract; later Phase 2/3 releases activated owned runtimes
 
 ## Purpose
 
@@ -145,7 +147,7 @@ also outside the installer artifact. README and license material remain inside
 for operator and redistribution context.
 
 Round 2 added the importer, four verified runtime files, and the complete
-third-party notice. Round 3 proved the expanded package lifecycle and current
+third-party notice. Round 3 proved the expanded package lifecycle and then-current
 Hook output locally. The alpha.1 Release download/SHA, install, doctor, exact
 inventory, per-file hashes, adapter-only command boundary, and simplified
 behavior-compatibility smoke through resume have all passed in Cloud.

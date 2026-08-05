@@ -4,11 +4,10 @@
 [`OthmanAdi/planning-with-files`](https://github.com/OthmanAdi/planning-with-files)
 Skill 接入 Codex Cloud 会话。
 
-> **状态：**`v0.2.2` 仍是已发布的稳定基线，`v0.3.0-alpha.1` 是保留的 Phase 1
-> 预发行版本。Cloud-accepted `v0.3.0-alpha.2` 是当前 Phase 3 回滚基线。开发工作区已完成
-> R4-B plan-first 原子激活并通过本地与 Linux/Cloud gate；R4-C 的 22-entry 自校验 ZIP 与
-> ZIP 外部 bootstrap 已在本地重新封板，新的精确字节 Cloud seal、发布和 Fresh/Resume 黑盒
-> 验收仍待完成。这不是 beta.1 已发布或 Cloud-accepted 的声明。
+> **状态：**Phase 1～3 已完成。`v0.3.0-beta.1` 的 22-entry 自校验 ZIP 与 ZIP 外部
+> bootstrap 已发布，并通过发布后下载复核和完整 Fresh/Resume Cloud A～F；它是 Phase 4～8
+> 当前回滚基线。`v0.3.0-alpha.2` 保留为不可变历史 fallback。Phase 4 尚未开始，等待维护者
+> 明确授权后才能进入 Round 1 Discovery Gate。
 
 ## 从这里开始
 
@@ -22,7 +21,7 @@ Skill 接入 Codex Cloud 会话。
 
 如果你在操作当前版本，请先读[当前行为](#当前行为)、[安装与运维](#安装与运维)和
 [故障与修复模型](#故障与修复模型)。如果你要继续 modernization，请在修改代码前阅读
-[目标架构](#目标架构)和[如何继续开发](#如何继续开发)。
+[当前已落地架构与后续边界](#当前已落地架构与后续边界)和[如何继续开发](#如何继续开发)。
 
 ## 为什么需要这个仓库
 
@@ -44,15 +43,17 @@ Codex Cloud 需要一套经过集中审查的部署方式：
 
 ## 当前行为
 
-### 当前开发工作区的 R4-B 行为
+### 已发布并通过 Cloud 验收的 `v0.3.0-beta.1` 行为
 
 Managed requirements 仍只注册一个 adapter 命令。两个事件先调用 sibling `owned-plan.py`；
 只有严格校验通过且 `inject=true` 的结果才能提供 planning context。SessionStart 随后把该结果的
 六字段 `project` 原样交给 `owned-catchup.py`，最终输出顺序固定为 canary、可选 catch-up、plan。
 plan 失败或非注入结果只保留 canary；catch-up 失败不抑制已经验证的 plan context。
 
-这条开发路径已通过 Windows 与 Linux/Cloud R4-B gate。发布过的 alpha.2 行为和资产保持
-不可变，仍是外部回滚点。
+这条路径已通过 Windows、Linux/Cloud R4-B gate，以及 beta.1 发布下载与完整 live A～F。
+安装清单包含 11 个 managed payload，另有单独校验的 `installed-manifest.json`；Release ZIP
+包含 22 个 entries。精确资产和验收记录见
+[`docs/v0.3.0-beta.1-cloud-hard-acceptance.md`](docs/v0.3.0-beta.1-cloud-hard-acceptance.md)。
 
 ### 已验收的 `v0.3.0-alpha.2` 回滚行为
 
@@ -82,22 +83,21 @@ Hook 进程缺少 `CODEX_HOME` 时，adapter 可以从自身位于
 `$CODEX_HOME/hooks/planning-with-files/` 下的安装路径推导 session-store root。因此 setup
 shell 的 export 不是隐藏的 runtime 依赖，`/opt/codex` 也不被视为永久平台常量。
 
-alpha.2 adapter 曾按以下顺序解析项目 planning state；R4-B 开发路径已把这项职责移入
+alpha.2 adapter 曾按以下顺序解析项目 planning state；beta.1 已把这项职责移入
 `owned-plan.py`：
 
 1. `.planning/.active_plan` 指向的有效 scoped plan；
 2. `.planning/` 下修改时间最新的有效 plan；
 3. legacy root-level `task_plan.md`。
 
-存在 plan 时，当前 legacy-style 路径注入 `task_plan.md` 前 50 行、`progress.md` 后 20 行，
+存在 plan 时，beta.1 的 managed-legacy 路径注入 `task_plan.md` 前 50 行、`progress.md` 后 20 行，
 并提示读取 `findings.md`。不存在 plan 时，只输出 event canary。
 
-### 尚未实现、尚未验收或尚未激活
+### Phase 4 及后续尚未实现或激活
 
-R4-B 已在开发工作区 dispatch exact-v1 `owned-plan.py`，且 Linux/Cloud gate 已通过。R4-C
-已按 ZIP-first、bootstrap-second 顺序在本地重新封板 22-entry 自校验 beta.1 候选；新的
-pre-publication Cloud seal、外部资产发布和 Fresh/Resume Managed Hook 黑盒验收尚未通过。
-因此不能把当前候选描述为 Cloud-accepted beta 行为。
+Phase 3 的 exact-v1 `owned-plan.py`、canonical project forwarding、beta.1 封板与完整 Cloud
+验收已经关闭。Phase 4 尚未获得进入授权；其第一轮只能执行 Discovery Gate，不能直接修改
+production behavior。
 
 当前 managed runtime 还没有启用以下上游能力：
 
@@ -133,8 +133,8 @@ install.js
           `-- 返回 Codex hookSpecificOutput.additionalContext JSON
 ```
 
-当前 Python adapter 仍包含 plan resolution 和 injection 逻辑。这有助于建立小而稳定的 Cloud
-基线，但不能继续扩张成长期平行实现。
+beta.1 Python adapter 已删除平行 plan resolution 和 injection 逻辑，只保留 Host request、
+两个 typed child 的共享监督、严格结果校验、canary、上下文组合和 Codex JSON 转换。
 
 ## 信任与所有权边界
 
@@ -254,11 +254,13 @@ bash -n init-cloud-sandbox-v0.3.0.bash
 git diff --check
 ```
 
-当前开发版 Node suite 注册 69 个**测试案例**，不等于 69 个原子产品功能：
+当前 beta.1 Node suite 注册 69 个**测试案例**，不等于 69 个原子产品功能：
 
-- Windows R4-B：51 PASS、18 个如实标记的 POSIX/Linux-only SKIP、0 FAIL；
+- Windows beta.1：51 PASS、18 个如实标记的 POSIX/Linux-only SKIP、0 FAIL；
 - R4-B Linux/Cloud：69 PASS、0 SKIP、0 FAIL；真实双 child/跨用户、process-group、隔离升级、
   doctor、11/21 inventory、延迟/输出预算和零 snapshot 残留全部通过；
+- R4-C/beta.1：22-entry ZIP、外部 bootstrap、发布下载、Fresh/Resume A～F、11 个 managed
+  payload + 单独 manifest，以及零 snapshot residue 全部通过；
 - Cloud/Linux R4-A：66 PASS、0 SKIP、0 FAIL；process-group、inactive typed seam、隔离安装、
   doctor、11/21 inventory、no-dispatch 和 clean-workspace gate 全部通过；
 - 已封板 alpha.2 快照仍是 45 registered、42 PASS、3 Linux-only SKIP。
@@ -324,8 +326,7 @@ bash init-cloud-sandbox-v0.3.0.bash help
 bash init-cloud-sandbox-v0.3.0.bash verify
 ```
 
-beta.1 workflow 面向 `v0.3.0-beta.1`，分为两个字节冻结阶段：先冻结 ZIP 的 22 个 entries；
-ZIP 确定后，再把最终版本、包名和 ZIP SHA 封入 ZIP 外部 bootstrap。Release 封板顺序固定为：
+beta.1 已按以下顺序封板并通过发布后验收；后续版本继续使用同一顺序：
 
 1. 冻结目标版本和 ZIP 内容；
 2. 构建 ZIP 并计算 SHA；
@@ -341,11 +342,11 @@ ZIP 确定后，再把最终版本、包名和 ZIP SHA 封入 ZIP 外部 bootstr
 打包工具本身也在 ZIP 中，因此下载后的候选包可以使用包内同一工具和合同完成自校验；它只是
 Release 审计工具，不会被 `install.js` 安装到 Hook runtime。
 
-Windows PowerShell 可直接复制：
+Windows PowerShell 开发构建可直接复制。输出使用 `next`，避免覆盖已发布且不可变的 beta.1
+本地证据：
 
 ```powershell
-$version = "v0.3.0-beta.1"
-$zip = "dist/pwf-codex-cloud-hooks-$version.zip"
+$zip = "dist/pwf-codex-cloud-hooks-next.zip"
 
 npm test
 python tools/import_upstream_runtime.py check
@@ -356,12 +357,11 @@ python tools/build_release.py check --archive $zip
 (Get-FileHash -Algorithm SHA256 $zip).Hash.ToLowerInvariant()
 ```
 
-Linux 或 Git Bash 可直接复制：
+Linux 或 Git Bash：
 
 ```bash
 set -Eeuo pipefail
-VERSION="v0.3.0-beta.1"
-ZIP="dist/pwf-codex-cloud-hooks-${VERSION}.zip"
+ZIP="dist/pwf-codex-cloud-hooks-next.zip"
 
 npm test
 python3 tools/import_upstream_runtime.py check
@@ -372,19 +372,21 @@ wc -c < "$ZIP"
 sha256sum "$ZIP"
 ```
 
-`build --output` 会原子替换指定的目标 ZIP；如果需要保留旧候选包，应换一个输出文件名。
+`build --output` 会原子替换指定的目标 ZIP；不得用已发布版本的文件名承载新字节。
 ZIP 内容全部冻结并得到最终 SHA-256 后，才能把版本、包名和 ZIP SHA 写入 ZIP 外部的
 `init-cloud-sandbox-v0.3.0.bash`；随后再计算 Bash 自身的 SHA-256。任何 ZIP entry 再次变化，
-都必须从 ZIP 构建开始重新封板。
+都必须从 ZIP 构建开始重新封板，并使用新的版本/资产身份。当前工作区 README 属于 beta.1
+发布后的文档前进，不会也不能反向改变已经上传的 beta.1 ZIP。
 
-已发布 v0.2.2 仍是 stable-release fallback；范围更窄的 modernization/Phase 3 rollback
-baseline 是 Cloud-accepted alpha.2。
+已发布 v0.2.2 是稳定历史 fallback，alpha.2 是较新的历史 fallback；published / Cloud-accepted
+beta.1 是 Phase 4～8 当前 rollback baseline。
 
 component command 不会自动安装其依赖。完整有序流程使用 `all`，或遵循 `help` 输出的依赖说明。
 
-setup 成功后，必须启动一个全新的 Cloud task，并执行[`黑盒验证.md`](黑盒验证.md)。手动读取
-文件看到 canary 不能证明 lifecycle Hook 已执行；canary 必须在新 session 的 runtime context
-中已经存在。
+setup 成功后，必须启动一个全新的 Cloud task。beta.1 使用
+[`docs/v0.3.0-beta.1-cloud-hard-acceptance.md`](docs/v0.3.0-beta.1-cloud-hard-acceptance.md)；
+[`黑盒验证.md`](黑盒验证.md)保留通用与历史回归参考。手动读取文件看到 canary 不能证明
+lifecycle Hook 已执行；canary 必须在新 session 的 runtime context 中已经存在。
 
 ## 故障与修复模型
 
@@ -407,10 +409,10 @@ setup 成功后，必须启动一个全新的 Cloud task，并执行[`黑盒验�
 4. 检查 requirements、runtime inventory、manifest 和 backups；
 5. 只有理解并批准异常状态后，才允许普通 install。
 
-## 目标架构
+## 当前已落地架构与后续边界
 
-已批准的 modernization 方向是：**把固定的 upstream source snapshot 打包成 managed runtime
-bundle**。
+Phase 3 已把固定的 upstream source snapshot 与本仓库 owned children 打包成受管 runtime
+bundle；Phase 4+ 只能在该边界上逐项扩展。
 
 ```text
 Codex
@@ -422,7 +424,7 @@ Codex
 $CODEX_HOME/hooks/planning-with-files/
   |-- hook_adapter.py                 # 唯一 Host command
   |-- owned-catchup.py                # active SessionStart child
-  |-- owned-plan.py                   # canonical plan-context child；当前未 dispatch
+  |-- owned-plan.py                   # active canonical plan-context child
   |-- contracts/
   |   |-- adapter-plan-context-request-v1.schema.json
   |   `-- plan-context-result-v1.schema.json
@@ -436,25 +438,23 @@ $CODEX_HOME/hooks/planning-with-files/
   `-- THIRD_PARTY_NOTICES.md
 ```
 
-Managed Hook 命令仍只注册 `hook_adapter.py`。当前 SessionStart adapter 会校验显式 v1
-Host request 并监督 sibling `owned-catchup.py`；UserPromptSubmit plan injection 仍在 adapter
-本地实现。global Skill 保持 pristine，catch-up 不会执行它。
+Managed Hook 命令仍只注册 `hook_adapter.py`。两个事件先监督 sibling `owned-plan.py`；
+SessionStart 再把 exact canonical project 交给 `owned-catchup.py`。global Skill 保持 pristine，
+两个 child 都不从可变 Skill 目录执行脚本。
 
 Phase 3 Round 1 冻结 managed-legacy prompt request/result boundary、20,000 字符总 context 上限
 和两项有意输出差异。Round 2 用 pristine resolver/injector 完成隔离的 controlled-snapshot
 feasibility spike：8 个 focused Linux/Cloud cases 加 1 个父仓库 isolation case 支持
 `CONDITIONAL_GO`，multi-target overlay 只作为 fallback。prototype 永远不进入 production graph。
 
-Round 3 已把 exact-v1 schemas 和 `owned-plan.py` 纳入 development trusted graph、installer 和
-package，但没有改变 adapter dispatch。Fresh + Resume Cloud single-link gate 共 40/40 次观察
-均为 regular、`st_nlink=1`、identity stable；Windows suite 和完整 63/63 inactive
-Linux/Cloud acceptance 均通过，因此 Round 3 已关闭。Round 4 通过分段 gate 激活该路径并退休
-adapter 的平行 resolver/renderer。
+Round 3 把 exact-v1 schemas 和 `owned-plan.py` 纳入 trusted graph 并完成 inactive Cloud gate；
+Round 4 随后通过 R4-A/R4-B/R4-C 分段 gate 激活该路径、删除 adapter 的平行 resolver/renderer、
+封板 beta.1 并完成发布后 Fresh/Resume A～F。Phase 3 已关闭。
 
 Phase 3 文档、v1 schemas 和 contract regression 刻意不使用 `candidate` filename suffix。
 它们的 identity 已选定且稳定；inactive/active 状态由 schema/document metadata、trusted-graph
-membership 和 adapter-dispatch exclusion test 表达。除非 contract 发生不兼容变化，Round 4
-激活同一组 identity。
+membership 和对应 gate 表达。除非 contract 发生不兼容变化，后续 Phase 继续使用同一组
+exact-v1 identity。
 
 Phase 1 v1 allowlist 只包含上述四个 upstream files。Attestation、ledger mutation、phase
 mutation、completion 和 Stop-gating scripts 必须等各自 Phase；早期 runtime artifact 不允许
@@ -563,22 +563,25 @@ git status --short --branch
 - Phase 1 complete：来源、contracts、overlay ledger、deterministic import、manifest/license、
   installer lifecycle 和 alpha.1 Cloud smoke 均已关闭；
 - Phase 2 complete：owned-catchup、transcript/session safety、diagnostic、supervisor、权限边界和
-  alpha.2 Fresh/Resume Cloud hard acceptance 均已通过；alpha.2 是当前回滚基线；
+  alpha.2 Fresh/Resume Cloud hard acceptance 均已通过；alpha.2 现为历史 fallback；
 - Phase 3 Round 1～3 complete：canonical owned-plan contracts、controlled snapshot、safe reads、
   single-link policy、inactive trusted graph 和 63/63 Linux/Cloud gate 已关闭；
 - Round 4 入口分析 complete：R4-A 是 bounded supervisor/type seam，R4-B 是 atomic activation
   与 adapter thinning，R4-C 是 beta.1 seal 和 Fresh/Resume Cloud acceptance；
 - R4-A 与 R4-B 均已完成并通过 Windows 与 Linux/Cloud gate；R4-B 的 plan-first activation、
   adapter thinning、exact project forwarding、69/69 Linux 和隔离 alpha.2 upgrade/doctor 均
-  PASS。R4-C 已完成 22-entry 自校验候选的本地双资产重封板，新的精确字节 Cloud seal、发布和
-  Fresh+Resume 黑盒验收 pending；在全部通过前，alpha.2 保持 rollback baseline。
+  PASS；
+- R4-C 已完成 22-entry 自校验 ZIP/外部 bootstrap 的精确字节 seal、发布下载复核和完整
+  Fresh/Resume A～F。Phase 3 已关闭，beta.1 是 Phase 4～8 当前 rollback baseline；
+- Phase 4 尚未开始，等待维护者明确授权后进入 Round 1 Discovery Gate；不得从 Phase 3 完成
+  自动推导 implementation authorization。
 
 更详细的阶段摘要和发布路标见 `work_plan.md`；Round 4 gate 见
 `docs/phase-3-round-4-activation-plan.md`；R4-A Cloud gate 见
 `docs/phase-3-round-4-r4a-cloud-acceptance.md`，R4-B Cloud gate 见
-`docs/phase-3-round-4-r4b-cloud-acceptance.md`。prototype branch/commit 中的 beta.1 字样只是实验
-metadata，不代表 beta Release 已成立。新的 lifecycle events 继续延后，直到该 runtime boundary
-和 diagnostic contract 完成。
+`docs/phase-3-round-4-r4b-cloud-acceptance.md`；beta.1 最终资产与 A～F 见
+`docs/v0.3.0-beta.1-cloud-hard-acceptance.md`。新的 lifecycle events 继续延后到各自 Phase 的
+Discovery Gate、独立实现和 Cloud 验收。
 
 ### 工作规则
 
