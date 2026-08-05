@@ -191,6 +191,7 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
 
 - 当前执行权威：`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`；
 - 当前 Phase：Phase 3 已关闭；Phase 4 尚未开始；
+- 独立仓库迁移：beta.2 slim-repository M1 本地 exact mirror 已通过，Linux/Cloud 69/69 身份门槛待执行；该迁移不授权 Phase 4；
 - 下一步：等待维护者明确授权 Phase 4 Round 1 Discovery Gate；若 beta.2 后续 Cloud 复验出现意外，回退 beta.1 并重新评估发布身份；
 - 当前禁止：在 Discovery Gate 关闭前实施 Phase 4 production behavior、扩展 trusted graph 或激活 opt-in 模式；
 - 当前回滚：published / accepted beta.2；beta.1 与 alpha.2 为历史 fallback。
