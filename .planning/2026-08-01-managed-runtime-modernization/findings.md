@@ -945,3 +945,20 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - M2 final local history is the single parentless 59-path commit `3234e4e02090c838f5ee260cd8f2d99daf358d65`; exactly four upstream runtime files are `100755`, the worktree is clean, and no remote development ref was created.
 - A real fresh Windows clone inherited `core.autocrlf=true` yet materialized all 59 files with zero CR bytes. Importer/static, exact modes, clean status, and 63/52/0/11 all pass without the manual LF repair M1 needed, closing the clean-but-CRLF debt.
 - Closure synchronization changed packaged README, so pre-closure ZIP bytes were not treated as final. The final tree double-build is deterministic at 22 entries / 74,899 bytes / SHA-256 `647e16852f818a84f4b5d4872a876d411cdbdfa7671f07b7614f35f12aae5e7d`; this is development evidence, not a publishable asset, and bootstrap remains zero-hash fail-closed.
+
+## Migration M3 Discovery
+
+- The successor now owns the executable M3 authority in
+  `docs/beta3-dev-m3-cloud-equivalence.md`; this archive keeps only the programme
+  handoff and historical M2 design, avoiding two independently edited Cloud scripts.
+- M3 is behavioral/operational equivalence, not beta.2 ZIP byte equality. The
+  successor has a different repository identity, package version, and README while
+  retaining the frozen trusted runtime behavior and immutable beta.2 rollback.
+- The safe development setup uses an exact accepted checkout to build a local ZIP,
+  then passes a process-only `file://` URL and SHA to the unmodified bootstrap.
+  The checked-in beta.3-dev checksum remains all-zero and fail-closed.
+- Push/no-live Cloud (M3-A), disposable live lifecycle (M3-B), evidence closure
+  (M3-C), and cutover (M4) remain distinct authorization boundaries.
+- The tracked successor boundary advances from the immutable 59-path M2 root to
+  a 60-path M3 governance descendant by adding the standalone runbook. Only the
+  repository allowlist test changes; product and safety test bytes remain frozen.

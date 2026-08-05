@@ -942,3 +942,28 @@
 - Created the parentless root commit, then fresh-cloned it with `core.autocrlf=true`; 59 files had zero CR, importer/static/modes/clean status and full suite passed. The first sandboxed clone attempt failed before transfer with Git-for-Windows signal-pipe Win32 error 5; the verified partial temp path was removed and the same clone succeeded outside the process sandbox, classifying it as a tool-sandbox limitation.
 - Closure docs changed packaged README, so rebuilt the final tree twice and recorded the actual deterministic ZIP: 22 entries / 74,899 bytes / SHA-256 `647e16852f818a84f4b5d4872a876d411cdbdfa7671f07b7614f35f12aae5e7d`. Planning-only evidence was amended into the same root history and the final commit was fresh-cloned again.
 - Final local successor commit is `3234e4e02090c838f5ee260cd8f2d99daf358d65`: zero parents, exact 59 paths, four executable upstream files, clean and unpushed. Final fresh clone passes importer/static/ZIP reproduction and 63/52/0/11. M1 audit commit/tree/ref remain unchanged. M2 stopped before push, M3/M4, Release, cutover, product behavior, or Phase 4.
+
+## Session: 2026-08-05 — successor M3 Discovery
+
+- Maintainer checkpointed M2 and authorized the next step. Completed Discovery
+  only; no commit, push, Cloud execution, live `/opt/codex` install, Release,
+  public `main`, cutover, production behavior change, or Product Phase 4 occurred.
+- Recovered the parentless M2 root `3234e4e...`, tree `300f5a86...`, clean M1 audit
+  oracle, successor authority documents, beta.2 A～F baseline, and installer/
+  bootstrap/Release boundaries.
+- Added the successor-owned M3 protocol with four stops: Discovery, M3-A remote
+  transport/no-live Linux seal, M3-B disposable setup plus Fresh/Resume, and M3-C
+  evidence closure.
+- Successor validation passes: maintained-doc UTF-8/fences/links/diff hygiene;
+  Windows 63/52/0/11; importer and static checks; deterministic 22-entry ZIP at
+  74,958 bytes / SHA-256
+  `c2f5410c2c53082955ab3a5f9dec64abbd229893796bb74455f622e3a252dcb1`.
+- First sandboxed suite run reported uniform worker `spawn EPERM`; the first
+  escalated approval timed out, and one permitted retry produced the valid green
+  result. A direct Windows isolated-install rehearsal correctly stopped because
+  production requires `/usr/bin/python3`; the real check remains in M3-A Cloud.
+- Pre-checkpoint review found the new runbook was invisible while untracked and
+  would break the frozen 59-path test after commit. Updated only the successor
+  repository-boundary allowlist to 60 paths and validated the would-be committed
+  state through a disposable alternate Git index: full Windows suite 63/52/0/11
+  and cached diff hygiene PASS, without altering the user's real index.
