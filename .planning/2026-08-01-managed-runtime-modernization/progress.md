@@ -980,3 +980,20 @@
 - No successor byte, push, Cloud run, live installation, public `main`, Release,
   cutover, production behavior, M3-A/B/C execution, M4, or product Phase 4 work
   was performed.
+
+## Session: 2026-08-06 — M3-A transport
+
+- Maintainer explicitly authorized M3-A. Recovered both clean checkpoints and
+  re-read the archive and successor authority hierarchy plus the complete M3
+  protocol before changing external state.
+- Verified successor branch `migration/slim-beta3-dev`, full HEAD
+  `f54fb78633d22af5c8f0f225fc8c44ad046aa9c1`, unique M2 root
+  `3234e4e02090c838f5ee260cd8f2d99daf358d65`, exact 60 paths, zero product/build
+  drift from M2, the single expected repository-boundary test drift, and four
+  `100755` upstream runtime files.
+- The remote development branch did not exist. Per the frozen protocol, created
+  it with a non-force same-name push and then verified remote HEAD equals local
+  HEAD exactly. Successor remains clean.
+- M3-A transport is PASS; Fresh Cloud section 5.2 no-live seal is pending. No
+  audit/main/tag/Release/default branch, live `/opt/codex`, M3-B/C, M4, product
+  behavior, or product Phase 4 state was changed.

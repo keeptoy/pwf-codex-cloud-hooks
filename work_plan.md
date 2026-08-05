@@ -191,8 +191,8 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
 
 - 当前执行权威：`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`；
 - 当前 Phase：Phase 3 已关闭；Phase 4 尚未开始；
-- 独立仓库迁移：beta.2 slim-repository M1/M2 COMPLETE，M3 Discovery COMPLETE；本地 `migration/slim-beta3-dev` 的 parentless 59-path M2 root commit 为 `3234e4e02090c838f5ee260cd8f2d99daf358d65`，M1 audit oracle 仍 clean 且未移动；successor 已冻结独立 M3-A no-live Cloud seal、M3-B disposable Fresh/Resume 和 M3-C closure 协议；
-- 下一步：checkpoint M3 Discovery 后等待维护者明确授权 M3-A child commit/push 与 no-live Cloud execution；M3-B、M3-C、M4 与 Phase 4 仍需各自门槛；
+- 独立仓库迁移：beta.2 slim-repository M1/M2 COMPLETE，M3 Discovery COMPLETE；M3-A transport PASS，审核 commit `f54fb78633d22af5c8f0f225fc8c44ad046aa9c1` 已非强制推送到同名 development branch，M1 audit oracle 仍 clean 且未移动；M3-A no-live Cloud seal 待执行；
+- 下一步：在 Fresh Cloud 精确 checkout 已推送 commit，并原样执行 successor M3 runbook 的唯一 no-live Linux/Cloud seal；M3-B、M3-C、M4 与 Phase 4 仍需各自门槛；
 - 当前禁止：在 Discovery Gate 关闭前实施 Phase 4 production behavior、扩展 trusted graph 或激活 opt-in 模式；
 - 当前回滚：published / accepted beta.2；beta.1 与 alpha.2 为历史 fallback。
 

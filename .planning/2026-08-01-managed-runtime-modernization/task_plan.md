@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Wait for explicit maintainer authorization for M3-A. Before acting, require both repositories to be checkpointed/clean, then push the exact reviewed successor commit `f54fb78` and execute only the no-live Cloud/Linux seal defined by the successor runbook. M3-B disposable live setup, M3-C closure, public `main`, M4, publication, cutover, production behavior changes, and product Phase 4 remain separately gated.
+In a Fresh Cloud task, checkout exact successor commit `f54fb78633d22af5c8f0f225fc8c44ad046aa9c1` from remote branch `migration/slim-beta3-dev` and execute only section 5.2 of the successor M3 runbook. Preserve the complete TAP and terminal summary, then return the raw result for classification. Do not begin M3-B, create public `main`, publish, cut over, modify production behavior, or enter product Phase 4.
 
 ## Current Phase
-Phase 3, beta.2, migration M1/M2, and M3 Discovery are complete. Local `migration/slim-beta3-dev` retains the immutable parentless 59-path M2 root `3234e4e02090c838f5ee260cd8f2d99daf358d65`; the committed 60-path M3 governance descendant is clean at `f54fb78` and remains unpushed, while the M1 audit oracle remains clean and unchanged. Successor Windows 63/52/0/11, importer/static/docs, and deterministic 22-entry / 75,323-byte / SHA-256 `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508` development ZIP gates pass. M3-A push/no-live Cloud, M3-B disposable lifecycle, M3-C closure, slim `main`, M4, publication, product changes, and Phase 4 require their explicit later gates.
+Phase 3, beta.2, migration M1/M2, and M3 Discovery are complete. M3-A is in progress: reviewed successor commit `f54fb78633d22af5c8f0f225fc8c44ad046aa9c1` has been non-force pushed to the same-named development branch; local and remote HEAD match, the unique parentless M2 root remains `3234e4e02090c838f5ee260cd8f2d99daf358d65`, and the successor worktree is clean. The no-live Cloud/Linux seal is pending. M3-B disposable lifecycle, M3-C closure, slim `main`, M4, publication, product changes, and Phase 4 require their explicit later gates.
 
 ## Phases
 

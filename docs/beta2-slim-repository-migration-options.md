@@ -1,6 +1,6 @@
 # beta.2 精简仓库迁移探路方案
 
-> 状态：`M1 COMPLETE / M2 COMPLETE / M3 DISCOVERY COMPLETE / M3-A AUTHORIZATION REQUIRED`
+> 状态：`M1 COMPLETE / M2 COMPLETE / M3 DISCOVERY COMPLETE / M3-A TRANSPORT PASS / CLOUD PENDING`
 > 基线：已发布并验收的 `v0.3.0-beta.2`  
 > 当前执行权威：successor 仓库 `keeptoy/pwf-codex-cloud-hooks-next` 的 `docs/beta3-dev-m3-cloud-equivalence.md` 与活动 planning；本文保留迁移路线、归档边界和回滚背景，不复制 M3 可执行脚本。
 > 本文不授权 push、Cloud 执行、live `/opt/codex` 安装、创建 public `main`、Release、cutover、修改 production behavior，也不授权进入产品 Phase 4。
@@ -188,7 +188,7 @@ M1 已完成：候选 `audit/beta2-exact` 与冻结源共享 exact commit/tree/8
 
 M2 已完成：successor 建立了唯一无父 root commit `3234e4e02090c838f5ee260cd8f2d99daf358d65`，冻结 59-path 精简边界、四个 `100755`、仓库级 LF、行为型 fixture 名称、beta.3-dev 身份、供应链复现链和新的文档/planning 权威。Windows fresh-clone 与本地 suite 为 63 registered / 52 PASS / 11 honest POSIX skips / 0 FAIL；该 root commit 保持为不可变 M2 基线。
 
-### M3 — behavior-equivalence gate（Discovery 已完成；M3-A 待授权）
+### M3 — behavior-equivalence gate（Discovery 已完成；M3-A Cloud 待验收）
 
 - 完整源码复现、unit/integration、安全、installer、doctor、upgrade、repair、uninstall 回归；
 - 从 pinned upstream 重新 import 并得到 exact owned runtime；
@@ -196,7 +196,7 @@ M2 已完成：successor 建立了唯一无父 root commit `3234e4e02090c838f5ee
 - 在隔离 Cloud 中完成等价性 A–F，重点验证 startup/UserPrompt、canonical plan、real resume catch-up、post-resume doctor 和零 snapshot residue；
 - 任何行为差异都必须分类为预期的新版本变化或迁移缺陷。
 
-M3 Discovery 已在 successor 中完成并提交。独立协议 `docs/beta3-dev-m3-cloud-equivalence.md` 将后续工作拆为互不自动授权的 M3-A（精确 development commit 的 push 与 no-live Linux/Cloud seal）、M3-B（一次性 Cloud setup、Fresh、Resume 生命周期）和 M3-C（证据闭合）。当前本地 successor HEAD 为 `f54fb78`，工作区 clean、尚未 push；本地开发 ZIP 为 22 entries / 75,323 bytes / SHA-256 `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`，外部 bootstrap 仍以全零 ZIP hash fail closed。这些是 M3-A 的候选输入，不是 Release 资产或 Cloud PASS 证据。
+M3 Discovery 已在 successor 中完成并提交。独立协议 `docs/beta3-dev-m3-cloud-equivalence.md` 将后续工作拆为互不自动授权的 M3-A（精确 development commit 的 push 与 no-live Linux/Cloud seal）、M3-B（一次性 Cloud setup、Fresh、Resume 生命周期）和 M3-C（证据闭合）。维护者已授权 M3-A；审核 commit `f54fb78633d22af5c8f0f225fc8c44ad046aa9c1` 已非强制推送到远端同名 `migration/slim-beta3-dev`，local/remote HEAD 精确相等，工作区 clean。M3-A Cloud seal 尚未执行；此前本地开发 ZIP 证据为 22 entries / 75,323 bytes / SHA-256 `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`，外部 bootstrap 仍以全零 ZIP hash fail closed。这些是 Cloud gate 的预期输入，不是 Release 资产或 Cloud PASS 证据。
 
 ### M4 — repository cutover
 
@@ -264,4 +264,4 @@ M3 Discovery 已在 successor 中完成并提交。独立协议 `docs/beta3-dev-
 - 精简后的开发版本暂定 `0.3.0-beta.3-dev`；
 - M2 新增 `MAINTAINER_HANDOFF.md`，作为新人维护交割入口。
 
-M1、M2 和 M3 Discovery 已完成。M2 的精确 59-path allowlist、prototype 覆盖、文档权威、beta.3-dev、secondary orphan worktree 和停止/回滚合同见 `docs/beta2-slim-repository-m2-transformation-plan.md`；M3 的可执行协议只由 successor 的 `docs/beta3-dev-m3-cloud-equivalence.md` 维护。successor 已在不可变 M2 root 之上形成已提交、未 push 的 60-path M3 governance descendant，当前 HEAD 为 `f54fb78`。下一道边界是维护者显式授权 M3-A；M3-B、M3-C、public `main`、M4、Release、cutover、production behavior 和产品 Phase 4 均不随 Discovery 或 checkpoint 自动获权。
+M1、M2 和 M3 Discovery 已完成。M2 的精确 59-path allowlist、prototype 覆盖、文档权威、beta.3-dev、secondary orphan worktree 和停止/回滚合同见 `docs/beta2-slim-repository-m2-transformation-plan.md`；M3 的可执行协议只由 successor 的 `docs/beta3-dev-m3-cloud-equivalence.md` 维护。successor 已在不可变 M2 root 之上形成 60-path M3 governance descendant，审核 HEAD `f54fb78633d22af5c8f0f225fc8c44ad046aa9c1` 已推送到同名 development branch。当前只等待 M3-A no-live Cloud seal 原始结果；M3-B、M3-C、public `main`、M4、Release、cutover、production behavior 和产品 Phase 4 均未获权。

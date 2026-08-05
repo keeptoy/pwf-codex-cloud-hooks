@@ -967,3 +967,7 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
   route/rollback context only; the executable M3-A/B/C authority lives in the
   successor runbook and planning files, preventing two copies of the Cloud script
   from drifting.
+- M3-A transport used a non-force push to the previously absent remote branch
+  `migration/slim-beta3-dev`. Local and remote now both resolve to full commit
+  `f54fb78633d22af5c8f0f225fc8c44ad046aa9c1`; the unique parentless M2 root is
+  unchanged. No audit/main/tag/Release/default-branch or live Cloud state moved.
