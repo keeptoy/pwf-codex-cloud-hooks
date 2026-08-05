@@ -1,6 +1,6 @@
 # beta.2 精简仓库迁移探路方案
 
-> 状态：`M1 LOCAL PASS / LINUX-CLOUD 69/69 PENDING`  
+> 状态：`M1 CLOUD 69/69 OBSERVED / FULL-SCRIPT RERUN PENDING`
 > 基线：已发布并验收的 `v0.3.0-beta.2`  
 > 本文只冻结迁移选择、边界和验收条件，不授权复制文件、初始化或发布新仓库、删除旧仓库内容、修改 production behavior，也不授权进入 Phase 4。
 
@@ -174,7 +174,7 @@ beta.2 资产继续由当前仓库和原 Release 页面保存。新仓库只能�
 - 验证 69/69 Linux、ZIP/bootstrap exact hash、四个 `100755`、LF、installer/doctor 和 clean workspace；
 - 这棵完整镜像建议只留作本地/临时审计分支，不作为新仓库公开 `main`。
 
-本地 M1 已完成：候选 `audit/beta2-exact` 与冻结源共享 exact commit/tree/83 个 index entries/四个 `100755`，Windows 为 69 registered / 51 PASS / 18 honest POSIX skips / 0 FAIL，双资产字节与 SHA 完全一致。唯一剩余 gate 是执行 `docs/beta2-slim-repository-m1-cloud-acceptance.md` 的 Linux/Cloud 69/69；在该结果返回前不进入 M2。
+本地 M1 已完成：候选 `audit/beta2-exact` 与冻结源共享 exact commit/tree/83 个 index entries/四个 `100755`，Windows 为 69 registered / 51 PASS / 18 honest POSIX skips / 0 FAIL，双资产字节与 SHA 完全一致。候选 GitHub remote 与 audit branch 已建立。第一次 Fresh Cloud 执行已真实得到 Linux 69/69/0/0，但验收脚本随后因只识别历史 `# tests`、未识别当前 Node `ℹ tests` 统计前缀而停止，ZIP/bootstrap/final-clean 尾段未执行。该 parser 属于 runbook defect，现已改为兼容两种 reporter 表现并去除 ANSI；M1 仍须完整重跑到最终 PASS，在此之前不进入 M2。
 
 ### M2 — slim transformation
 
@@ -252,7 +252,7 @@ beta.2 资产继续由当前仓库和原 Release 页面保存。新仓库只能�
 
 维护者已经冻结以下选择：
 
-- 迁移期 GitHub slug 使用 `keeptoy/pwf-codex-cloud-hooks-next`；正式远程等 M1 通过后再创建；
+- 迁移期 GitHub slug 使用 `keeptoy/pwf-codex-cloud-hooks-next`；候选 remote 与只读 `audit/beta2-exact` 已建立，未来 slim `main` 仍须等 M1 关闭并另行授权；
 - 本地正式目录使用 `pwf-codex-cloud-hooks-next`，当前 `new-space/` 只承担短期演练；
 - beta.2 完整镜像保留为本地/只读 audit ref，不进入未来公开 `main`；
 - 第一阶段沿用现有 product/schema/installer identity，不把仓库精简与产品改名合并；

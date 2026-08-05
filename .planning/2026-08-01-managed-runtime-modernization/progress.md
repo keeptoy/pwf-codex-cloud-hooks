@@ -879,3 +879,11 @@
 - Final out-of-sandbox full regression passes 69 registered / 51 PASS / 18 honest POSIX/Linux skips / 0 FAIL. The stable Phase 3 documentation contract, immutable alpha goldens, current beta behavior, installer, Release builder, and prototype isolation all remain green.
 - Documentation governance is complete. Updated the active plan to require a checkpoint and then an explicit maintainer authorization before Phase 4; the future Phase 4 Round 1 remains discovery-only and no production behavior was implemented.
 - Final repository documentation gate passes: 16 changed files, all Markdown; zero curated current-state stale hits; all macro authority assertions agree on Phase 3 complete / beta.1 current / Phase 4 awaiting authorization; `git diff --check` has no errors. Expected Windows LF/CRLF notices are checkout warnings, not diff failures.
+# M1 Cloud first run and runbook repair (2026-08-05)
+
+- Cloud checkout: `/workspace/pwf-codex-cloud-hooks-next`; repository remained clean and no commit or PR was created by the Cloud model.
+- The exact-mirror script passed all gates preceding the test summary parser and `npm test` reported 69/69/0/0 with zero skips.
+- The script exited 1 at `grep -Eq '^# tests 69$'` because the active Node reporter emitted `ℹ tests 69`. Release ZIP build/check, ZIP/bootstrap SHA checks, cache check, and the script's final workspace gate were not reached.
+- Classified as `RUNBOOK_PARSER_DEFECT`; production defect: no; test defect: no; platform limitation: no.
+- Replaced four reporter-specific grep calls with a bounded exact-counter Python parser that strips ANSI and supports both observed summary prefixes. M1 remains in progress pending one full fresh-Cloud rerun and terminal `M1_EXACT_MIRROR_CLOUD_ACCEPTANCE=PASS`.
+- Local runbook validation passed for the historical `#` summary, current U+2139 summary with ANSI color, and a negative mismatched-count sample; the embedded Bash block passes `bash -n`. All six changed files decode as strict UTF-8, Markdown fences are balanced, the Release allowlist overlap is zero, and the candidate audit worktree remains clean at the frozen commit.

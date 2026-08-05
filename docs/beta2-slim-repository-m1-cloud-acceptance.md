@@ -23,7 +23,7 @@
 
 ## 2. 执行前提
 
-在全新 Linux/Cloud clone 中 checkout `audit/beta2-exact`。如果候选 GitHub 仓库尚未创建，可以把本脚本保留到 audit ref 可访问时再执行；M1 的既有 beta.2 Cloud 69/69 和 A–F 证据通过 exact tree/asset identity 继续有效。
+在全新 Linux/Cloud clone 中 checkout `audit/beta2-exact`。候选 GitHub 仓库和该 audit branch 已建立，但它必须继续停在上表冻结 commit/tree。修正版 runbook 属于旧档案仓库的迁移证据，不得为了取得新脚本而提交到候选 audit branch；应从本文件复制完整 Bash 代码块到 Cloud 临时脚本执行。M1 的既有 beta.2 Cloud 69/69 和 A–F 证据通过 exact tree/asset identity 继续有效。
 
 执行期间：
 
@@ -46,7 +46,7 @@ PROBE_DIR="$(mktemp -d)"
 trap 'rm -rf -- "$PROBE_DIR"' EXIT
 ZIP="$PROBE_DIR/pwf-codex-cloud-hooks-v0.3.0-beta.2.zip"
 
-printf 'PROBE_VERSION=PWF_BETA2_SLIM_M1_EXACT_MIRROR_CLOUD_V1\n'
+printf 'PROBE_VERSION=PWF_BETA2_SLIM_M1_EXACT_MIRROR_CLOUD_V2\n'
 printf 'REPO_ROOT=%s\n' "$(pwd)"
 python3 --version
 node --version
@@ -102,10 +102,37 @@ node --check install.js
 
 TEST_OUTPUT="$PROBE_DIR/npm-test.tap"
 npm test 2>&1 | tee "$TEST_OUTPUT"
-grep -Eq '^# tests 69$' "$TEST_OUTPUT"
-grep -Eq '^# pass 69$' "$TEST_OUTPUT"
-grep -Eq '^# fail 0$' "$TEST_OUTPUT"
-grep -Eq '^# skipped 0$' "$TEST_OUTPUT"
+python3 - "$TEST_OUTPUT" <<'PY'
+from pathlib import Path
+import re
+import sys
+
+text = Path(sys.argv[1]).read_text(encoding="utf-8", errors="replace")
+text = re.sub(r"\x1b\[[0-?]*[ -/]*[@-~]", "", text)
+expected = {"tests": 69, "pass": 69, "fail": 0, "skipped": 0}
+seen = {}
+information_source = chr(0x2139)
+summary = re.compile(
+    rf"\s*(?:#|{information_source})\s+(tests|pass|fail|skipped)\s+(\d+)\s*"
+)
+
+for line in text.splitlines():
+    match = summary.fullmatch(line)
+    if not match:
+        continue
+    key, value = match.group(1), int(match.group(2))
+    if key in seen and seen[key] != value:
+        raise SystemExit(
+            f"conflicting Node test summary for {key}: {seen[key]} vs {value}"
+        )
+    seen[key] = value
+
+if seen != expected:
+    raise SystemExit(
+        f"unexpected Node test summary: expected={expected} actual={seen}"
+    )
+print("NODE_TEST_SUMMARY=PASS tests=69 pass=69 fail=0 skipped=0")
+PY
 printf 'LINUX_SUITE=PASS tests=69 pass=69 fail=0 skipped=0\n'
 
 python3 tools/build_release.py build --output "$ZIP"
