@@ -1,13 +1,13 @@
 # beta.2 精简仓库 M2 transformation plan
 
-> 状态：`DISCOVERY COMPLETE / CONDITIONAL_GO / IMPLEMENTATION CHECKPOINT REQUIRED`
+> 状态：`DISCOVERY COMPLETE / M2-A COMPLETE / M2-B CHECKPOINT REQUIRED`
 >
 > 基线：M1 exact mirror `bbad3703fe2bc3f34bda6ec350f8cfea6f7a159b` / tree
 > `ff49c3c6656386e94450ccb24437a1c2d1c50e95`，Windows 69/51/0/18、Cloud/Linux
 > 69/69/0/0、冻结双资产和 clean workspace 全部 PASS。
 >
-> 当前授权：只冻结 M2 的路径、覆盖、文档、版本、分批实施和回滚合同。本文本身不修改候选树、
-> 不创建 slim `main`、不 push 新开发分支、不发布资产、不 cutover，也不授权 Phase 4。
+> 当前授权：M2-A 已按本文建立本地 orphan skeleton 并完成边界验证。该结果不授权 M2-B/C、
+> root commit、slim `main`、push、发布资产、cutover 或 Phase 4。
 
 ## 1. M2 要解决什么
 
@@ -275,6 +275,8 @@ M2 未发布，回滚只针对 secondary worktree/local orphan branch。先只�
 
 结论：`CONDITIONAL_GO`。
 
-可以在维护者 checkpoint 后进入 **M2-A**。条件是严格使用 secondary orphan worktree 和第 3 节
-59-path allowlist；M2-A 只建立 skeleton/rename/fresh planning，不进入 M2-B、commit、push、Release、
-cutover 或 Phase 4。若实际依赖图与本文不同，先暂停并回到 Discovery，而不是扩大允许列表。
+M2-A 已在 secondary orphan worktree 完成：exact 59 paths、六项 byte/mode-preserving rename、fresh
+planning、四个最小文档入口、四个且仅四个 `100755`、零禁止/未跟踪路径，以及 M1 audit oracle
+不变均已验证。唯一遗留是 renamed `docs/git-file-modes.md` 继承的末尾空行，必须在 M2-B 文档重写
+中清除。当前等待维护者 checkpoint 和 M2-B 明确授权；不得进入 commit、push、Release、cutover
+或 Phase 4。若后续实际依赖图与本文不同，先暂停并回到 Discovery，而不是扩大允许列表。

@@ -924,3 +924,11 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Root history should be created in a secondary worktree on local orphan `migration/slim-beta3-dev`, never by switching the audit worktree. M2 stays local; M3 may request authorization to push a development branch for Cloud, and M4 alone can create/cut over public `main`.
 - The predicted suite after removing nine handoff/prototype cases and adding three repository-boundary cases is Linux 63/63 and Windows 63 registered / 52 pass / 11 honest skips. Counts are diagnostic predictions, not permission to weaken coverage.
 - M2 Discovery result is `CONDITIONAL_GO`; the detailed gate is `docs/beta2-slim-repository-m2-transformation-plan.md`. Implementation begins with M2-A skeleton/rename only after checkpoint.
+
+# M2-A orphan-skeleton evidence (2026-08-05)
+
+- The verified secondary worktree is `new-space/pwf-codex-cloud-hooks-next-slim` on local unborn branch `migration/slim-beta3-dev`; the audit worktree stays clean at commit `bbad3703fe2bc3f34bda6ec350f8cfea6f7a159b` / tree `ff49c3c6656386e94450ccb24437a1c2d1c50e95`.
+- Selective import used 52 audit source paths: 46 retained names plus six rename sources. Adding four minimal root-document entrypoints and three fresh planning files produces the exact 59-path target.
+- Indexed source preservation passes for 45 unchanged retained blobs plus six renamed blobs; mode preservation passes for all 46 retained entries plus six renamed entries. The only `100755` entries remain the four managed upstream runtime files.
+- Forbidden historical/prototype/old-name paths and untracked paths are both zero. All 59 worktree files decode as strict UTF-8, the active plan selects `2026-08-05-slim-repository-migration`, and the branch has no commit.
+- The renamed `docs/git-file-modes.md` preserves the source bytes, including one terminal blank line that `git diff --cached --check` reports. This is not production drift; M2-B must rewrite that document and remove the whitespace debt before its own gate can close.

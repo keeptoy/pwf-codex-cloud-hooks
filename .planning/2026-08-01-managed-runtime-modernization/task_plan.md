@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Checkpoint the completed M2 Discovery plan, then wait for explicit maintainer continuation into M2-A. If continued, create a verified secondary orphan worktree and import only the source paths needed for the exact 59-path target in `docs/beta2-slim-repository-m2-transformation-plan.md`; complete the six Git-aware renames and fresh planning skeleton, then stop for review. Do not modify the M1 audit worktree/ref, enter M2-B, create a root commit or slim `main`, push the development branch, publish assets, modify production behavior, authorize cutover, or enter Phase 4 during M2-A.
+Checkpoint the completed M2-A orphan skeleton and wait for explicit maintainer continuation into M2-B. If continued, rewrite the new authority documents and renamed test references, broaden the LF contract, apply beta.3-dev/provenance metadata changes, and clear the inherited `docs/git-file-modes.md` terminal blank-line debt under the frozen M2 plan. Do not create the root commit, push, enter M2-C/M3, publish, cut over, modify production behavior, or enter Phase 4 without their separate gates.
 
 ## Current Phase
-Phase 3, beta.2, and migration M1 are complete. M2 Discovery/checklist is complete with `CONDITIONAL_GO`: target 59 paths, secondary orphan worktree, six behavior/Git-aware renames, fresh document/planning authority, beta.3-dev placeholder identity, expected prototype replacement coverage, three implementation sub-gates, and explicit stop/rollback rules are frozen. No candidate path/ref/artifact was changed. The archive remains production/evidence authority; M2-A awaits an explicit continuation, while M2-B/C, slim `main`, push, M3, cutover, publication, product changes, and Phase 4 remain unauthorized.
+Phase 3, beta.2, migration M1, M2 Discovery/checklist, and M2-A are complete. The local unborn `migration/slim-beta3-dev` worktree contains the exact 59-path skeleton, six byte/mode-preserving renames, four minimal document entrypoints, and fresh planning; the M1 audit oracle remains clean and unchanged. M2-A has stopped for checkpoint. M2-B/C, root commit, slim `main`, push, M3, cutover, publication, product changes, and Phase 4 remain unauthorized.
 
 ## Phases
 

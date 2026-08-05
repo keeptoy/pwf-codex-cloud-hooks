@@ -911,3 +911,14 @@
 - Final M2 Discovery validation passes: four target-list blocks contain exactly 59 unique paths; all 22 Release entries and the external bootstrap are present; 46 target names already exist, 13 are new/renamed, and 37 M1 names are intentionally archived; zero production/contract/runtime/tool/patch paths are accidentally archived.
 - Strict UTF-8, balanced Markdown fences, `git diff --check`, current-state stale phrase scan, target no-prototype/no-old-macro assertions, and candidate audit status all pass. Candidate remains clean at `bbad3703...`; only archive planning/design documents changed.
 - Synchronized AGENTS navigation, migration options, work plan, findings, progress, and active Next Step. Candidate audit worktree/ref remains unchanged; no orphan branch, file deletion, root commit, push, Release, cutover, production change, or Phase 4 work occurred.
+
+# M2-A orphan skeleton opened (2026-08-05)
+
+- Maintainer checkpointed the completed M2 Discovery plan and said to continue; recorded this as explicit authorization for M2-A only.
+- Recovered the archive at clean checkpoint `44517ff`, re-read the active authority and M2 transformation plan, and confirmed the dedicated slim path does not yet exist.
+- Re-verified the M1 audit oracle is clean at commit `bbad3703fe2bc3f34bda6ec350f8cfea6f7a159b` and tree `ff49c3c6656386e94450ccb24437a1c2d1c50e95`.
+- M2-A will create a secondary orphan worktree, import only the frozen allowlist sources, apply six Git-aware renames, add minimal document/fresh-planning entrypoints, validate the exact 59-path boundary, and stop without commit, push, Release, cutover, production changes, M2-B, or Phase 4 work.
+- M2-A complete: created the verified sibling worktree and local unborn `migration/slim-beta3-dev`, selectively imported 52 audit sources, applied six Git-aware renames, then added seven new document/planning entrypoints and updated the active pointer.
+- Verification passes for exact 59 indexed paths, zero forbidden/untracked paths, 45 retained plus six renamed byte-identical blobs, 46 retained plus six renamed mode-identical entries, exactly four `100755` runtime files, strict UTF-8, fresh planning selection, and the unchanged clean M1 audit commit/tree.
+- The first exact-index check correctly stopped at 52 before the seven new files were staged; staging only the explicit entrypoints produced the required 59. Cached whitespace checking then exposed one inherited terminal blank line in renamed `docs/git-file-modes.md`. M2-A kept the source bytes unchanged; M2-B must rewrite and clear it.
+- No commit, push, slim `main`, Release, cutover, production change, M2-B/C, M3, or Phase 4 work occurred. M2-A stopped for maintainer checkpoint.
