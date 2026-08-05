@@ -1,5 +1,22 @@
 # Findings & Decisions: Managed Runtime Modernization
 
+## 2026-08-05 beta.2 Fresh-Cloud mode diagnostic gate
+
+- Maintainer evidence closes the classification: the failing backup/rebuilt repository commit reports `create mode 100644` for all four `runtime/upstream/*` paths, while the original repository retains correct modes and passes. This is Git metadata loss during repository reconstruction, not Cloud inode normalization and not a runtime-content regression.
+- Added root `Git可执行权限修复.md` with a bounded, cross-platform index-mode repair and fresh-Cloud verification procedure. It deliberately avoids README and Release inputs, so the operation guide itself does not change beta.2 ZIP bytes.
+- The beta.2 exact-byte confirmation stopped before `npm test` at `python3 tools/import_upstream_runtime.py check` with `runtime mode mismatch for session_catchup`; the Cloud checkout remained clean and no live installation, rebuild, or publication mutation occurred.
+- This error is based on the checked-out file's POSIX `stat` mode, not ZIP metadata or README bytes. It does not by itself prove a runtime behavior regression.
+- Local HEAD and `origin/0.3.0-beta.2` resolve to commit `bd26b1b4e10fcd0b22902a4f65df8e0c86c421b1`, and both Git index/tree inspections record all four `runtime/upstream/*` paths as `100755`. The earlier forgotten-mode defect was fixed in commit `6f2052e2d67a4eb0c57d4fefbcbb9c09083b2d54`; current evidence therefore does not justify repeating that repair.
+- Before the maintainer supplied the backup-commit evidence, stale checkout, worktree normalization, and alternate destination were valid hypotheses. The `create mode 100644` comparison closes them for this incident; no additional product-mode probe is required.
+- Beta.2 assets remained immutable throughout diagnosis. The correct repository/checkout is the repair boundary; beta.2 ZIP, bootstrap, runtime content, and hashes do not change.
+
+## 2026-08-05 beta.2 standalone acceptance freeze
+
+- Requiring the beta.2 live runbook to redirect operators to beta.1 makes the current baseline depend on historical iteration material. The beta.2 document must therefore contain its own frozen assets, pre-seal, download/setup, B–F prompts, strict PASS/FAIL rules, evidence template, and rollback boundary.
+- Fresh lifecycle B and canonical context D are separate gates. B strictly proves automatic `SessionStart source=startup` and `UserPromptSubmit` canaries; its planning fields are auxiliary observations. D runs after a controlled `task_plan.md`/`progress.md` baseline and is the strict authority for active plan, delimiters, canonical marker, recent progress, and Planning context.
+- The reported beta.2 B output is lifecycle PASS: both exact canaries and `source=startup` were observed. `=== recent progress ===` was not observed in that first auxiliary sample but was observed in a later controlled context black box, so this is not a production regression.
+- A future slim repository based on beta.2 is directionally sound: it can remove iterative archaeology from the active maintenance surface and keep the product focused. It must be a new migration programme with an archived relationship to this repository, not an in-place deletion exercise. Behavioral goldens, provenance, licenses, trusted inventory, Release determinism, platform metadata, Cloud A–F, and rollback evidence must be deliberately promoted before old history is omitted.
+
 ## 2026-08-05 beta.2 Release-maintenance gate
 
 - The maintainer selected a new `v0.3.0-beta.2` identity instead of overwriting published beta.1. This satisfies the immutable-asset rule because README is a ZIP entry and its post-beta.1 governance changes necessarily produce new archive bytes.

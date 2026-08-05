@@ -1,5 +1,18 @@
 # Progress Log: Managed Runtime Modernization
 
+## Session: 2026-08-05 — beta.2 Fresh-Cloud mode mismatch
+
+- Received the maintainer's comparison between repositories: the backup/rebuilt commit created all four imported runtime paths as `100644`; the untouched repository has correct modes and passes. Classified the incident as repository-backup Git mode loss.
+- Added the root Chinese operation guide `Git可执行权限修复.md`. It documents diagnosis, the Windows-safe `git update-index --chmod=+x` repair, staged/tree verification, commit/push, fresh Cloud verification, CRLF non-causality, and safer Git-native backup practices.
+- Received a failed beta.2 prepublication confirmation: the script exited at `python3 tools/import_upstream_runtime.py check` with `runtime mode mismatch for session_catchup`; all later Linux-suite, build, hash, and cleanliness assertions inside that script were not reached. The Cloud model reported no repository edits, commit, PR, or live `/opt/codex` installation.
+- Recovered the active plan and opened a diagnostic/release sub-gate; Phase 4 remains closed.
+- Verified the local branch and tracked remote are both at `bd26b1b4e10fcd0b22902a4f65df8e0c86c421b1`. Local index and `origin/0.3.0-beta.2` tree both record `runtime/upstream/session-catchup.py`, `inject-plan.sh`, `ledger-summary.sh`, and `resolve-plan-dir.sh` as `100755`.
+- Inspected the importer and its tests: on POSIX the checker compares each destination file's actual `stat` mode with the manifest's `0755`, while the cross-platform regression separately verifies committed Git index mode. The current Cloud output omitted tree/index/inode diagnostics, so no repair boundary is authorized yet.
+- Maintainer comparison subsequently proved the rebuilt backup commit used `100644`; the original/correct repository uses `100755` and its Cloud test succeeds. The planned generic mode probe is therefore retired for this incident.
+- Rewrote `docs/v0.3.0-beta.2-cloud-hard-acceptance.md` as a standalone 13-section baseline: frozen assets/behavior, stop rules, pre-seal with explicit Git-mode check, published-asset download, setup, complete B–F prompts, evidence table, final judgment, and future-repository extraction boundary. It contains no dependency on the beta.1 runbook.
+- Corrected the black-box split: B's required lifecycle canaries passed; its planning fields are now explicitly auxiliary. D remains strict and later observed the controlled recent-progress context. No runtime, installer, contract, Release ZIP, bootstrap, version, or SHA changed.
+- Recorded the proposed beta.2-based slim repository as a future migration Discovery Gate only. No history has been deleted and no new repository has been created.
+
 ## Session: 2026-08-05 — beta.2 Release synchronization
 
 - Recovered the clean post-documentation checkpoint and classified all beta.1 references. Immutable Phase 3/R4-C/beta.1 evidence remains historical; current Release entry points advance under the separately versioned beta.2 identity.
