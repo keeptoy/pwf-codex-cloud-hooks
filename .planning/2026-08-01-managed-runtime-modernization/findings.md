@@ -939,3 +939,9 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - The importer dynamically loaded the patcher and created an ignored bytecode cache. A bounded development-tool fix disables bytecode writes and a regression proves importer checks leave no `__pycache__`; adapter/owned/upstream runtime, installer, patcher, Release builder, Host ABI, schema semantics, and imported runtime bytes remain unchanged.
 - The M1 prototype's nine cases are replaced by three stable repository-boundary cases, explaining the intentional 69-to-63 reduction without weakening production race, hard-link, timeout, permission, cross-user, or cleanup coverage.
 - M2-B closes locally at Windows 63/52/0/11 with exact 59 paths, 15 manifest hashes, ten production byte comparisons, three renamed fixture blobs, four executable modes, LF/UTF-8, document links, and a clean cached diff. Linux/Cloud 63/63 remains an M3 gate.
+
+# M2-C local-closure evidence (2026-08-05)
+
+- M2 final local history is the single parentless 59-path commit `3234e4e02090c838f5ee260cd8f2d99daf358d65`; exactly four upstream runtime files are `100755`, the worktree is clean, and no remote development ref was created.
+- A real fresh Windows clone inherited `core.autocrlf=true` yet materialized all 59 files with zero CR bytes. Importer/static, exact modes, clean status, and 63/52/0/11 all pass without the manual LF repair M1 needed, closing the clean-but-CRLF debt.
+- Closure synchronization changed packaged README, so pre-closure ZIP bytes were not treated as final. The final tree double-build is deterministic at 22 entries / 74,899 bytes / SHA-256 `647e16852f818a84f4b5d4872a876d411cdbdfa7671f07b7614f35f12aae5e7d`; this is development evidence, not a publishable asset, and bootstrap remains zero-hash fail-closed.

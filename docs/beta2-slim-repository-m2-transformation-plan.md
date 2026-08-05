@@ -1,13 +1,14 @@
 # beta.2 精简仓库 M2 transformation plan
 
-> 状态：`DISCOVERY COMPLETE / M2-A COMPLETE / M2-B COMPLETE / M2-C CHECKPOINT REQUIRED`
+> 状态：`DISCOVERY COMPLETE / M2 COMPLETE / M3 CHECKPOINT REQUIRED`
 >
 > 基线：M1 exact mirror `bbad3703fe2bc3f34bda6ec350f8cfea6f7a159b` / tree
 > `ff49c3c6656386e94450ccb24437a1c2d1c50e95`，Windows 69/51/0/18、Cloud/Linux
 > 69/69/0/0、冻结双资产和 clean workspace 全部 PASS。
 >
-> 当前授权：M2-B 已完成 authority/identity/provenance rewrite 与本地验证。该结果不授权 M2-C、
-> root commit、slim `main`、push、发布资产、cutover、M3/M4 或 Phase 4。
+> 当前状态：M2-C 已完成并建立本地 parentless 59-path root commit
+> `3234e4e02090c838f5ee260cd8f2d99daf358d65`。该结果不授权 slim `main`、push、发布资产、
+> cutover、M3/M4 或 Phase 4。
 
 ## 1. M2 要解决什么
 
@@ -277,9 +278,10 @@ M2 未发布，回滚只针对 secondary worktree/local orphan branch。先只�
 
 结论：`CONDITIONAL_GO`。
 
-M2-A 与 M2-B 均已在 secondary orphan worktree 完成。当前树仍为 exact 59 paths、四个且仅四个
-`100755`，宏观权威、行为命名、overlay/provenance、beta.3-dev 与 successor zero-hash bootstrap
-已经统一；Windows suite 为 63/52/0/11，production bytes、renamed fixture blobs、manifest hashes、
-LF/UTF-8 和 M1 audit oracle 均通过验证。当前等待维护者 checkpoint 和 M2-C 明确授权；不得提前
-创建 root commit、push、Release、cutover、进入 M3/M4 或 Phase 4。若后续实际依赖图与本文不同，
-先暂停并回到 Discovery，而不是扩大允许列表。
+M2-A/B/C 均已完成。最终本地 root commit 为
+`3234e4e02090c838f5ee260cd8f2d99daf358d65`：zero parent、exact 59 paths、四个且仅四个
+`100755`、clean 且未 push。`core.autocrlf=true` 的 fresh Windows clone 中 59 个文件均无 CR，
+importer/static 与 Windows 63/52/0/11 通过；最终 tree 的两次 development ZIP 构建一致为 22 entries、
+74,899 bytes、SHA-256 `647e16852f818a84f4b5d4872a876d411cdbdfa7671f07b7614f35f12aae5e7d`，
+bootstrap 仍以 zero hash fail closed。当前等待 M2 checkpoint 和 M3 独立授权；不得提前 push、
+Release、cutover、进入 M3/M4 或 Phase 4。若后续实际依赖图与本文不同，先暂停并回到 Discovery。

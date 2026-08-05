@@ -1,6 +1,6 @@
 # beta.2 精简仓库迁移探路方案
 
-> 状态：`M1 COMPLETE / M2 DISCOVERY COMPLETE / M2-A COMPLETE / M2-B COMPLETE / M2-C CHECKPOINT REQUIRED`
+> 状态：`M1 COMPLETE / M2 COMPLETE / M3 CHECKPOINT REQUIRED`
 > 基线：已发布并验收的 `v0.3.0-beta.2`  
 > 本文只冻结迁移选择、边界和验收条件，不授权复制文件、初始化或发布新仓库、删除旧仓库内容、修改 production behavior，也不授权进入 Phase 4。
 
@@ -259,4 +259,4 @@ M1 已完成：候选 `audit/beta2-exact` 与冻结源共享 exact commit/tree/8
 - 精简后的开发版本暂定 `0.3.0-beta.3-dev`；
 - M2 新增 `MAINTAINER_HANDOFF.md`，作为新人维护交割入口。
 
-M1、M2 Discovery/checklist、M2-A 和 M2-B 已完成。精确 59-path allowlist、prototype 覆盖、文档权威、beta.3-dev、secondary orphan worktree 和停止/回滚合同见 `docs/beta2-slim-repository-m2-transformation-plan.md`。本地 unborn `migration/slim-beta3-dev` 已通过 M2-B 的 Windows 63/52/0/11、production/fixture bytes、manifest、LF/UTF-8 与文档门槛；尚无 root commit 或 push。当前必须 checkpoint 并等待 M2-C 明确授权，不得提前创建 slim `main`、发布、cutover、进入 M3/M4、创建 Phase 4 行为或把候选仓库当成新的生产权威。
+M1 与 M2 已完成。精确 59-path allowlist、prototype 覆盖、文档权威、beta.3-dev、secondary orphan worktree 和停止/回滚合同见 `docs/beta2-slim-repository-m2-transformation-plan.md`。本地 `migration/slim-beta3-dev` 已形成唯一 parentless root commit `3234e4e02090c838f5ee260cd8f2d99daf358d65`，并通过 Windows 63/52/0/11、production/fixture bytes、manifest、确定性 ZIP 与 `core.autocrlf=true` fresh-clone LF/mode 门槛；尚未 push。当前必须 checkpoint 并等待 M3 明确授权，不得提前创建 public `main`、发布、cutover、进入 M3/M4、创建 Phase 4 行为或把候选仓库当成新的生产权威。

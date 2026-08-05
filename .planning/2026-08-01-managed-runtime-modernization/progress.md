@@ -930,3 +930,15 @@
 - Retained `historical_patched_skill_files` after source inspection proved the current patcher still requires it. Added bounded importer bytecode hygiene after a real importer check exposed ignored `__pycache__` residue.
 - Focused tests pass 22/22. Full Windows suite passes 63 registered / 52 pass / 0 fail / 11 honest POSIX skips. Exact paths/modes, production and renamed-fixture bytes, importer/manifest hashes, strict UTF-8/LF, maintained-document links, static checks, zero cache, and cached diff all pass.
 - No root commit, push, slim `main`, Release, cutover, M2-C/M3/M4, product behavior change, or Phase 4 work occurred. M2-B stopped for maintainer checkpoint.
+
+# M2-C local closure opened (2026-08-05)
+
+- Maintainer confirmed the M2-B checkpoint and explicitly authorized M2-C only.
+- M2-C will run final invariants and deterministic double-build, create/verify the single parentless 59-path root commit, and run a fresh Windows clone gate. Push, M3/M4, Release, cutover, product behavior changes, and Phase 4 remain excluded.
+
+# M2-C local closure complete (2026-08-05)
+
+- Pre-commit importer/static/inventory and full Windows suite passed at 59 paths / four `100755` / 63 registered / 52 pass / 0 fail / 11 honest POSIX skips. Two isolated pre-closure ZIP builds were deterministic.
+- Created the parentless root commit, then fresh-cloned it with `core.autocrlf=true`; 59 files had zero CR, importer/static/modes/clean status and full suite passed. The first sandboxed clone attempt failed before transfer with Git-for-Windows signal-pipe Win32 error 5; the verified partial temp path was removed and the same clone succeeded outside the process sandbox, classifying it as a tool-sandbox limitation.
+- Closure docs changed packaged README, so rebuilt the final tree twice and recorded the actual deterministic ZIP: 22 entries / 74,899 bytes / SHA-256 `647e16852f818a84f4b5d4872a876d411cdbdfa7671f07b7614f35f12aae5e7d`. Planning-only evidence was amended into the same root history and the final commit was fresh-cloned again.
+- Final local successor commit is `3234e4e02090c838f5ee260cd8f2d99daf358d65`: zero parents, exact 59 paths, four executable upstream files, clean and unpushed. Final fresh clone passes importer/static/ZIP reproduction and 63/52/0/11. M1 audit commit/tree/ref remain unchanged. M2 stopped before push, M3/M4, Release, cutover, product behavior, or Phase 4.
