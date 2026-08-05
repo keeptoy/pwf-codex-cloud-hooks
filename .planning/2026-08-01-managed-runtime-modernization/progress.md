@@ -922,3 +922,11 @@
 - Verification passes for exact 59 indexed paths, zero forbidden/untracked paths, 45 retained plus six renamed byte-identical blobs, 46 retained plus six renamed mode-identical entries, exactly four `100755` runtime files, strict UTF-8, fresh planning selection, and the unchanged clean M1 audit commit/tree.
 - The first exact-index check correctly stopped at 52 before the seven new files were staged; staging only the explicit entrypoints produced the required 59. Cached whitespace checking then exposed one inherited terminal blank line in renamed `docs/git-file-modes.md`. M2-A kept the source bytes unchanged; M2-B must rewrite and clear it.
 - No commit, push, slim `main`, Release, cutover, production change, M2-B/C, M3, or Phase 4 work occurred. M2-A stopped for maintainer checkpoint.
+
+# M2-B authority/identity/provenance rewrite complete (2026-08-05)
+
+- Maintainer checkpointed M2-A and explicitly authorized M2-B only. Recovered the clean archive checkpoint, unchanged M1 audit oracle, and local unborn 59-path slim worktree before editing.
+- Rewrote the focused authority documents and Git LF contract; renamed behavior references; replaced Phase/prototype tests with stable architecture/repository boundaries; updated overlay evidence, schema comments/hashes, manifest hashes, beta.3-dev package identity, and the successor zero-hash bootstrap.
+- Retained `historical_patched_skill_files` after source inspection proved the current patcher still requires it. Added bounded importer bytecode hygiene after a real importer check exposed ignored `__pycache__` residue.
+- Focused tests pass 22/22. Full Windows suite passes 63 registered / 52 pass / 0 fail / 11 honest POSIX skips. Exact paths/modes, production and renamed-fixture bytes, importer/manifest hashes, strict UTF-8/LF, maintained-document links, static checks, zero cache, and cached diff all pass.
+- No root commit, push, slim `main`, Release, cutover, M2-C/M3/M4, product behavior change, or Phase 4 work occurred. M2-B stopped for maintainer checkpoint.

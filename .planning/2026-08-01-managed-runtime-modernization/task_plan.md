@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Checkpoint the completed M2-A orphan skeleton and wait for explicit maintainer continuation into M2-B. If continued, rewrite the new authority documents and renamed test references, broaden the LF contract, apply beta.3-dev/provenance metadata changes, and clear the inherited `docs/git-file-modes.md` terminal blank-line debt under the frozen M2 plan. Do not create the root commit, push, enter M2-C/M3, publish, cut over, modify production behavior, or enter Phase 4 without their separate gates.
+Checkpoint the completed M2-B authority/identity/provenance rewrite and wait for explicit maintainer continuation into M2-C. If continued, perform the frozen deterministic double-build, create and verify the single parentless 59-path root commit, and complete the fresh-Windows-clone gate. Do not push, enter M3/M4, publish, cut over, modify production behavior, or enter Phase 4 without their separate gates.
 
 ## Current Phase
-Phase 3, beta.2, migration M1, M2 Discovery/checklist, and M2-A are complete. The local unborn `migration/slim-beta3-dev` worktree contains the exact 59-path skeleton, six byte/mode-preserving renames, four minimal document entrypoints, and fresh planning; the M1 audit oracle remains clean and unchanged. M2-A has stopped for checkpoint. M2-B/C, root commit, slim `main`, push, M3, cutover, publication, product changes, and Phase 4 remain unauthorized.
+Phase 3, beta.2, migration M1, M2 Discovery/checklist, M2-A, and M2-B are complete. The local unborn `migration/slim-beta3-dev` worktree contains the exact 59-path focused successor, stable authority documents, behavior references, beta.3-dev identity, and fail-closed successor bootstrap; Windows 63/52/0/11 and all M2-B integrity gates pass while the M1 audit oracle remains clean and unchanged. M2-B has stopped for checkpoint. M2-C/root commit, slim `main`, push, M3/M4, cutover, publication, product changes, and Phase 4 remain unauthorized.
 
 ## Phases
 

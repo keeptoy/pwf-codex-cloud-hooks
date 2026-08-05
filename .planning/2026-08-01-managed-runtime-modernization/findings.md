@@ -932,3 +932,10 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - Indexed source preservation passes for 45 unchanged retained blobs plus six renamed blobs; mode preservation passes for all 46 retained entries plus six renamed entries. The only `100755` entries remain the four managed upstream runtime files.
 - Forbidden historical/prototype/old-name paths and untracked paths are both zero. All 59 worktree files decode as strict UTF-8, the active plan selects `2026-08-05-slim-repository-migration`, and the branch has no commit.
 - The renamed `docs/git-file-modes.md` preserves the source bytes, including one terminal blank line that `git diff --cached --check` reports. This is not production drift; M2-B must rewrite that document and remove the whitespace debt before its own gate can close.
+
+# M2-B authority/identity/provenance closure (2026-08-05)
+
+- The slim successor now has one current authority per concern, repository-wide LF, behavior-named fixtures/tests, stable overlay evidence, beta.3-dev identity, and a successor bootstrap that deliberately fails closed with a zero checksum.
+- The importer dynamically loaded the patcher and created an ignored bytecode cache. A bounded development-tool fix disables bytecode writes and a regression proves importer checks leave no `__pycache__`; adapter/owned/upstream runtime, installer, patcher, Release builder, Host ABI, schema semantics, and imported runtime bytes remain unchanged.
+- The M1 prototype's nine cases are replaced by three stable repository-boundary cases, explaining the intentional 69-to-63 reduction without weakening production race, hard-link, timeout, permission, cross-user, or cleanup coverage.
+- M2-B closes locally at Windows 63/52/0/11 with exact 59 paths, 15 manifest hashes, ten production byte comparisons, three renamed fixture blobs, four executable modes, LF/UTF-8, document links, and a clean cached diff. Linux/Cloud 63/63 remains an M3 gate.

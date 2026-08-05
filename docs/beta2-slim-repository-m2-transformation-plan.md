@@ -1,13 +1,13 @@
 # beta.2 精简仓库 M2 transformation plan
 
-> 状态：`DISCOVERY COMPLETE / M2-A COMPLETE / M2-B CHECKPOINT REQUIRED`
+> 状态：`DISCOVERY COMPLETE / M2-A COMPLETE / M2-B COMPLETE / M2-C CHECKPOINT REQUIRED`
 >
 > 基线：M1 exact mirror `bbad3703fe2bc3f34bda6ec350f8cfea6f7a159b` / tree
 > `ff49c3c6656386e94450ccb24437a1c2d1c50e95`，Windows 69/51/0/18、Cloud/Linux
 > 69/69/0/0、冻结双资产和 clean workspace 全部 PASS。
 >
-> 当前授权：M2-A 已按本文建立本地 orphan skeleton 并完成边界验证。该结果不授权 M2-B/C、
-> root commit、slim `main`、push、发布资产、cutover 或 Phase 4。
+> 当前授权：M2-B 已完成 authority/identity/provenance rewrite 与本地验证。该结果不授权 M2-C、
+> root commit、slim `main`、push、发布资产、cutover、M3/M4 或 Phase 4。
 
 ## 1. M2 要解决什么
 
@@ -194,9 +194,11 @@ docs/v0.3.0-beta.2-cloud-hard-acceptance.md
 - Release contract entry 数仍为 22，bootstrap 仍在 ZIP 外；
 - beta.2 hash 只存在于 baseline provenance/acceptance，不再由当前 bootstrap 冒充。
 
-`upstream-manifest.json.historical_patched_skill_files` 是重复的旧命名字段；patcher 已有
-`compatibility_patches[PATCH_ID].patched_sha256` fallback。M2 可以删除该字段，但必须通过 patcher、
-importer、manifest、installer 和 exact runtime hash 回归。稳定 patch ID 本身保持不变。
+M2-B 源码核查纠正了 Discovery 假设：当前 patcher 仍要求
+`upstream-manifest.json.historical_patched_skill_files` 与
+`compatibility_patches[PATCH_ID].patched_sha256` 一致，并不存在可直接替代该字段的 fallback。
+因此 slim baseline 保留这个兼容字段与稳定 patch ID；删除或改名须留给未来独立 contract gate，
+不能作为本轮文档精简的一部分。
 
 ## 8. Git root-commit 与 worktree 协议
 
@@ -275,8 +277,9 @@ M2 未发布，回滚只针对 secondary worktree/local orphan branch。先只�
 
 结论：`CONDITIONAL_GO`。
 
-M2-A 已在 secondary orphan worktree 完成：exact 59 paths、六项 byte/mode-preserving rename、fresh
-planning、四个最小文档入口、四个且仅四个 `100755`、零禁止/未跟踪路径，以及 M1 audit oracle
-不变均已验证。唯一遗留是 renamed `docs/git-file-modes.md` 继承的末尾空行，必须在 M2-B 文档重写
-中清除。当前等待维护者 checkpoint 和 M2-B 明确授权；不得进入 commit、push、Release、cutover
-或 Phase 4。若后续实际依赖图与本文不同，先暂停并回到 Discovery，而不是扩大允许列表。
+M2-A 与 M2-B 均已在 secondary orphan worktree 完成。当前树仍为 exact 59 paths、四个且仅四个
+`100755`，宏观权威、行为命名、overlay/provenance、beta.3-dev 与 successor zero-hash bootstrap
+已经统一；Windows suite 为 63/52/0/11，production bytes、renamed fixture blobs、manifest hashes、
+LF/UTF-8 和 M1 audit oracle 均通过验证。当前等待维护者 checkpoint 和 M2-C 明确授权；不得提前
+创建 root commit、push、Release、cutover、进入 M3/M4 或 Phase 4。若后续实际依赖图与本文不同，
+先暂停并回到 Discovery，而不是扩大允许列表。
