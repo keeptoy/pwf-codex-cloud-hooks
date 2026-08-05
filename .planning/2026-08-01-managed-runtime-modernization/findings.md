@@ -900,3 +900,10 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - The corrected copyable script is identified as `PWF_BETA2_SLIM_M1_EXACT_MIRROR_CLOUD_V2`, so its rerun cannot be confused with the parser-defective V1 transcript.
 - Because `set -Eeuo pipefail` stopped at the parser, ZIP construction, asset hashes, cache residue, and final clean-workspace gates were not executed. M1 cannot be closed from the observed 69/69 alone; the corrected full script must reach its terminal PASS marker.
 - The candidate repository now has the intended GitHub remote and pushed `audit/beta2-exact` branch. This does not create or authorize the future slim `main`, M2, cutover, a Release, or Phase 4.
+
+# M1 exact-mirror Cloud closure (2026-08-05)
+
+- The corrected V2 run completed in `/workspace/pwf-codex-cloud-hooks-next` with `NODE_TEST_SUMMARY=PASS`, Linux 69/69/0/0, and terminal `M1_EXACT_MIRROR_CLOUD_ACCEPTANCE=PASS`.
+- Deterministic assets exactly reproduce the frozen beta.2 identities: ZIP 22 entries / 84,572 bytes / `812cc9cdcafa93b5fcc47cc763fd743f11be77958b75eea1fa4cf0508dd391ab`; bootstrap 17,425 bytes / `d572b77d920b34c34c7912ba364376ae3668216f00ce350251bd7c8b336abcd6`.
+- Reaching the terminal marker also proves every preceding identity, Git-mode, LF, importer/static, cache, and workspace assertion. The Cloud model made no repository changes, commit, or PR.
+- M1 is complete. This proves exact beta.2 equivalence only; it does not authorize M2 transformation, the future slim `main`, repository cutover, publication, product behavior changes, or Phase 4.

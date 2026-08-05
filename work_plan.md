@@ -191,8 +191,8 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
 
 - 当前执行权威：`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`；
 - 当前 Phase：Phase 3 已关闭；Phase 4 尚未开始；
-- 独立仓库迁移：beta.2 slim-repository M1 本地 exact mirror 已通过，候选 remote/audit branch 已建立；Fresh Cloud 已真实通过 Linux 69/69，但旧 TAP 前缀解析器在资产尾段前误停，修复后完整脚本待重跑；该迁移不授权 M2、cutover 或 Phase 4；
-- 下一步：先从当前档案仓库复制修正后的 M1 Cloud 脚本，在不修改候选 audit branch 的前提下完整重跑到资产/hash/clean-workspace 终点；M1 关闭后仍须等待维护者另行授权 M2 或 Phase 4 Discovery Gate；
+- 独立仓库迁移：beta.2 slim-repository M1 COMPLETE；候选 remote/audit branch 已建立，Windows 69/51/0/18 与 Fresh Cloud/Linux 69/69/0/0、exact ZIP/bootstrap、clean workspace 全部 PASS；该结果不授权 M2、cutover 或 Phase 4；
+- 下一步：等待维护者明确授权 M2；若授权，先冻结 selective-import/root-commit、覆盖映射、最小文档权威、LF、开发版本和回滚清单，再修改候选树。Phase 4 仍需独立 Discovery Gate 授权；
 - 当前禁止：在 Discovery Gate 关闭前实施 Phase 4 production behavior、扩展 trusted graph 或激活 opt-in 模式；
 - 当前回滚：published / accepted beta.2；beta.1 与 alpha.2 为历史 fallback。
 

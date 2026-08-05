@@ -1,6 +1,6 @@
 # beta.2 精简仓库迁移探路方案
 
-> 状态：`M1 CLOUD 69/69 OBSERVED / FULL-SCRIPT RERUN PENDING`
+> 状态：`M1 COMPLETE / CLOUD V2 PASS / M2 UNAUTHORIZED`
 > 基线：已发布并验收的 `v0.3.0-beta.2`  
 > 本文只冻结迁移选择、边界和验收条件，不授权复制文件、初始化或发布新仓库、删除旧仓库内容、修改 production behavior，也不授权进入 Phase 4。
 
@@ -174,7 +174,7 @@ beta.2 资产继续由当前仓库和原 Release 页面保存。新仓库只能�
 - 验证 69/69 Linux、ZIP/bootstrap exact hash、四个 `100755`、LF、installer/doctor 和 clean workspace；
 - 这棵完整镜像建议只留作本地/临时审计分支，不作为新仓库公开 `main`。
 
-本地 M1 已完成：候选 `audit/beta2-exact` 与冻结源共享 exact commit/tree/83 个 index entries/四个 `100755`，Windows 为 69 registered / 51 PASS / 18 honest POSIX skips / 0 FAIL，双资产字节与 SHA 完全一致。候选 GitHub remote 与 audit branch 已建立。第一次 Fresh Cloud 执行已真实得到 Linux 69/69/0/0，但验收脚本随后因只识别历史 `# tests`、未识别当前 Node `ℹ tests` 统计前缀而停止，ZIP/bootstrap/final-clean 尾段未执行。该 parser 属于 runbook defect，现已改为兼容两种 reporter 表现并去除 ANSI；M1 仍须完整重跑到最终 PASS，在此之前不进入 M2。
+M1 已完成：候选 `audit/beta2-exact` 与冻结源共享 exact commit/tree/83 个 index entries/四个 `100755`，Windows 为 69 registered / 51 PASS / 18 honest POSIX skips / 0 FAIL。修正 reporter parser 后，Fresh Cloud V2 完整得到 Linux 69/69/0/0、22-entry / 84,572-byte ZIP、17,425-byte 外部 bootstrap、双资产 exact SHA、零缓存和 clean workspace，并输出 `M1_EXACT_MIRROR_CLOUD_ACCEPTANCE=PASS`。候选 GitHub remote 与 audit branch 已建立；这只关闭 exact-mirror gate，不自动授权 M2、slim `main`、cutover、Release 或 Phase 4。
 
 ### M2 — slim transformation
 
@@ -259,4 +259,4 @@ beta.2 资产继续由当前仓库和原 Release 页面保存。新仓库只能�
 - 精简后的开发版本暂定 `0.3.0-beta.3-dev`；
 - M2 新增 `MAINTAINER_HANDOFF.md`，作为新人维护交割入口。
 
-M1 已获授权，但仍不得精简、改名、发布、创建 Phase 4 行为或把候选仓库当成新的生产权威。
+M1 已完成。M2 仍待维护者明确授权；在此之前不得精简、改名、创建 slim `main`、发布、cutover、创建 Phase 4 行为或把候选仓库当成新的生产权威。

@@ -887,3 +887,11 @@
 - Classified as `RUNBOOK_PARSER_DEFECT`; production defect: no; test defect: no; platform limitation: no.
 - Replaced four reporter-specific grep calls with a bounded exact-counter Python parser that strips ANSI and supports both observed summary prefixes. M1 remains in progress pending one full fresh-Cloud rerun and terminal `M1_EXACT_MIRROR_CLOUD_ACCEPTANCE=PASS`.
 - Local runbook validation passed for the historical `#` summary, current U+2139 summary with ANSI color, and a negative mismatched-count sample; the embedded Bash block passes `bash -n`. All six changed files decode as strict UTF-8, Markdown fences are balanced, the Release allowlist overlap is zero, and the candidate audit worktree remains clean at the frozen commit.
+
+# M1 Cloud V2 closure (2026-08-05)
+
+- Maintainer returned the complete V2 Cloud result from `/workspace/pwf-codex-cloud-hooks-next`.
+- PASS: Node summary 69/69/0/0; Linux suite 69/69/0/0; ZIP 22 entries / 84,572 bytes / exact frozen SHA; bootstrap 17,425 bytes / exact frozen SHA; workspace clean; terminal M1 PASS marker observed.
+- The Cloud run changed no files and created no commit or PR. All earlier V2 assertions, including exact identity, four executable modes, LF, importer/static checks, and zero cache, are therefore accepted as passed.
+- Closed M1 and synchronized the migration design, Cloud runbook, programme roadmap, and active execution authority. No candidate-tree or production change was made; M2 remains unauthorized.
+- Closure-document validation: all six changed files decode as strict UTF-8 with balanced Markdown fences; the stale M1-pending phrase scan is empty; Release allowlist overlap is zero; candidate `audit/beta2-exact` remains clean at the frozen commit. Removed one status-line Markdown hard break so `git diff --check` remains clean.

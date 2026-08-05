@@ -1,6 +1,6 @@
 # beta.2 精简仓库 M1 exact-mirror Linux/Cloud 验收
 
-> 状态：可复制验收门槛；不属于新 Release，也不安装到 live `/opt/codex`。  
+> 状态：`PASS`；V2 已在 Fresh Codex Cloud 完整通过；不属于新 Release，也未安装到 live `/opt/codex`。
 > 目标：证明候选 audit ref 是已验收 beta.2 的同一 Git tree，并在 Linux/Cloud 中完成 69/69、Git mode、LF、importer 和双资产字节复核。  
 > 非目标：不创建未来 `main`，不做 M2 精简，不修改 product/schema/installer identity，不运行 live A–F，不进入 Phase 4。
 
@@ -191,3 +191,21 @@ M1 exact-mirror Cloud acceptance: PASS 或 FAIL
 - Phase 4 已获授权。
 
 M1 关闭后，下一轮必须先建立 M2 精简清单和 root-commit 边界，再改任何候选文件。
+
+## 6. V2 Cloud 关闭证据（2026-08-05）
+
+修正 reporter 前缀解析后，V2 在 `/workspace/pwf-codex-cloud-hooks-next` 完整通过并输出：
+
+```text
+NODE_TEST_SUMMARY=PASS tests=69 pass=69 fail=0 skipped=0
+LINUX_SUITE=PASS tests=69 pass=69 fail=0 skipped=0
+ZIP_ENTRIES=22
+ZIP_SIZE=84572
+ZIP_SHA256=812cc9cdcafa93b5fcc47cc763fd743f11be77958b75eea1fa4cf0508dd391ab
+BOOTSTRAP_SIZE=17425
+BOOTSTRAP_SHA256=d572b77d920b34c34c7912ba364376ae3668216f00ce350251bd7c8b336abcd6
+WORKSPACE_CLEAN=YES
+M1_EXACT_MIRROR_CLOUD_ACCEPTANCE=PASS
+```
+
+因为终止标记位于所有前置断言之后，commit/tree、83 个 tracked files、四个 `100755`、hash-sensitive LF、importer/static、零 `__pycache__` 同时成立。Cloud 未修改候选仓库、未提交、未创建 PR。M1 至此关闭；M2 仍须单独授权。
