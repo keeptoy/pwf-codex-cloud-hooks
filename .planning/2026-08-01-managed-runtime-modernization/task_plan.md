@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Checkpoint the completed successor M3 Discovery governance changes, then wait for explicit M3-A authorization to create/push the reviewed child commit and execute the no-live Cloud/Linux seal. M3-B disposable live setup, M3-C closure, public `main`, M4, publication, cutover, production behavior changes, and product Phase 4 remain separately gated.
+Wait for explicit maintainer authorization for M3-A. Before acting, require both repositories to be checkpointed/clean, then push the exact reviewed successor commit `f54fb78` and execute only the no-live Cloud/Linux seal defined by the successor runbook. M3-B disposable live setup, M3-C closure, public `main`, M4, publication, cutover, production behavior changes, and product Phase 4 remain separately gated.
 
 ## Current Phase
-Phase 3, beta.2, migration M1/M2, and M3 Discovery are complete. Local `migration/slim-beta3-dev` retains the immutable parentless 59-path M2 root `3234e4e02090c838f5ee260cd8f2d99daf358d65`; the M3 governance worktree is uncommitted and unpushed, while the M1 audit oracle remains clean and unchanged. Successor Windows 63/52/0/11, importer/static/docs, and deterministic 22-entry development ZIP gates pass. M3-A push/no-live Cloud, M3-B disposable lifecycle, M3-C closure, slim `main`, M4, publication, product changes, and Phase 4 require their explicit later gates.
+Phase 3, beta.2, migration M1/M2, and M3 Discovery are complete. Local `migration/slim-beta3-dev` retains the immutable parentless 59-path M2 root `3234e4e02090c838f5ee260cd8f2d99daf358d65`; the committed 60-path M3 governance descendant is clean at `f54fb78` and remains unpushed, while the M1 audit oracle remains clean and unchanged. Successor Windows 63/52/0/11, importer/static/docs, and deterministic 22-entry / 75,323-byte / SHA-256 `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508` development ZIP gates pass. M3-A push/no-live Cloud, M3-B disposable lifecycle, M3-C closure, slim `main`, M4, publication, product changes, and Phase 4 require their explicit later gates.
 
 ## Phases
 

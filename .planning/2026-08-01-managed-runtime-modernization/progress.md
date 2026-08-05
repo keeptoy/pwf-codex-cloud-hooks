@@ -967,3 +967,16 @@
   repository-boundary allowlist to 60 paths and validated the would-be committed
   state through a disposable alternate Git index: full Windows suite 63/52/0/11
   and cached diff hygiene PASS, without altering the user's real index.
+
+## Session: 2026-08-06 — M3 persistence and archive status sync
+
+- Verified the successor is clean at committed, unpushed HEAD `f54fb78`; its
+  standalone M3 runbook, ROADMAP, active planning, handoff, README, and AGENTS
+  persist the M3-A/B/C protocol and stop conditions.
+- Updated the archive migration-options document from the obsolete
+  `M3 CHECKPOINT REQUIRED` state to `M3 DISCOVERY COMPLETE / M3-A AUTHORIZATION
+  REQUIRED`, recorded the committed successor evidence, and made the successor
+  runbook the sole executable M3 authority.
+- No successor byte, push, Cloud run, live installation, public `main`, Release,
+  cutover, production behavior, M3-A/B/C execution, M4, or product Phase 4 work
+  was performed.

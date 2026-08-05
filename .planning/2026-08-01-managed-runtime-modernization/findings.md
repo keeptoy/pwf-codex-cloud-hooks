@@ -962,3 +962,8 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - The tracked successor boundary advances from the immutable 59-path M2 root to
   a 60-path M3 governance descendant by adding the standalone runbook. Only the
   repository allowlist test changes; product and safety test bytes remain frozen.
+- The successor M3 Discovery governance is now checkpointed locally at clean,
+  unpushed commit `f54fb78`. The archive migration-options document is historical
+  route/rollback context only; the executable M3-A/B/C authority lives in the
+  successor runbook and planning files, preventing two copies of the Cloud script
+  from drifting.
