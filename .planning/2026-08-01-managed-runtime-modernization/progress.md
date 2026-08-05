@@ -895,3 +895,19 @@
 - The Cloud run changed no files and created no commit or PR. All earlier V2 assertions, including exact identity, four executable modes, LF, importer/static checks, and zero cache, are therefore accepted as passed.
 - Closed M1 and synchronized the migration design, Cloud runbook, programme roadmap, and active execution authority. No candidate-tree or production change was made; M2 remains unauthorized.
 - Closure-document validation: all six changed files decode as strict UTF-8 with balanced Markdown fences; the stale M1-pending phrase scan is empty; Release allowlist overlap is zero; candidate `audit/beta2-exact` remains clean at the frozen commit. Removed one status-line Markdown hard break so `git diff --check` remains clean.
+
+# M2 Discovery/checklist gate opened (2026-08-05)
+
+- Maintainer said to continue after the M1 closure checkpoint; recorded this as explicit authorization for M2 Discovery/checklist only.
+- Recovered the clean archive checkpoint `94511e9`, confirmed the candidate remains the exact audit branch, re-read repository governance and macro authority, and opened a five-step M2 discovery plan.
+- No candidate file, branch, version, Release artifact, production runtime, or Phase 4 behavior has been changed.
+- Inventoried all 83 candidate paths/modes and current top-level counts; read package/test registration, `.gitattributes`, and `.gitignore`; began tracing every proposed archive/delete path into importer, contracts, tests, docs, and fixtures.
+- One read-only `rg` batch partially succeeded but exited 1 because PowerShell did not expand later `tests/*.test.js` and Python glob arguments for ripgrep on Windows. Kept the valid dependency matches, rejected the missing import/read inventory, and will rerun with `--glob`/directory roots rather than repeating the same command shape.
+- Re-ran the dependency inventory with directory roots and `--glob`; it completed successfully. Read the contract, Phase 3, golden, and snapshot handoff tests plus overlay/manifest/bootstrap coupling.
+- Counted prototype coverage against production owned-plan tests and identified the one isolation assertion that must move before prototype removal. Confirmed the ignored full upstream tree is optional test enrichment, not a fresh-clone dependency.
+- Completed the M2 path/dependency/coverage audit and added `docs/beta2-slim-repository-m2-transformation-plan.md`.
+- Froze the exact 59-path target, six behavior/Git-aware renames, eight-document authority, fresh planning slug, repository-wide LF policy, beta.3-dev placeholder identity, secondary orphan worktree protocol, M2-A/B/C gates, predicted 63-case suite, exit/stop/rollback rules, and `CONDITIONAL_GO` result.
+- One read-only design-validation command was launched from the candidate workdir even though the new design exists only in the archive repository; the source-code portion succeeded, but document-path checks failed with `PathNotFound`. Re-ran those checks from the archive root and corrected the discovered rename count from five to six.
+- Final M2 Discovery validation passes: four target-list blocks contain exactly 59 unique paths; all 22 Release entries and the external bootstrap are present; 46 target names already exist, 13 are new/renamed, and 37 M1 names are intentionally archived; zero production/contract/runtime/tool/patch paths are accidentally archived.
+- Strict UTF-8, balanced Markdown fences, `git diff --check`, current-state stale phrase scan, target no-prototype/no-old-macro assertions, and candidate audit status all pass. Candidate remains clean at `bbad3703...`; only archive planning/design documents changed.
+- Synchronized AGENTS navigation, migration options, work plan, findings, progress, and active Next Step. Candidate audit worktree/ref remains unchanged; no orphan branch, file deletion, root commit, push, Release, cutover, production change, or Phase 4 work occurred.

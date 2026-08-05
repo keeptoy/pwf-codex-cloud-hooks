@@ -25,7 +25,8 @@
 | 长期路线 | `work_plan.md` | 后续 Phase、Cloud 门槛、Release 路标 |
 | 当前执行权威 | 活动 `.planning/<slug>/task_plan.md` | 现在允许做什么、唯一 Next Step、退出和停止条件 |
 | 研究与历史 | 活动计划的 `findings.md` / `progress.md` | 为什么这么决定、做过什么、遇到什么问题 |
-| 最近完成专项设计 | `docs/phase-3-round-4-activation-plan.md` | 已关闭的 Phase 3 R4-A/B/C 技术门槛；Phase 4 Discovery Gate 必须先建立下一专项入口 |
+| 当前迁移专项设计 | `docs/beta2-slim-repository-m2-transformation-plan.md` | M2 的 59-path、覆盖、orphan worktree、版本、分批和回滚门槛；不授权 Phase 4 |
+| 最近完成产品专项设计 | `docs/phase-3-round-4-activation-plan.md` | 已关闭的 Phase 3 R4-A/B/C 技术门槛；Phase 4 Discovery Gate 必须先建立下一专项入口 |
 | 可复制 Cloud 操作 | `黑盒验证.md` 及版本/Phase 专项验收文档 | 在 Cloud 中如何执行和判定验收 |
 
 仓库内文档发生冲突时：
