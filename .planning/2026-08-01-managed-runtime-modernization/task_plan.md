@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-In a Fresh Cloud task, checkout exact successor commit `f54fb78633d22af5c8f0f225fc8c44ad046aa9c1` from remote branch `migration/slim-beta3-dev` and execute only section 5.2 of the successor M3 runbook. Preserve the complete TAP and terminal summary, then return the raw result for classification. Do not begin M3-B, create public `main`, publish, cut over, modify production behavior, or enter product Phase 4.
+In a Fresh Cloud task, checkout exact repaired successor commit `39795283cd65f84547651d7bec816191fb5bfedf` from remote branch `migration/slim-beta3-dev` and execute section 5.2 of the successor M3 runbook from its first line. Preserve the complete TAP and terminal summary; do not combine results from the earlier `f54fb78` attempt. Return the raw result for classification. Do not begin M3-B, create public `main`, publish, cut over, modify production behavior, or enter product Phase 4.
 
 ## Current Phase
-Phase 3, beta.2, migration M1/M2, and M3 Discovery are complete. M3-A is in progress: reviewed successor commit `f54fb78633d22af5c8f0f225fc8c44ad046aa9c1` has been non-force pushed to the same-named development branch; local and remote HEAD match, the unique parentless M2 root remains `3234e4e02090c838f5ee260cd8f2d99daf358d65`, and the successor worktree is clean. The no-live Cloud/Linux seal is pending. M3-B disposable lifecycle, M3-C closure, slim `main`, M4, publication, product changes, and Phase 4 require their explicit later gates.
+Phase 3, beta.2, migration M1/M2, and M3 Discovery are complete. M3-A is in progress. The first `f54fb78` Cloud run passed identity/mode/importer/static and Linux 63/63, then stopped on a runbook-only nested Managed Policy parser defect. Direct descendant `39795283cd65f84547651d7bec816191fb5bfedf` corrects the assertion, passes local 63/52/0/11 with zero product/Release-input drift, and has been non-force pushed; local/remote HEAD match and the successor is clean. The complete no-live Cloud/Linux seal rerun is pending. M3-B disposable lifecycle, M3-C closure, slim `main`, M4, publication, product changes, and Phase 4 require their explicit later gates.
 
 ## Phases
 

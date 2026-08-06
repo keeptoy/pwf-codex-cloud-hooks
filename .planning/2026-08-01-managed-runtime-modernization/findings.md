@@ -971,3 +971,9 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
   `migration/slim-beta3-dev`. Local and remote now both resolve to full commit
   `f54fb78633d22af5c8f0f225fc8c44ad046aa9c1`; the unique parentless M2 root is
   unchanged. No audit/main/tag/Release/default-branch or live Cloud state moved.
+- The first M3-A Cloud run proves the full Linux suite and all preceding integrity
+  gates at `f54fb78`, but cannot close M3-A because the runbook then read the actual
+  nested Managed Hook TOML as a flat handler list. Installer source and Cloud TOML
+  agree this is a runbook parser defect. Governance descendant
+  `39795283cd65f84547651d7bec816191fb5bfedf` fixes both-level validation without
+  product/build/Release-input drift; the complete script must rerun from line one.

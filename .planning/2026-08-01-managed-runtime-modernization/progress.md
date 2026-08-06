@@ -997,3 +997,21 @@
 - M3-A transport is PASS; Fresh Cloud section 5.2 no-live seal is pending. No
   audit/main/tag/Release/default branch, live `/opt/codex`, M3-B/C, M4, product
   behavior, or product Phase 4 state was changed.
+
+## Session: 2026-08-06 — M3-A runbook parser repair
+
+- Cloud at accepted `f54fb78` passed root/tree, 60 paths, four `100755`, importer,
+  Python/Node/Bash static checks, Linux 63/63, root/root, cross-user, process-group,
+  and isolated install/doctor. It stopped with `KeyError: 'command'` while the
+  runbook parsed Managed Policy; workspace remained clean and no commit/PR existed.
+- Confirmed `install.js` renders event groups with nested command handlers. Corrected
+  only the M3 runbook, the already-allowed repository-boundary regression, and
+  governance/planning documents. The regression stays inside the existing test,
+  so the suite remains 63 cases.
+- Local focused 3/3, nested `tomllib` sample, importer/static, exact path/drift,
+  UTF-8/fences/diff, and full Windows 63/52/0/11 pass. Release allowlist overlap and
+  product/build drift are zero.
+- Created ordinary descendant `39795283cd65f84547651d7bec816191fb5bfedf`
+  (parent `f54fb78`), non-force pushed it to the same-named remote branch, and
+  verified local/remote equality plus clean successor state. Complete Fresh Cloud
+  rerun remains the only M3-A Next Step; M3-B and later gates remain unauthorized.
