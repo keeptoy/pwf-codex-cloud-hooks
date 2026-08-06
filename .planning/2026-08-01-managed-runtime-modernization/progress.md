@@ -1140,3 +1140,18 @@
   root `.git/index.lock` policy. Re-ran only the exact six-file `git add` through
   the approved outer Git boundary; cached diff/check then passed with no unstaged
   path. This was a local sandbox limitation, not repository or content drift.
+
+## M4-C closure
+
+- Cloud accepted exact successor `main@0b4bd7d4b688f60bcd72a03ae5ebe6db129e5151`.
+  The M4-B governance-descendant check, 63/63 Linux suite, 61-path/four-executable
+  successor boundary, deterministic 22-entry development ZIP, zero-hash bootstrap,
+  immutable beta.2 assets, disposable beta.2 rollback build/doctor, maintainer
+  handoff rehearsal, remote/evidence recheck, clean workspaces, and zero live Codex
+  mutations all passed.
+- Recorded `M4C_CUTOVER_ROLLBACK_ACCEPTANCE=PASS` and closed repository migration
+  M1 through M4. Synchronized only archive governance/planning documents; no product,
+  Release input, beta.2 asset, tag, repository archive/rename, or live runtime changed.
+- The remaining authorized action is a normal fast-forward publication of both
+  governance closure checkpoints followed by exact remote readback. Work then stops
+  before Product Phase 4 Discovery authorization.

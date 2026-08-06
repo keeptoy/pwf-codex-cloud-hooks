@@ -6,8 +6,8 @@
 > [`pwf-codex-cloud-hooks-next/ROADMAP.md`](https://github.com/keeptoy/pwf-codex-cloud-hooks-next/blob/main/ROADMAP.md)。
 >
 > 当前状态：Phase 1～3 与 `v0.3.0-beta.2` 发布/验收已完成。successor M4-A authority
-> cutover 与 M4-B archive/provenance handoff 已 PASS。产品 Phase 4 尚未开始；M4-C
-> rollback acceptance 仍待单独授权。
+> cutover、M4-B archive/provenance handoff 与 M4-C no-live cutover/rollback acceptance
+> 均已 PASS，仓库迁移 M1～M4 已关闭。产品 Phase 4 尚未开始，必须另行授权 Discovery Gate。
 >
 > 当前回滚基线：published / accepted `v0.3.0-beta.2`；beta.1 与 alpha.2 保留为历史 fallback。
 
@@ -195,12 +195,13 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
 
 - 当前执行权威：`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`；
 - 当前 Phase：Phase 3 已关闭；本仓库转为历史证据/beta.2 rollback 权威；产品 Phase 4 尚未开始；
-- 独立仓库迁移：M1/M2/M3 与 M4-A COMPLETE。successor default 是 exact
-  `main@cc9bc878ddc7d70c25156dd053e2874758f0814a`；Cloud-tested development
+- 独立仓库迁移：M1～M4 COMPLETE。M4-C 接受的 successor source checkpoint 是 exact
+  `main@0b4bd7d4b688f60bcd72a03ae5ebe6db129e5151`；Cloud-tested development
   `39795283cd65f84547651d7bec816191fb5bfedf` 与 audit `bbad3703...` 未移动，两个
-  active integrity ruleset 只限制 deletion/non-fast-forward；
-- 下一步：checkpoint M4-B 双仓库治理交割，然后等待 M4-C 单独授权；本仓库继续保持
-  `0.3.0-beta.2` default、public/unarchived、tags/Releases/assets 不变；
+  active integrity ruleset 继续限制 deletion/non-fast-forward；
+- 下一步：发布 M4-C 双仓库治理闭环 checkpoint 后停止。本仓库继续保持
+  `0.3.0-beta.2`、public/unarchived、tags/Releases/assets 不变；只有维护者明确授权后，
+  才能在 successor 开启 Product Phase 4 Discovery Gate；
 - 当前禁止：在 Discovery Gate 关闭前实施 Phase 4 production behavior、扩展 trusted graph 或激活 opt-in 模式；
 - 当前回滚：published / accepted beta.2；beta.1 与 alpha.2 为历史 fallback。
 

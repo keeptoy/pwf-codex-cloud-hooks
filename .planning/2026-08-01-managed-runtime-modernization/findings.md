@@ -1032,3 +1032,21 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - The old default branch may receive governance/navigation descendants, so beta.2
   reproducibility must cite frozen commit `bbad3703...` and immutable Release assets,
   never rebuild/reissue the same identity from navigation HEAD.
+
+## M4-C accepted cutover and rollback evidence
+
+- Cloud accepted successor `main@0b4bd7d4b688f60bcd72a03ae5ebe6db129e5151`.
+  It is exactly one seven-governance-path descendant of the M4-B checkpoint; the
+  61-path successor boundary and four executable runtime modes remain exact.
+- The complete Linux suite passed 63/63 with zero failure or skip. The deterministic
+  development ZIP remained 22 entries, 75,323 bytes, and SHA-256
+  `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`;
+  the development bootstrap retained its required all-zero hash placeholder.
+- Immutable beta.2 ZIP/bootstrap assets were downloaded and verified. A disposable
+  beta.2 rollback build/install/doctor passed with 11 payloads; maintainer handoff,
+  remote default/evidence refs, and workspace cleanliness also passed with zero live
+  `/opt/codex` mutation.
+- `M4C_CUTOVER_ROLLBACK_ACCEPTANCE=PASS` closes repository migration M1 through M4.
+  It does not publish beta.3-dev or authorize a Release, tag, product change, archive/
+  rename/delete operation, or Product Phase 4. Successor `main` is now the source
+  authority; this repository remains the published beta.2 rollback/history authority.

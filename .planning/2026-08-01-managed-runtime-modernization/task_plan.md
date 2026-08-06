@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Review and checkpoint the completed M4-B archive/provenance handoff, then wait for explicit M4-C authorization under successor `docs/beta3-dev-m4-cutover-plan.md`. This repository remains the historical-evidence and immutable beta.2 rollback authority with default `0.3.0-beta.2`, public/unarchived state, tags, Releases, and asset bytes preserved. Do not publish a new Release/tag, modify product behavior, rename/archive either repository, or enter Product Phase 4.
+Publish the M4-C dual-repository governance closure checkpoint, verify both remotes by exact SHA, and stop. This repository remains the historical-evidence and immutable beta.2 rollback authority with branch `0.3.0-beta.2`, public/unarchived state, tags, Releases, and asset bytes preserved. Do not publish a new Release/tag, modify product behavior, rename/archive either repository, or enter Product Phase 4. Product Phase 4 requires a separate maintainer authorization for its Discovery Gate.
 
 ## Current Phase
-Phase 3, beta.2, migration M1/M2/M3, M4-A, and M4-B are complete. Successor is the current source authority with exact default `main@cc9bc878ddc7d70c25156dd053e2874758f0814a`; Cloud-tested development and M1 audit refs remain unchanged and protected by active deletion/non-fast-forward rulesets. This repository is now the historical-evidence and immutable beta.2 rollback authority, with its public navigation pointing to successor main. M4-C, Release/tag, product changes, and Product Phase 4 remain unauthorized.
+Phase 3, beta.2, and repository migration M1 through M4 are complete. M4-C accepted successor source checkpoint `main@0b4bd7d4b688f60bcd72a03ae5ebe6db129e5151`; Cloud-tested development and M1 audit refs remain unchanged and protected by active deletion/non-fast-forward rulesets. This repository is the historical-evidence and immutable beta.2 rollback authority, with its public navigation pointing to successor main. The migration closure governance commit may move successor main beyond the accepted checkpoint without redefining that accepted SHA. Release/tag, product changes, and Product Phase 4 remain unauthorized.
 
 ## Phases
 
