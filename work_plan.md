@@ -2,8 +2,12 @@
 
 > 文档职责：维护 v0.3.0 的长期 Phase 路线、建议轮数、Cloud 验收节点、发布路标和阶段工作摘要。
 >
-> 当前状态：Phase 1～3 已完成。`v0.3.0-beta.2` 不改变 beta.1 已通过 live Fresh/Resume A～F
-> 的 runtime 行为，已完成发布同步、封板和验收。Phase 4 尚未开始，也未因本次发布维护获得授权。
+> 仓库角色：本文件现为 beta.2 programme/release 历史证据；后续开发路线权威已迁移到
+> [`pwf-codex-cloud-hooks-next/ROADMAP.md`](https://github.com/keeptoy/pwf-codex-cloud-hooks-next/blob/main/ROADMAP.md)。
+>
+> 当前状态：Phase 1～3 与 `v0.3.0-beta.2` 发布/验收已完成。successor M4-A authority
+> cutover 与 M4-B archive/provenance handoff 已 PASS。产品 Phase 4 尚未开始；M4-C
+> rollback acceptance 仍待单独授权。
 >
 > 当前回滚基线：published / accepted `v0.3.0-beta.2`；beta.1 与 alpha.2 保留为历史 fallback。
 
@@ -190,9 +194,13 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
 ## 当前交接
 
 - 当前执行权威：`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`；
-- 当前 Phase：Phase 3 已关闭；Phase 4 尚未开始；
-- 独立仓库迁移：beta.2 slim-repository M1、M2 和 M3 全部 COMPLETE；M4 Discovery 也已完成设计与本地验证。接受 Cloud 测试 HEAD 为 `39795283cd65f84547651d7bec816191fb5bfedf`，development ZIP SHA-256 为 `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`；远端测试/audit refs 未移动，successor 当前 default 仍是 development branch；
-- 下一步：checkpoint successor 的 `docs/beta3-dev-m4-cutover-plan.md`，然后等待 M4-A 单独授权；不 push、不创建远端 `main`、不改 default/protection、不更新本 README 导航、不发布，也不进入产品 Phase 4；
+- 当前 Phase：Phase 3 已关闭；本仓库转为历史证据/beta.2 rollback 权威；产品 Phase 4 尚未开始；
+- 独立仓库迁移：M1/M2/M3 与 M4-A COMPLETE。successor default 是 exact
+  `main@cc9bc878ddc7d70c25156dd053e2874758f0814a`；Cloud-tested development
+  `39795283cd65f84547651d7bec816191fb5bfedf` 与 audit `bbad3703...` 未移动，两个
+  active integrity ruleset 只限制 deletion/non-fast-forward；
+- 下一步：checkpoint M4-B 双仓库治理交割，然后等待 M4-C 单独授权；本仓库继续保持
+  `0.3.0-beta.2` default、public/unarchived、tags/Releases/assets 不变；
 - 当前禁止：在 Discovery Gate 关闭前实施 Phase 4 production behavior、扩展 trusted graph 或激活 opt-in 模式；
 - 当前回滚：published / accepted beta.2；beta.1 与 alpha.2 为历史 fallback。
 

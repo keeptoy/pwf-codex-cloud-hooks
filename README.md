@@ -1,5 +1,14 @@
 # pwf-codex-cloud-hooks
 
+> **仓库角色已交割：历史证据与 beta.2 回滚权威。** 后续源码开发与维护入口是
+> [`keeptoy/pwf-codex-cloud-hooks-next`](https://github.com/keeptoy/pwf-codex-cloud-hooks-next) 的
+> [`main`](https://github.com/keeptoy/pwf-codex-cloud-hooks-next/tree/main)。本仓库继续保持 public、
+> unarchived，保留完整历史以及不可变的
+> [`v0.3.0-beta.2`](https://github.com/keeptoy/pwf-codex-cloud-hooks/releases/tag/v0.3.0-beta.2)
+> rollback assets。下面的安装/验收说明仍适用于 beta.2；不得从加入导航治理提交后的 HEAD
+> 重发同名资产，精确来源是
+> [`bbad3703fe2bc3f34bda6ec350f8cfea6f7a159b`](https://github.com/keeptoy/pwf-codex-cloud-hooks/commit/bbad3703fe2bc3f34bda6ec350f8cfea6f7a159b)。
+
 通过系统托管的生命周期 Hooks，把全局安装的
 [`OthmanAdi/planning-with-files`](https://github.com/OthmanAdi/planning-with-files)
 Skill 接入 Codex Cloud 会话。

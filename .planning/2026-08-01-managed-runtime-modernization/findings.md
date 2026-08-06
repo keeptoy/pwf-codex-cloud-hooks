@@ -1020,3 +1020,15 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
 - M4 is split into Discovery, M4-A authority, M4-B archive/provenance handoff, and
   M4-C no-live cutover/rollback acceptance. It explicitly does not publish beta.3;
   product Release and Product Phase 4 remain separate authorization domains.
+
+## M4-B archive handoff opening
+
+- Maintainer checkpointed successor M4-A and authorized M4-B. Successor default is
+  exact `main@cc9bc878...`; development/audit refs remain unchanged and protected
+  by active deletion/non-fast-forward rulesets.
+- This repository is deliberately not GitHub-archived: it remains public and
+  operational as the immutable beta.2 Release/rollback and historical-evidence
+  authority. “Archive navigation” describes its role, not the GitHub archive flag.
+- The old default branch may receive governance/navigation descendants, so beta.2
+  reproducibility must cite frozen commit `bbad3703...` and immutable Release assets,
+  never rebuild/reissue the same identity from navigation HEAD.

@@ -4,6 +4,11 @@
 不复制当前 Round 的状态、测试计数或临时 Next Step。若子目录以后增加更具体的 `AGENTS.md`，
 该文件只覆盖对应子树，且不得绕过根级安全与 Release 边界。
 
+> 当前仓库是历史证据与 published/accepted beta.2 rollback 权威，不再是后续产品开发权威。
+> 日常源码入口是 [`keeptoy/pwf-codex-cloud-hooks-next`](https://github.com/keeptoy/pwf-codex-cloud-hooks-next)
+> 的 `main`。除明确授权的归档导航、历史修正或 rollback 验证外，不在本仓库继续产品 Phase；
+> beta.2 Release assets、tags、branches 和历史证据不得重写。
+
 ## 进入仓库后的必读顺序
 
 1. 读 `README.md`，确认当前公开行为、安装、运维和故障处理方式。

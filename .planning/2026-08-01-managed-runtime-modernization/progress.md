@@ -1122,3 +1122,21 @@
   deliberately excluded until M4-B. Successor reports an exact eight-path staged
   Discovery candidate, 61 tracked paths, zero Release overlap, and no unstaged or
   untracked path. Both repositories stop before commit/push and M4-A authorization.
+
+## M4-B
+
+- Maintainer checkpointed successor M4-A and explicitly authorized archive/
+  provenance handoff. Recovered this clean archive worktree at `771f8906...`, two
+  governance commits ahead of remote `0.3.0-beta.2`; no history rewrite is needed.
+- Added the historical/rollback banner and synchronized AGENTS, work plan, and
+  active planning to successor `main`, while preserving all beta.2 installation
+  content and exact frozen source/asset links. No push, Release/tag, repository
+  setting, live Cloud, product, or Product Phase 4 mutation has occurred yet.
+- Dual-repository prepublication validation PASS. This governance descendant is
+  eligible for normal fast-forward publication together with the successor
+  provenance descendant; beta.2 Release IDs, asset IDs/sizes/digests, default,
+  public/unarchived state, and all product bytes remain frozen.
+- Initial archive staging was blocked before writing by the sandbox's read-only
+  root `.git/index.lock` policy. Re-ran only the exact six-file `git add` through
+  the approved outer Git boundary; cached diff/check then passed with no unstaged
+  path. This was a local sandbox limitation, not repository or content drift.

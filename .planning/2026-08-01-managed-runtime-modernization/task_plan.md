@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Review and checkpoint successor M4 Discovery, then wait for explicit M4-A authorization. The sole execution authority is successor `docs/beta3-dev-m4-cutover-plan.md`: M4-A may later create exact remote `main`, verify SHA, switch successor default, and configure integrity policy. Until separately authorized, do not push, create remote `main`, modify default/protection/repository settings, update this archive README navigation, publish, cut over, modify product behavior, or enter Product Phase 4.
+Review and checkpoint the completed M4-B archive/provenance handoff, then wait for explicit M4-C authorization under successor `docs/beta3-dev-m4-cutover-plan.md`. This repository remains the historical-evidence and immutable beta.2 rollback authority with default `0.3.0-beta.2`, public/unarchived state, tags, Releases, and asset bytes preserved. Do not publish a new Release/tag, modify product behavior, rename/archive either repository, or enter Product Phase 4.
 
 ## Current Phase
-Phase 3, beta.2, migration M1/M2/M3, and M4 Discovery are complete. M4 selects create-main-then-switch while preserving Cloud-tested development `39795283cd65f84547651d7bec816191fb5bfedf`, local M3 closure `d93087632ef0e77659cd65e87e316fa6da38b939`, M2 root, and M1 audit oracle. Discovery verifies exact 61-path successor boundary, Windows 63/52/0/11, focused 4/4, strict docs, importer/static, and unchanged 22-entry / 75,323-byte ZIP SHA-256 `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`. No remote or old-repository state changed. M4-A, slim `main`, publication, product changes, and Phase 4 remain unauthorized.
+Phase 3, beta.2, migration M1/M2/M3, M4-A, and M4-B are complete. Successor is the current source authority with exact default `main@cc9bc878ddc7d70c25156dd053e2874758f0814a`; Cloud-tested development and M1 audit refs remain unchanged and protected by active deletion/non-fast-forward rulesets. This repository is now the historical-evidence and immutable beta.2 rollback authority, with its public navigation pointing to successor main. M4-C, Release/tag, product changes, and Product Phase 4 remain unauthorized.
 
 ## Phases
 
