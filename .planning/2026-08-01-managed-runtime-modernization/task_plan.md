@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-In a Fresh Cloud task, checkout exact repaired successor commit `39795283cd65f84547651d7bec816191fb5bfedf` from remote branch `migration/slim-beta3-dev` and execute section 5.2 of the successor M3 runbook from its first line. Preserve the complete TAP and terminal summary; do not combine results from the earlier `f54fb78` attempt. Return the raw result for classification. Do not begin M3-B, create public `main`, publish, cut over, modify production behavior, or enter product Phase 4.
+Checkpoint the M3-A acceptance evidence locally without pushing the successor branch, then wait for explicit maintainer authorization for M3-B. When authorized, M3-B must use exact accepted HEAD `39795283cd65f84547651d7bec816191fb5bfedf` and development ZIP SHA-256 `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508` as external setup inputs. Do not begin M3-C, create public `main`, publish, cut over, modify production behavior, or enter product Phase 4.
 
 ## Current Phase
-Phase 3, beta.2, migration M1/M2, and M3 Discovery are complete. M3-A is in progress. The first `f54fb78` Cloud run passed identity/mode/importer/static and Linux 63/63, then stopped on a runbook-only nested Managed Policy parser defect. Direct descendant `39795283cd65f84547651d7bec816191fb5bfedf` corrects the assertion, passes local 63/52/0/11 with zero product/Release-input drift, and has been non-force pushed; local/remote HEAD match and the successor is clean. The complete no-live Cloud/Linux seal rerun is pending. M3-B disposable lifecycle, M3-C closure, slim `main`, M4, publication, product changes, and Phase 4 require their explicit later gates.
+Phase 3, beta.2, migration M1/M2, M3 Discovery, and M3-A are complete. Repaired accepted successor HEAD `39795283cd65f84547651d7bec816191fb5bfedf` passes Linux 63/63, isolated install/doctor, adapter-only policy, 11 payload, deterministic 22-entry / 75,323-byte ZIP with SHA-256 `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`, zero-hash bootstrap, empty stderr, and clean workspace. M3-B disposable lifecycle, M3-C closure, slim `main`, M4, publication, product changes, and Phase 4 require their explicit later gates.
 
 ## Phases
 

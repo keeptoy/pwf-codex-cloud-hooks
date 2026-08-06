@@ -1015,3 +1015,15 @@
   (parent `f54fb78`), non-force pushed it to the same-named remote branch, and
   verified local/remote equality plus clean successor state. Complete Fresh Cloud
   rerun remains the only M3-A Next Step; M3-B and later gates remain unauthorized.
+- Maintainer returned the complete repaired Cloud rerun: stderr empty; accepted
+  HEAD `39795283cd65f84547651d7bec816191fb5bfedf`; Linux 63/63/0/0; root/cross-user/
+  process-group; isolated install/doctor; adapter-only policy; 11 payload; 22-entry
+  / 75,323-byte ZIP with SHA-256
+  `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`;
+  zero-hash bootstrap; clean workspace; terminal M3-A PASS.
+- Closed M3-A and set the sole Next Step to local evidence checkpoint followed by
+  explicit M3-B authorization. No successor branch push, M3-B/C, main, Release,
+  cutover, production change, M4, or product Phase 4 work followed.
+- Final closure checks pass in both repositories: UTF-8/fences/diff hygiene and
+  Release allowlist overlap 0; successor architecture/repository focused tests
+  4/4. Remote `migration/slim-beta3-dev` remains exactly on accepted M3-A HEAD.

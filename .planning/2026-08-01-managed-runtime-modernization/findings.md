@@ -977,3 +977,8 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
   agree this is a runbook parser defect. Governance descendant
   `39795283cd65f84547651d7bec816191fb5bfedf` fixes both-level validation without
   product/build/Release-input drift; the complete script must rerun from line one.
+- The complete repaired rerun closes M3-A at accepted HEAD
+  `39795283cd65f84547651d7bec816191fb5bfedf` and ZIP SHA-256
+  `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`.
+  Successor evidence updates should be checkpointed locally but not pushed before
+  M3-B, because the remote branch itself is the exact accepted checkout input.
