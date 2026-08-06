@@ -1155,3 +1155,34 @@
 - The remaining authorized action is a normal fast-forward publication of both
   governance closure checkpoints followed by exact remote readback. Work then stops
   before Product Phase 4 Discovery authorization.
+
+## Post-M4 documentation governance
+
+- Maintainer authorized a documentation-governance round after M4 closure. Both
+  repositories were clean at the start. Opened D1 archive cleanup, D2 successor
+  cleanup, and D3 cross-repository consistency as documentation-only gates.
+- Initial full Markdown state scan found stale present-tense status in archive
+  migration options/M2 design, successor M3 design, and both active Next Steps.
+  Historical runbook stop language remains evidence and will not be mechanically
+  rewritten. No product, Release, remote, or Product Phase 4 action is authorized.
+- D1 content cleanup updated exactly the archive migration options, M2 historical
+  design banner/closure, work-plan handoff, and active planning. It removed stale
+  current-state M4-A/M3-checkpoint markers while preserving M1/M2 gate-local stop
+  evidence, README, project understanding, product bytes, and Release inputs.
+- Targeted stale-marker scan is clean. D1 remains uncommitted until D2 and the final
+  D3 cross-repository document/link/boundary regression complete.
+- D3 exact-boundary checks pass: archive has exactly six documentation/planning paths,
+  Release overlap is zero, and source/accepted/development/audit/Product-Phase markers
+  are consistent with successor.
+- The first two combined format-check wrappers failed before shell execution because
+  JavaScript template parsing treated PowerShell/Markdown backticks as source syntax.
+  No file or repository state changed. Replaced literals with `[char]13` and `\x60`;
+  strict UTF-8, LF, balanced fences, local links, and `git diff --check` then PASS for
+  all six archive paths.
+- Successor importer/Node syntax and focused architecture/repository-boundary tests
+  4/4 PASS. D1/D2/D3 are complete; stopped before Product Phase 4 Discovery with no
+  product, Release, remote, or live runtime change.
+- The first final stale-string assertion searched findings/progress together with
+  current-state documents and correctly found the historical string being documented.
+  Classified this as checker scope error, limited the assertion to current-status
+  sources, and obtained final archive/successor governance PASS.

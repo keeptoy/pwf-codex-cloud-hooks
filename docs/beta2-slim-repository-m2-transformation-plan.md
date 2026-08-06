@@ -1,14 +1,14 @@
 # beta.2 精简仓库 M2 transformation plan
 
-> 状态：`DISCOVERY COMPLETE / M2 COMPLETE / M3 CHECKPOINT REQUIRED`
+> 状态：`M2 COMPLETE / HISTORICAL DESIGN / M3–M4 COMPLETE ELSEWHERE`
 >
 > 基线：M1 exact mirror `bbad3703fe2bc3f34bda6ec350f8cfea6f7a159b` / tree
 > `ff49c3c6656386e94450ccb24437a1c2d1c50e95`，Windows 69/51/0/18、Cloud/Linux
 > 69/69/0/0、冻结双资产和 clean workspace 全部 PASS。
 >
-> 当前状态：M2-C 已完成并建立本地 parentless 59-path root commit
-> `3234e4e02090c838f5ee260cd8f2d99daf358d65`。该结果不授权 slim `main`、push、发布资产、
-> cutover、M3/M4 或 Phase 4。
+> M2 关闭状态：M2-C 建立了 parentless 59-path root commit
+> `3234e4e02090c838f5ee260cd8f2d99daf358d65`。下文不授权 slim `main`、push、M3/M4 的句子是
+> 当时的 gate 边界；后续 M3/M4 已由 successor 专项文档独立验收，产品 Phase 4 仍未授权。
 
 ## 1. M2 要解决什么
 
@@ -283,5 +283,6 @@ M2-A/B/C 均已完成。最终本地 root commit 为
 `100755`、clean 且未 push。`core.autocrlf=true` 的 fresh Windows clone 中 59 个文件均无 CR，
 importer/static 与 Windows 63/52/0/11 通过；最终 tree 的两次 development ZIP 构建一致为 22 entries、
 74,899 bytes、SHA-256 `647e16852f818a84f4b5d4872a876d411cdbdfa7671f07b7614f35f12aae5e7d`，
-bootstrap 仍以 zero hash fail closed。当前等待 M2 checkpoint 和 M3 独立授权；不得提前 push、
-Release、cutover、进入 M3/M4 或 Phase 4。若后续实际依赖图与本文不同，先暂停并回到 Discovery。
+bootstrap 仍以 zero hash fail closed。该段在 M2 关闭时要求等待 checkpoint 和 M3 独立授权；后续
+M3 Cloud equivalence 与 M4 repository cutover 已按独立 gate 完成。本文仍不构成 Release 或产品
+Phase 4 授权；若未来实际依赖图与本文不同，先暂停并回到新的 Discovery。

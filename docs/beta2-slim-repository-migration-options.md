@@ -1,9 +1,20 @@
 # beta.2 精简仓库迁移探路方案
 
-> 状态：`M1 COMPLETE / M2 COMPLETE / M3 COMPLETE / M4 DISCOVERY COMPLETE / M4-A AUTHORIZATION REQUIRED`
+> 状态：`M1–M4 COMPLETE / ARCHIVED MIGRATION DESIGN`
 > 基线：已发布并验收的 `v0.3.0-beta.2`  
-> 当前执行权威：successor 仓库 `keeptoy/pwf-codex-cloud-hooks-next` 的 `docs/beta3-dev-m4-cutover-plan.md` 与活动 planning；本文保留迁移路线、归档边界和回滚背景，不复制 M4 可执行脚本。
-> 本文不授权 push、Cloud 执行、live `/opt/codex` 安装、创建 public `main`、Release、cutover、修改 production behavior，也不授权进入产品 Phase 4。
+> 当前源码权威：successor 仓库 [`keeptoy/pwf-codex-cloud-hooks-next`](https://github.com/keeptoy/pwf-codex-cloud-hooks-next) 的 `main`；本仓库继续承载 published/accepted beta.2 rollback 与完整历史证据。
+> 时态说明：本文主体是迁移前的路线比较和阶段合同，其中“待授权”“不授权下一 gate”等句子描述当时边界，不是当前 Next Step。实际 M4 结果见 successor 的 `docs/beta3-dev-m4-cutover-plan.md`；产品 Phase 4 仍未授权。
+
+## 0. 当前结论
+
+- M1 exact mirror、M2 slim transformation、M3 Cloud equivalence 和 M4 repository cutover
+  均已完成；终止标记为 `M4_REPOSITORY_CUTOVER=PASS`。
+- M4-C 接受点是 successor
+  `main@0b4bd7d4b688f60bcd72a03ae5ebe6db129e5151`；后续治理提交不会重定义该验收 SHA。
+- Cloud-tested development `39795283cd65f84547651d7bec816191fb5bfedf` 与 M1 audit
+  `bbad3703fe2bc3f34bda6ec350f8cfea6f7a159b` 保持为独立证据引用。
+- 本文现在只回答“为什么选择这条迁移路线、哪些内容留在旧仓库、如何回滚”；当前源码路线看
+  successor `ROADMAP.md`，当前执行授权看 successor 活动 planning。
 
 ## 1. 目标与非目标
 
@@ -42,9 +53,9 @@
 
 beta.2 资产继续由当前仓库和原 Release 页面保存。新仓库只能引用它们作为来源/回滚证据；只要新仓库的打包输入发生任何变化，就不得把新产物继续叫作同一 beta.2 字节。
 
-## 3. `new-space/` 的正确定位
+## 3. `new-space/` 的迁移期定位（历史设计）
 
-`new-space/pwf-codex-cloud-hooks/` 目前为空，适合作为本机的短期迁移演练目录：路径直观，便于在同一工作区比较旧树和候选树，也没有遗留内容需要清理。
+Discovery 当时的 `new-space/pwf-codex-cloud-hooks/` 为空，适合作为本机短期迁移演练目录：路径直观，便于在同一工作区比较旧树和候选树，也没有遗留内容需要清理。实际 successor 后来在独立 Git 仓库身份下完成 M1～M4；其本地父目录名不属于产品契约。
 
 它不适合成为长期的嵌套 Git 仓库：
 
@@ -206,11 +217,11 @@ M3 Discovery 已在 successor 中完成并提交。独立协议 `docs/beta3-dev-
 - Phase 4 仍需独立 Discovery Gate，不能因为仓库迁移完成而自动开始。
 
 M4 Discovery 已完成，冻结为四轮：Discovery、M4-A successor authority、M4-B archive/provenance
-handoff、M4-C cutover/rollback acceptance。只读远端证据确认 successor 已公开，当前 default 是
-`migration/slim-beta3-dev`，没有 `main`、tag、Release 或 ruleset。选择路线是从经审计本地治理后代
-non-force 新建 `main`，核对 SHA 后切 default，同时保留 development/audit evidence refs；不 rename
-仓库或已验收分支。旧仓库保持 public/unarchived 并继续承载 beta.2 assets。M4 与 beta.3 Release
-解耦，当前只等待 Discovery checkpoint 和 M4-A 单独授权。
+handoff、M4-C cutover/rollback acceptance。实际执行按选定路线从经审计治理后代 non-force 新建
+`main`、核对 SHA 后切换 default，并保留 development/audit evidence refs；没有 rename 仓库或
+已验收分支。M4-C 在 Fresh Cloud/Linux 中通过 source boundary、Linux 63/63、确定性 development
+ZIP、独立 beta.2 rollback、handoff、remote recheck、零 live mutation 和 clean workspace 验收。
+旧仓库保持 public/unarchived 并继续承载 beta.2 assets；M4 与 beta.3 Release 仍然解耦。
 
 ## 9. 仓库身份与版本策略
 
@@ -249,9 +260,9 @@ non-force 新建 `main`，核对 SHA 后切 default，同时保留 development/a
 - 为保持测试绿色必须弱化 production 安全断言；
 - 新仓库需要修改 production behavior 才能通过所谓“迁移等价”验收。
 
-## 11. 当前判断与实施前待决策
+## 11. 历史判断与已冻结选择
 
-当前判断为 `CONDITIONAL_GO`：可以进入一个独立的迁移项目，但不能把空目录直接视为已确定的新仓库，也不能以 beta.2 ZIP 作为唯一源码种子。
+Discovery 当时的判断为 `CONDITIONAL_GO`：可以进入一个独立的迁移项目，但不能把空目录直接视为已确定的新仓库，也不能以 beta.2 ZIP 作为唯一源码种子。后续 M1～M4 已逐门满足这些条件。
 
 推荐默认选择：
 
@@ -264,11 +275,18 @@ non-force 新建 `main`，核对 SHA 后切 default，同时保留 development/a
 
 维护者已经冻结以下选择：
 
-- 迁移期 GitHub slug 使用 `keeptoy/pwf-codex-cloud-hooks-next`；候选 remote 与只读 `audit/beta2-exact` 已建立，public `main` 仍须等 M3 完整关闭并在 M4 另行授权；
+- 迁移期及当前 GitHub slug 使用 `keeptoy/pwf-codex-cloud-hooks-next`；只读
+  `audit/beta2-exact`、Cloud-tested development ref 与 public default `main` 已按 M1～M4 合同建立；
 - 当前 successor 工作树位于 `new-space/pwf-codex-cloud-hooks-next-slim`；路径只是本地迁移载体，仓库内权威文件不依赖该父目录名；
 - beta.2 完整镜像保留为本地/只读 audit ref，不进入未来公开 `main`；
 - 第一阶段沿用现有 product/schema/installer identity，不把仓库精简与产品改名合并；
 - 精简后的开发版本暂定 `0.3.0-beta.3-dev`；
 - M2 新增 `MAINTAINER_HANDOFF.md`，作为新人维护交割入口。
 
-M1、M2、M3 和 M4 Discovery 已完成。M2 的精确 59-path allowlist、prototype 覆盖、文档权威、beta.3-dev、secondary orphan worktree 和停止/回滚合同见 `docs/beta2-slim-repository-m2-transformation-plan.md`；M3 证据由 successor 的 `docs/beta3-dev-m3-cloud-equivalence.md` 维护，当前 M4 权威为 successor 的 `docs/beta3-dev-m4-cutover-plan.md` 与活动 planning。远端 development branch 保持在已验收 HEAD `39795283cd65f84547651d7bec816191fb5bfedf`，本地 M3 治理闭环为 `d93087632ef0e77659cd65e87e316fa6da38b939`。远端 `main`、default/protection 变更、旧仓库导航、Release、cutover、production behavior 和产品 Phase 4 均未获权；下一步是 checkpoint 后等待 M4-A 单独授权。
+M1～M4 已完成。M2 的精确 59-path allowlist、prototype 覆盖、文档权威、beta.3-dev、secondary
+orphan worktree 和停止/回滚合同见 `docs/beta2-slim-repository-m2-transformation-plan.md`；M3 证据由
+successor 的 `docs/beta3-dev-m3-cloud-equivalence.md` 维护，M4 证据由 successor 的
+`docs/beta3-dev-m4-cutover-plan.md` 维护。远端 development branch 保持在已验收 HEAD
+`39795283cd65f84547651d7bec816191fb5bfedf`，M4-C 接受点为 `0b4bd7d4...`，当前 successor
+`main` 是源码权威。旧仓库继续是 beta.2 rollback/history 权威；Release、production behavior 与
+产品 Phase 4 没有因迁移完成而获得授权。

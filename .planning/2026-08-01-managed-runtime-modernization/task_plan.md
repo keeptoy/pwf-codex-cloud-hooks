@@ -29,10 +29,10 @@ Deliver v0.3.0 by replacing the long-term parallel planning implementation and m
 11. Every new Phase begins with a Discovery Gate. Any material architecture, contract, trust, release, rollback, security, or Cloud-evidence divergence pauses implementation and adds either a formal exploration round or an explicit sub-gate before production changes continue.
 
 ## Next Step
-Publish the M4-C dual-repository governance closure checkpoint, verify both remotes by exact SHA, and stop. This repository remains the historical-evidence and immutable beta.2 rollback authority with branch `0.3.0-beta.2`, public/unarchived state, tags, Releases, and asset bytes preserved. Do not publish a new Release/tag, modify product behavior, rename/archive either repository, or enter Product Phase 4. Product Phase 4 requires a separate maintainer authorization for its Discovery Gate.
+Stop. Post-M4 documentation governance D1/D2/D3 is complete. The only possible next programme action is a separately authorized Product Phase 4 Discovery Gate in the successor repository. Do not publish a new Release/tag, modify product behavior, rename/archive either repository, or infer Product Phase 4 authorization from this documentation cleanup.
 
 ## Current Phase
-Phase 3, beta.2, and repository migration M1 through M4 are complete. M4-C accepted successor source checkpoint `main@0b4bd7d4b688f60bcd72a03ae5ebe6db129e5151`; Cloud-tested development and M1 audit refs remain unchanged and protected by active deletion/non-fast-forward rulesets. This repository is the historical-evidence and immutable beta.2 rollback authority, with its public navigation pointing to successor main. The migration closure governance commit may move successor main beyond the accepted checkpoint without redefining that accepted SHA. Release/tag, product changes, and Product Phase 4 remain unauthorized.
+Repository migration M1 through M4 and post-M4 documentation governance D1/D2/D3 are complete. M4-C accepted successor source checkpoint `main@0b4bd7d4b688f60bcd72a03ae5ebe6db129e5151`; later governance descendants do not redefine it. This repository is the historical-evidence and immutable beta.2 rollback authority. No product gate is active; Release/tag, product changes, repository rename/archive/delete, and Product Phase 4 remain unauthorized.
 
 ## Phases
 

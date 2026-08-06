@@ -1050,3 +1050,37 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
   It does not publish beta.3-dev or authorize a Release, tag, product change, archive/
   rename/delete operation, or Product Phase 4. Successor `main` is now the source
   authority; this repository remains the published beta.2 rollback/history authority.
+
+## Post-M4 documentation-governance Discovery
+
+- Documentation must be classified by temporal role before editing. Historical
+  acceptance scripts, failure matrices, and gate-local statements such as “M3 does
+  not authorize M4” remain valid evidence of the boundary at that time. Only headings,
+  banners, summaries, navigation, and active Next Steps that claim to describe the
+  present must move to M1-through-M4 complete.
+- Archive `docs/beta2-slim-repository-migration-options.md` currently mixes a useful
+  historical route comparison with stale present-tense M4-A authorization wording.
+  It needs an archive/evidence banner, a complete M1–M4 summary, and a current source/
+  rollback handoff, without rewriting the original option analysis.
+- Archive `docs/beta2-slim-repository-m2-transformation-plan.md` is a frozen M2 design,
+  but its top status and closing “wait for M3” text are ambiguous when read today.
+  Prefer an explicit historical-status note and completion pointer over mechanical
+  replacement inside its executable historical instructions.
+- Successor `docs/beta3-dev-m3-cloud-equivalence.md` has the same issue at the M3/M4
+  boundary: its exact M3 runbook remains immutable evidence, while its top-level current
+  status should point to completed M4 and current successor authority.
+- The archive and successor activity plans both retained the just-completed “publish
+  M4-C closure” action. The maintainer has now authorized a documentation-only D1/D2/D3
+  governance gate, which must remain separate from Product Phase 4 Discovery.
+- D1 scope is now bounded. `PROJECT_UNDERSTANDING.md` remains structurally correct:
+  its dated Phase 1–3/beta.2 snapshot and Phase 4 open questions are architecture
+  context, not migration execution state. `README.md`, the M1 acceptance runbook,
+  AGENTS, and the stable portions of `work_plan.md` also remain valid.
+- D1 should edit the migration-options status/current-authority/M4/final-summary blocks,
+  add a historical-design completion banner to the M2 plan, and replace the stale
+  `work_plan.md` handoff action. It should not rewrite M1’s “M2 required separate
+  authorization” closing sentence because that is the accepted gate-local result.
+- D1/D2/D3 confirm a durable governance rule: historical protocols retain their
+  contemporary stop conditions, while a small current-status wrapper carries later
+  outcomes. This removes ambiguity without turning accepted runbooks into mutable
+  programme dashboards.

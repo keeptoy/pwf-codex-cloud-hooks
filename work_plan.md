@@ -199,9 +199,9 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
   `main@0b4bd7d4b688f60bcd72a03ae5ebe6db129e5151`；Cloud-tested development
   `39795283cd65f84547651d7bec816191fb5bfedf` 与 audit `bbad3703...` 未移动，两个
   active integrity ruleset 继续限制 deletion/non-fast-forward；
-- 下一步：发布 M4-C 双仓库治理闭环 checkpoint 后停止。本仓库继续保持
-  `0.3.0-beta.2`、public/unarchived、tags/Releases/assets 不变；只有维护者明确授权后，
-  才能在 successor 开启 Product Phase 4 Discovery Gate；
+- 当前治理：M4-C 双仓库闭环已发布并完成远端读回；文档-only D1/D2/D3 时态、导航与跨仓库
+  回归已完成。本仓库继续保持 `0.3.0-beta.2`、public/unarchived、tags/Releases/assets 不变；当前
+  停止，只有维护者明确授权才能在 successor 开启 Product Phase 4 Discovery Gate；
 - 当前禁止：在 Discovery Gate 关闭前实施 Phase 4 production behavior、扩展 trusted graph 或激活 opt-in 模式；
 - 当前回滚：published / accepted beta.2；beta.1 与 alpha.2 为历史 fallback。
 
