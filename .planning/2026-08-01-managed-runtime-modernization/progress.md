@@ -1111,3 +1111,14 @@
   Nothing was pushed, and no public main, Release, cutover, M4, product behavior,
   or Product Phase 4 action occurred. M3 is complete and awaits explicit M4
   Discovery authorization.
+- Maintainer authorized M4 Discovery. Successor froze `docs/beta3-dev-m4-cutover-plan.md`,
+  compared rename/move/create-main routes, selected non-force new main plus explicit
+  default switch, and preserved old beta.2 as independent rollback.
+- M4 Discovery local verification PASS: exact 61 paths, focused 4/4, full Windows
+  63/52/0/11, strict 13-document checks, importer/static, and two exact 22-entry /
+  75,323-byte ZIPs at accepted SHA-256 `82770964...`. No push, remote setting,
+  archive README, Release, live Cloud, production, or Product Phase 4 change occurred.
+- Final handoff boundary is six staged archive governance documents with README
+  deliberately excluded until M4-B. Successor reports an exact eight-path staged
+  Discovery candidate, 61 tracked paths, zero Release overlap, and no unstaged or
+  untracked path. Both repositories stop before commit/push and M4-A authorization.

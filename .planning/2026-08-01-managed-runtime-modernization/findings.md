@@ -1012,3 +1012,11 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
   production/tests/contracts/bootstrap/Release inputs, and accepted remote HEAD
   remain unchanged. M3 is therefore complete; M4 still requires a separate
   Discovery authorization.
+- M4 Discovery is now complete in the successor. Current GitHub facts are public/
+  unarchived successor, default development branch, only development/audit refs,
+  and no main/tag/Release/ruleset. The selected route creates exact `main` from an
+  audited governance descendant, then switches default while preserving both
+  evidence refs. Old beta.2 remains public/unarchived rollback authority.
+- M4 is split into Discovery, M4-A authority, M4-B archive/provenance handoff, and
+  M4-C no-live cutover/rollback acceptance. It explicitly does not publish beta.3;
+  product Release and Product Phase 4 remain separate authorization domains.

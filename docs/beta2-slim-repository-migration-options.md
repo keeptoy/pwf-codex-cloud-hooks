@@ -1,8 +1,8 @@
 # beta.2 精简仓库迁移探路方案
 
-> 状态：`M1 COMPLETE / M2 COMPLETE / M3 COMPLETE / M4 DISCOVERY AUTHORIZATION REQUIRED`
+> 状态：`M1 COMPLETE / M2 COMPLETE / M3 COMPLETE / M4 DISCOVERY COMPLETE / M4-A AUTHORIZATION REQUIRED`
 > 基线：已发布并验收的 `v0.3.0-beta.2`  
-> 当前执行权威：successor 仓库 `keeptoy/pwf-codex-cloud-hooks-next` 的 `docs/beta3-dev-m3-cloud-equivalence.md` 与活动 planning；本文保留迁移路线、归档边界和回滚背景，不复制 M3 可执行脚本。
+> 当前执行权威：successor 仓库 `keeptoy/pwf-codex-cloud-hooks-next` 的 `docs/beta3-dev-m4-cutover-plan.md` 与活动 planning；本文保留迁移路线、归档边界和回滚背景，不复制 M4 可执行脚本。
 > 本文不授权 push、Cloud 执行、live `/opt/codex` 安装、创建 public `main`、Release、cutover、修改 production behavior，也不授权进入产品 Phase 4。
 
 ## 1. 目标与非目标
@@ -205,6 +205,13 @@ M3 Discovery 已在 successor 中完成并提交。独立协议 `docs/beta3-dev-
 - 新仓库的 `BASELINE_PROVENANCE.md` 反向指向当前仓库的冻结 commit/tag/asset；
 - Phase 4 仍需独立 Discovery Gate，不能因为仓库迁移完成而自动开始。
 
+M4 Discovery 已完成，冻结为四轮：Discovery、M4-A successor authority、M4-B archive/provenance
+handoff、M4-C cutover/rollback acceptance。只读远端证据确认 successor 已公开，当前 default 是
+`migration/slim-beta3-dev`，没有 `main`、tag、Release 或 ruleset。选择路线是从经审计本地治理后代
+non-force 新建 `main`，核对 SHA 后切 default，同时保留 development/audit evidence refs；不 rename
+仓库或已验收分支。旧仓库保持 public/unarchived 并继续承载 beta.2 assets。M4 与 beta.3 Release
+解耦，当前只等待 Discovery checkpoint 和 M4-A 单独授权。
+
 ## 9. 仓库身份与版本策略
 
 仓库名不是纯文档字符串。当前 identity 出现在 npm/bin 名称、installer owner/lock、runtime snapshot 前缀、ZIP root、bootstrap URL、schema `$id`、overlay owner、测试和文档中。改名会触及契约、安装升级和 Release，不应和“删除历史文档”混成一次机械替换。
@@ -264,4 +271,4 @@ M3 Discovery 已在 successor 中完成并提交。独立协议 `docs/beta3-dev-
 - 精简后的开发版本暂定 `0.3.0-beta.3-dev`；
 - M2 新增 `MAINTAINER_HANDOFF.md`，作为新人维护交割入口。
 
-M1、M2 和 M3 已完成。M2 的精确 59-path allowlist、prototype 覆盖、文档权威、beta.3-dev、secondary orphan worktree 和停止/回滚合同见 `docs/beta2-slim-repository-m2-transformation-plan.md`；M3 的完整执行证据只由 successor 的 `docs/beta3-dev-m3-cloud-equivalence.md` 与活动 planning 维护。远端 development branch 保持在已验收 HEAD `39795283cd65f84547651d7bec816191fb5bfedf`，本地治理闭环为 `d93087632ef0e77659cd65e87e316fa6da38b939`，尚未 push。public `main`、M4、Release、cutover、production behavior 和产品 Phase 4 均未获权；下一步只能在维护者单独授权后打开 M4 Discovery。
+M1、M2、M3 和 M4 Discovery 已完成。M2 的精确 59-path allowlist、prototype 覆盖、文档权威、beta.3-dev、secondary orphan worktree 和停止/回滚合同见 `docs/beta2-slim-repository-m2-transformation-plan.md`；M3 证据由 successor 的 `docs/beta3-dev-m3-cloud-equivalence.md` 维护，当前 M4 权威为 successor 的 `docs/beta3-dev-m4-cutover-plan.md` 与活动 planning。远端 development branch 保持在已验收 HEAD `39795283cd65f84547651d7bec816191fb5bfedf`，本地 M3 治理闭环为 `d93087632ef0e77659cd65e87e316fa6da38b939`。远端 `main`、default/protection 变更、旧仓库导航、Release、cutover、production behavior 和产品 Phase 4 均未获权；下一步是 checkpoint 后等待 M4-A 单独授权。
