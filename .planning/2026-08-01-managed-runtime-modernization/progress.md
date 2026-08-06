@@ -1027,3 +1027,87 @@
 - Final closure checks pass in both repositories: UTF-8/fences/diff hygiene and
   Release allowlist overlap 0; successor architecture/repository focused tests
   4/4. Remote `migration/slim-beta3-dev` remains exactly on accepted M3-A HEAD.
+
+## Session: 2026-08-06 — M3-B disposable setup opening
+
+- Maintainer confirmed local checkpoints in both repositories and explicitly
+  authorized M3-B; the successor evidence checkpoint remains unpushed.
+- Recovered clean archive HEAD `4962984cb4dd7f88ff2811e0330e0829948e0a4e`
+  and clean successor governance HEAD `cc6c38000aa2d024a4d9eed2530ad09fdf9ef2db`.
+  A read-only remote query confirms `migration/slim-beta3-dev` still resolves to
+  exact accepted M3-A HEAD `39795283cd65f84547651d7bec816191fb5bfedf`.
+- The first sandboxed remote query failed with a Git-for-Windows signal-pipe
+  permission error; an approved read-only retry succeeded. No external state was
+  changed by either query.
+- Synchronized archive/successor authority to M3-B in progress at disposable
+  setup only. M3-C, public `main`, Release, cutover, product changes, M4, and
+  Product Phase 4 remain outside authorization.
+- A successor focused test launch hit the known Windows sandbox `spawn EPERM`
+  before assertions. Its approved identical outside-sandbox rerun passed all
+  three repository-boundary cases.
+- Maintainer returned M3-B disposable setup PASS from accepted HEAD
+  `39795283cd65f84547651d7bec816191fb5bfedf`. Two ZIP build/check reports agree on
+  22 entries / 75,323 bytes / SHA-256
+  `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`.
+- Setup installed pristine upstream PWF v3.8.2 and the owned managed runtime,
+  returned healthy install/doctor with empty errors/blockers, validated Managed
+  TOML/Codex Hook feature, passed both adapter probes, and emitted all three M3-B
+  terminal markers. It is now closed and will not be resumed as the black-box task.
+- The sole next step is a completely new task's Fresh no-tools first reply. M3-C,
+  M4, Release, public `main`, cutover, product changes, and Product Phase 4 remain
+  unauthorized.
+- Maintainer clarified that Cloud creates the new container, clones the GitHub
+  repository, runs the saved repository setup, then starts Runtime/first prompt.
+  The runbook now states this explicitly; an old-container manual install is not
+  inherited Fresh evidence.
+- The new task's first no-tools reply observed SessionStart source startup and
+  UserPromptSubmit canaries plus all auxiliary planning sections. M3-B Fresh is
+  PASS; the next sequential step is controlled apply_patch baseline creation in
+  that same task, not Resume or M3-C.
+- The controlled baseline step returned the exact required acknowledgment
+  `PWF_BETA3DEV_M3_BASELINE_CREATED`. The next step is the immediate no-tools
+  canonical UserPrompt check; later Resume evidence must still prove the real
+  structured planning update.
+- The canonical no-tools reply then observed all six required fields: canary,
+  C7F4 marker, ACTIVE PLAN, plan-data framing, recent progress, and overall context.
+  M3-B baseline/UserPrompt is PASS; the next sequential action is the long wrapper
+  and exact acknowledgment before leaving/reopening the task.
+- The long wrapper returned only `PWF_BETA3DEV_M3_UNSYNCED_ACKNOWLEDGED` and did not
+  echo its C7F4 tail sentinel. Resume is now the sole next step after reopening the
+  same task; doctor remains gated on Resume PASS.
+- A combined documentation patch failed closed on an exact-context mismatch and
+  made no partial edit. Exact paragraph inspection followed by smaller patches
+  resolved the governance update without changing product or Release inputs.
+- Resume reports source resume, previous session, Runtime codex, planning update at
+  message #36, 16 unsynced messages, bounded truncation, exact tail, correct order,
+  and restored canonical plan/progress. M3-B Resume is PASS.
+- Two further exact-context mismatches in multi-file governance patches failed
+  atomically; bounded current-text reads and per-file patches resolved them. No
+  product/Release byte changed. Only post-resume doctor remains before M3-B closure.
+- Final M3-B doctor returns exit 0, healthy true, repairable false, empty arrays,
+  beta.3-dev installer version, exact 11-file inventory, and zero snapshot residue.
+  M3-B is complete.
+- Two additional closure-status patch attempts failed atomically on stale expected
+  line wrapping; no partial edit occurred. Per-file exact patches synchronized both
+  repositories. The task stops before M3-C authorization, commit, or push.
+- Maintainer explicitly authorized M3-C while confirming both repositories remain
+  uncommitted after M3-B. Opened governance-only closure audit; successor may receive
+  one local closure commit only after root/path/mode/remote/Release checks pass.
+- Preliminary tested-commit-to-worktree diff contains seven existing governance
+  paths and no new file. No commit, push, public main, Release, cutover, M4, or
+  Product Phase 4 action has occurred yet.
+- Formal M3-C audit passes: seven allowed governance paths only, immutable M2
+  root/tree, 60 paths, four executable modes, audit oracle, remote tested HEAD, and
+  zero Release overlap. The read-only remote query was slow but successful and did
+  not change external state. At that audit checkpoint, staged/document/test checks
+  still remained before the closure commit.
+- M3-C precommit seal then passed importer/static checks, two exact deterministic
+  22-entry ZIP builds at SHA-256
+  `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`, strict
+  UTF-8/fence validation for maintained Markdown, `git diff --check`, and focused
+  repository-boundary tests 4/4. The exact seven governance paths were staged and
+  committed locally as successor commit
+  `d93087632ef0e77659cd65e87e316fa6da38b939`; the successor worktree is clean.
+  Nothing was pushed, and no public main, Release, cutover, M4, product behavior,
+  or Product Phase 4 action occurred. M3 is complete and awaits explicit M4
+  Discovery authorization.

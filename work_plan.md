@@ -191,8 +191,8 @@ process-group、alpha.2 隔离升级、doctor、11/21、延迟/输出预算、�
 
 - 当前执行权威：`.planning/2026-08-01-managed-runtime-modernization/task_plan.md`；
 - 当前 Phase：Phase 3 已关闭；Phase 4 尚未开始；
-- 独立仓库迁移：beta.2 slim-repository M1/M2 COMPLETE，M3 Discovery COMPLETE，M3-A no-live Cloud seal PASS；接受 HEAD 为 `39795283cd65f84547651d7bec816191fb5bfedf`，development ZIP SHA-256 为 `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`，M1 audit oracle 仍 clean 且未移动；
-- 下一步：本地 checkpoint M3-A 证据但保持远端 development branch 在已验收 HEAD，等待维护者单独授权 M3-B disposable setup/Fresh/Resume；M3-C、M4 与 Phase 4 仍需各自门槛；
+- 独立仓库迁移：beta.2 slim-repository M1、M2 和 M3 全部 COMPLETE；接受 Cloud 测试 HEAD 为 `39795283cd65f84547651d7bec816191fb5bfedf`，development ZIP SHA-256 为 `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`；M3-B Fresh/Resume/doctor 全部 PASS，M3-C 本地治理闭环提交为 `d93087632ef0e77659cd65e87e316fa6da38b939`，M1 audit oracle 仍 clean 且远端测试 HEAD 未移动；
+- 下一步：等待维护者单独授权 successor 的 M4 Discovery；closure descendant 不 push，不创建 public `main`，不发布、不 cutover，也不进入产品 Phase 4；
 - 当前禁止：在 Discovery Gate 关闭前实施 Phase 4 production behavior、扩展 trusted graph 或激活 opt-in 模式；
 - 当前回滚：published / accepted beta.2；beta.1 与 alpha.2 为历史 fallback。
 

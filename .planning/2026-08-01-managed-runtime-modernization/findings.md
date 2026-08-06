@@ -982,3 +982,33 @@ This sequence keeps the original roadmap's safety posture but moves the Cloud-pr
   `82770964b938b14eea74394a4e99957e0b3f63e0a4477fbea49fd3730a31e508`.
   Successor evidence updates should be checkpointed locally but not pushed before
   M3-B, because the remote branch itself is the exact accepted checkout input.
+- M3-B setup rebuilt that exact 22-entry / 75,323-byte development ZIP and
+  installed it from a process-only `file://` override. Pristine Skill, healthy
+  install/doctor, managed requirements/feature checks, and both adapter protocol
+  probes PASS. Adapter probe output is not Fresh automatic-injection evidence;
+  Fresh still requires a completely new task and no-tools first reply.
+- Cloud creates a new container, clones the GitHub repository, runs its saved
+  repository setup, then starts Runtime and the first conversation. The accepted
+  Fresh task followed that order and observed both startup/UserPrompt canaries plus
+  all auxiliary planning sections; a manual install in an old container would not
+  have been equivalent evidence.
+- The baseline returned its exact acknowledgment and the immediate canonical
+  UserPrompt check observed all six canary/marker/framing/progress/context fields.
+  This proves canonical scoped injection; Resume must still expose structured
+  `patch_apply_end` to prove the real planning update and preserve unsynced tail.
+- Resume then recognized `task_plan.md` message #36 as the last planning update,
+  recovered 16 unsynced messages with bounded truncation and exact C7F4 tail, and
+  restored the same canonical plan after catch-up. This closes the structured
+  update/tail/order/canonical gate; only post-resume installed-state checks remain.
+- Post-resume doctor also passes with healthy true, repairable false, empty arrays,
+  beta.3-dev version, exact 11-file actual/declared inventory, and zero snapshots.
+  At the M3-B boundary, M3-C remained a separate gate because its evidence closure
+  and governance commit still had to prove no production/test/Release-input drift.
+- M3-C closes locally at successor commit
+  `d93087632ef0e77659cd65e87e316fa6da38b939`. From accepted Cloud-tested HEAD
+  `39795283cd65f84547651d7bec816191fb5bfedf` through that commit, the only two
+  descendants change exactly seven existing governance files. The immutable M2
+  root/tree, 60-path inventory, four executable runtime modes, audit oracle,
+  production/tests/contracts/bootstrap/Release inputs, and accepted remote HEAD
+  remain unchanged. M3 is therefore complete; M4 still requires a separate
+  Discovery authorization.
